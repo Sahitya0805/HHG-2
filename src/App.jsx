@@ -148,13 +148,15 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillText('VERIFIED BUILDER', 82, 24);
     ctx.restore();
 
-    const nameY = boxY + boxH + 65;
+    // Bring Name down with generous 85px spacing below photo box
+    const nameY = boxY + boxH + 85;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 60px serif';
     ctx.fillText((data.name || 'YOUR NAME HERE').toUpperCase(), cardX + cardW / 2, nameY);
 
-    const roleY = nameY + 52;
+    // Bring Role Pill down with generous 68px spacing below Name
+    const roleY = nameY + 68;
     const roleText = (data.role || 'FULL STACK DEVELOPER').toUpperCase();
     ctx.font = 'bold 26px monospace';
     const roleMetrics = ctx.measureText(roleText);
@@ -170,7 +172,8 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FFD400';
     ctx.fillText(roleText, cardX + cardW / 2, roleY);
 
-    const titleY = roleY + 90;
+    // Bring Builder Class Box down with generous 110px spacing below Role
+    const titleY = roleY + 110;
     const titleText = data.title || '🌴 CODE SURFER';
     const titleW = 760;
     const titleX = cardX + (cardW - titleW) / 2;
