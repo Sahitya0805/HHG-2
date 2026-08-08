@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color-scheme: dark;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #005A35;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FFD400;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF087C;
+}
+
+/* Tropical background pattern */
+.bg-goa-pattern {
+  background-color: #08733F;
+  background-image: radial-gradient(#0b9352 1.5px, transparent 1.5px), radial-gradient(#0b9352 1.5px, #08733F 1.5px);
+  background-size: 60px 60px;
+  background-position: 0 0, 30px 30px;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 249, 231, 0.95);
+  backdrop-filter: blur(12px);
+  border: 2px solid #000000;
+}
+
+.glass-panel-dark {
+  background: rgba(0, 90, 53, 0.85);
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 212, 0, 0.3);
+}
+
+/* Starburst graphic button styling */
+.btn-starburst {
+  position: relative;
+  background: #FFD400;
+  color: #000000;
+  font-weight: 800;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-starburst:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+  background: #FFE14D;
+}
+
+.btn-starburst:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.btn-pink {
+  background: #FF087C;
+  color: #FFFFFF;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-pink:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+  background: #FF2B90;
+}
+
+.btn-pink:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
