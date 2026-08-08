@@ -14,7 +14,6 @@ const TITLES = [
   '⚡ Async Anjuna Hacker',
 ];
 
-// Canvas Drawing Helper
 function drawRoundedRect(ctx, x, y, width, height, radius, fill = true, stroke = true) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -36,9 +35,6 @@ function renderCanvas(canvas, format, data, photoImg) {
   if (!ctx) return;
 
   if (format === 'id_card') {
-    // ----------------------------------------
-    // BUILDER ID CARD FORMAT (1200 x 1500)
-    // ----------------------------------------
     canvas.width = 1200;
     canvas.height = 1500;
 
@@ -53,7 +49,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillRect(0, 0, 1200, 1500);
 
     ctx.fillStyle = '#FFD400';
-    ctx.font = 'bold 30px monospace';
+    ctx.font = 'bold 34px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('2:47 PM STUDIO', 80, 75);
 
@@ -76,28 +72,28 @@ function renderCanvas(canvas, format, data, photoImg) {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#005A35';
-    ctx.font = '900 76px sans-serif';
-    ctx.fillText('HACKER HOUSE', cardX + cardW / 2, cardY + 115);
+    ctx.font = '900 88px sans-serif';
+    ctx.fillText('HACKER HOUSE', cardX + cardW / 2, cardY + 120);
 
     ctx.save();
-    ctx.translate(cardX + cardW / 2 + 180, cardY + 70);
+    ctx.translate(cardX + cardW / 2 + 210, cardY + 70);
     ctx.rotate((-8 * Math.PI) / 180);
     ctx.fillStyle = '#FF087C';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 4;
-    drawRoundedRect(ctx, -75, -28, 150, 56, 16, true, true);
+    drawRoundedRect(ctx, -85, -30, 170, 60, 18, true, true);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 34px sans-serif';
-    ctx.fillText('गोवा 🌴', 0, 10);
+    ctx.font = 'bold 38px sans-serif';
+    ctx.fillText('गोवा 🌴', 0, 12);
     ctx.restore();
 
     ctx.fillStyle = '#4B5563';
-    ctx.font = 'bold 22px monospace';
-    ctx.fillText('GOA, INDIA  •  BUILDER ID CARD', cardX + cardW / 2, cardY + 155);
+    ctx.font = 'bold 24px monospace';
+    ctx.fillText('GOA, INDIA  •  BUILDER ID CARD', cardX + cardW / 2, cardY + 162);
 
     ctx.beginPath();
-    ctx.moveTo(cardX + 50, cardY + 175);
-    ctx.lineTo(cardX + cardW - 50, cardY + 175);
+    ctx.moveTo(cardX + 50, cardY + 182);
+    ctx.lineTo(cardX + cardW - 50, cardY + 182);
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#000000';
     ctx.stroke();
@@ -133,7 +129,7 @@ function renderCanvas(canvas, format, data, photoImg) {
       ctx.fillStyle = '#E5E7EB';
       ctx.fillRect(boxX + 6, boxY + 6, boxW - 12, boxH - 12);
       ctx.fillStyle = '#9CA3AF';
-      ctx.font = 'bold 36px monospace';
+      ctx.font = 'bold 40px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('YOUR PHOTO', boxX + boxW / 2, boxY + boxH / 2);
     }
@@ -145,52 +141,52 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FFD400';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, 0, 0, 160, 36, 6, true, true);
+    drawRoundedRect(ctx, 0, 0, 175, 40, 6, true, true);
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('VERIFIED BUILDER', 80, 23);
+    ctx.fillText('VERIFIED BUILDER', 87, 26);
     ctx.restore();
 
-    const nameY = boxY + boxH + 65;
+    const nameY = boxY + boxH + 68;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 54px serif';
+    ctx.font = 'bold 64px serif';
     ctx.fillText((data.name || 'YOUR NAME HERE').toUpperCase(), cardX + cardW / 2, nameY);
 
-    const roleY = nameY + 50;
+    const roleY = nameY + 54;
     const roleText = (data.role || 'FULL STACK DEVELOPER').toUpperCase();
-    ctx.font = 'bold 24px monospace';
+    ctx.font = 'bold 28px monospace';
     const roleMetrics = ctx.measureText(roleText);
-    const pillW = roleMetrics.width + 48;
+    const pillW = roleMetrics.width + 56;
     const pillX = cardX + (cardW - pillW) / 2;
 
     ctx.fillStyle = '#000000';
-    drawRoundedRect(ctx, pillX + 4, roleY - 32 + 4, pillW, 46, 12, true, false);
+    drawRoundedRect(ctx, pillX + 4, roleY - 34 + 4, pillW, 52, 14, true, false);
     ctx.fillStyle = '#08733F';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, pillX, roleY - 32, pillW, 46, 12, true, true);
+    drawRoundedRect(ctx, pillX, roleY - 34, pillW, 52, 14, true, true);
     ctx.fillStyle = '#FFD400';
     ctx.fillText(roleText, cardX + cardW / 2, roleY);
 
-    const titleY = roleY + 85;
+    const titleY = roleY + 92;
     const titleText = data.title || '🌴 CODE SURFER';
-    const titleW = 760;
+    const titleW = 780;
     const titleX = cardX + (cardW - titleW) / 2;
 
     ctx.fillStyle = '#000000';
-    drawRoundedRect(ctx, titleX + 6, titleY - 45 + 6, titleW, 85, 16, true, false);
+    drawRoundedRect(ctx, titleX + 6, titleY - 48 + 6, titleW, 92, 18, true, false);
     ctx.fillStyle = '#FFD400';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 4;
-    drawRoundedRect(ctx, titleX, titleY - 45, titleW, 85, 16, true, true);
+    drawRoundedRect(ctx, titleX, titleY - 48, titleW, 92, 18, true, true);
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 16px monospace';
-    ctx.fillText('BUILDER CLASS', cardX + cardW / 2, titleY - 22);
-    ctx.font = '800 36px sans-serif';
-    ctx.fillText(`"${titleText}"`, cardX + cardW / 2, titleY + 20);
+    ctx.font = 'bold 18px monospace';
+    ctx.fillText('BUILDER CLASS', cardX + cardW / 2, titleY - 24);
+    ctx.font = '800 44px sans-serif';
+    ctx.fillText(`"${titleText}"`, cardX + cardW / 2, titleY + 22);
 
     const footerY = cardY + cardH - 85;
 
@@ -207,24 +203,21 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FF087C';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, -110, -22, 220, 44, 12, true, true);
+    drawRoundedRect(ctx, -125, -24, 250, 48, 14, true, true);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = '800 22px sans-serif';
+    ctx.font = '800 24px sans-serif';
     ctx.fillText('#FrameInGoa', 0, 8);
     ctx.restore();
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 20px monospace';
+    ctx.font = 'bold 22px monospace';
     ctx.fillText('OCT 28-31, 2026', cardX + cardW - 60, footerY);
-    ctx.font = 'bold 16px monospace';
+    ctx.font = 'bold 18px monospace';
     ctx.fillStyle = '#4B5563';
-    ctx.fillText('GOA, INDIA', cardX + cardW - 60, footerY + 24);
+    ctx.fillText('GOA, INDIA', cardX + cardW - 60, footerY + 26);
 
   } else {
-    // ----------------------------------------
-    // FORMAT A: PROFILE FRAME OVERLAY (1200 x 1200)
-    // ----------------------------------------
     canvas.width = 1200;
     canvas.height = 1200;
 
@@ -300,7 +293,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.font = 'bold 36px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('#FrameInGoa', 0, -2);
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 22px sans-serif';
     ctx.fillStyle = '#FFD400';
     ctx.fillText('GOA, INDIA  •  28—31 OCT 2026', 0, 28);
     ctx.restore();
@@ -308,11 +301,9 @@ function renderCanvas(canvas, format, data, photoImg) {
 }
 
 export default function App() {
-  // Default Option A (Profile Frame) first
   const [format, setFormat] = useState('pfp_frame');
   const [photoImg, setPhotoImg] = useState(null);
   const [photoLoaded, setPhotoLoaded] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
   const [dataUrl, setDataUrl] = useState(null);
 
@@ -342,7 +333,7 @@ export default function App() {
         const converted = await heic2any({ blob: file, toType: 'image/png' });
         blob = Array.isArray(converted) ? converted[0] : converted;
       } catch (err) {
-        console.warn('HEIC fallback warning:', err);
+        console.warn('HEIC fallback:', err);
       }
     }
 
@@ -388,9 +379,8 @@ export default function App() {
 
   return (
     <div>
-      {/* Header */}
       <header className="app-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div className="brand-badge">🌴</div>
           <div>
             <div className="brand-title">HH GOA 2026</div>
@@ -400,7 +390,6 @@ export default function App() {
         <div className="hashtag-pill">#FrameInGoa</div>
       </header>
 
-      {/* Main Container */}
       <main className="main-container">
         <h1 className="hero-title">
           Build your frame. <span>Show your Goa.</span>
@@ -409,7 +398,6 @@ export default function App() {
           Create your HH Goa 2026 identity card or profile frame in seconds.
         </p>
 
-        {/* Format Switcher: Option A First, Option B Second */}
         <div className="format-switcher">
           <button
             onClick={() => { setFormat('pfp_frame'); setIsGenerated(false); }}
@@ -426,20 +414,19 @@ export default function App() {
           </button>
         </div>
 
-        {/* Generated Result Screen */}
         {isGenerated && dataUrl ? (
           <div className="result-card">
-            <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--hh-yellow)', fontSize: '24px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--hh-yellow)', fontSize: '28px', fontWeight: '800' }}>
               Your Identity Graphic is Ready! 🌴
             </h2>
-            <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--hot-pink)', fontSize: '13px', fontWeight: 'bold', marginTop: '4px' }}>
+            <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--hot-pink)', fontSize: '15px', fontWeight: '800', marginTop: '6px' }}>
               Post on X with mandatory hashtag #FrameInGoa
             </p>
 
             <img src={dataUrl} alt="HH Goa Graphic" />
 
             <div className="actions-row">
-              <button onClick={handleDownload} className="btn-starburst" style={{ width: 'auto', padding: '12px 24px' }}>
+              <button onClick={handleDownload} className="btn-starburst" style={{ width: 'auto', padding: '14px 28px', fontSize: '16px' }}>
                 Download PNG
               </button>
 
@@ -448,27 +435,24 @@ export default function App() {
               </button>
             </div>
 
-            <div style={{ marginTop: '20px' }}>
+            <div style={{ marginTop: '22px' }}>
               <button
                 onClick={() => setIsGenerated(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--cream)', fontFamily: 'var(--font-mono)', textDecoration: 'underline', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--cream)', fontFamily: 'var(--font-mono)', fontSize: '14px', fontWeight: '700', textDecoration: 'underline', cursor: 'pointer' }}
               >
                 ← Edit / Create Another
               </button>
             </div>
           </div>
         ) : (
-          /* Studio Grid */
           <div className="studio-grid">
-            
-            {/* Left Controls */}
             <div>
               <div className="card-panel">
                 <span className="section-label">
                   {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
                 </span>
 
-                <span className="section-label" style={{ marginTop: '12px' }}>1. Upload Photo (JPG, PNG, HEIC)</span>
+                <span className="section-label" style={{ marginTop: '14px' }}>1. Upload Photo (JPG, PNG, HEIC)</span>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -517,7 +501,7 @@ export default function App() {
                         value={data.title}
                         onChange={(e) => setData((prev) => ({ ...prev, title: e.target.value }))}
                       />
-                      <button onClick={handleRandomTitle} className="btn-pink" style={{ padding: '8px 16px', fontSize: '12px' }}>
+                      <button onClick={handleRandomTitle} className="btn-pink" style={{ padding: '10px 18px', fontSize: '14px' }}>
                         ✨ Title
                       </button>
                     </div>
@@ -530,19 +514,16 @@ export default function App() {
               </button>
             </div>
 
-            {/* Right Live Preview */}
             <div className="preview-panel">
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', fontWeight: 'bold', color: 'var(--hh-yellow)', display: 'block', marginBottom: '12px' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: '800', color: 'var(--hh-yellow)', display: 'block', marginBottom: '14px' }}>
                 Live Canvas Preview
               </span>
               <div className="preview-canvas-wrapper">
                 <canvas ref={canvasRef} />
               </div>
             </div>
-
           </div>
         )}
-
       </main>
     </div>
   );
