@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Palmtree, Upload, Download, Share2, Wand2, Sparkles, RefreshCw, Check, Copy } from 'lucide-react';
+import { Palmtree, Upload, Download, Share2, Wand2, Sparkles, RefreshCw, Check, Copy, UserCheck, CreditCard } from 'lucide-react';
 import { FormatType, CardData, renderCanvas } from './utils/canvas';
 import { loadPhotoFile, LoadedPhoto } from './utils/heic';
 
@@ -17,7 +17,8 @@ const TITLES = [
 ];
 
 export const App: React.FC = () => {
-  const [format, setFormat] = useState<FormatType>('id_card');
+  // Set Option A (Profile Frame) as default format first
+  const [format, setFormat] = useState<FormatType>('pfp_frame');
   const [photo, setPhoto] = useState<LoadedPhoto | null>(null);
   const [copied, setCopied] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
@@ -90,7 +91,8 @@ export const App: React.FC = () => {
 
   // Share to X
   const handleShareX = () => {
-    const text = `Just got my HH Goa 2026 Builder Card 🌴💻\n\nReady to build in Goa.\n\n#FrameInGoa #HHGoa26`;
+    const formatLabel = format === 'pfp_frame' ? 'Profile Frame' : 'Builder ID Card';
+    const text = `Just got my HH Goa 2026 ${formatLabel} 🌴💻\n\nReady to build in Goa.\n\n#FrameInGoa #HHGoa26`;
     window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -127,25 +129,37 @@ export const App: React.FC = () => {
 
       {/* Main Studio Container */}
       <main className="max-w-6xl mx-auto px-4 pt-8">
+
+        {/* Hero Headings */}
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-cream tracking-tight mb-2">
+            Build your frame. <span className="text-hh-yellow italic font-serif">Show your Goa.</span>
+          </h1>
+          <p className="font-sans text-sm sm:text-base text-cream/90 font-medium">
+            Create your HH Goa 2026 identity card or profile frame in seconds.
+          </p>
+        </div>
         
-        {/* Format Switcher */}
+        {/* Format Switcher: Option A First, Option B Second */}
         <div className="flex justify-center gap-4 mb-8">
           <button
-            onClick={() => { setFormat('id_card'); setIsGenerated(false); }}
-            className={`px-6 py-3 rounded-xl font-mono text-xs font-bold border-2 border-black shadow-neo transition-all ${
-              format === 'id_card' ? 'bg-hh-yellow text-black' : 'bg-goa-green-dark text-cream'
+            onClick={() => { setFormat('pfp_frame'); setIsGenerated(false); }}
+            className={`px-6 py-3 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 border-black shadow-neo transition-all flex items-center gap-2 ${
+              format === 'pfp_frame' ? 'bg-hot-pink text-white scale-[1.02]' : 'bg-goa-green-dark text-cream hover:bg-goa-green-dark/80'
             }`}
           >
-            🪪 Option B: Builder ID Card
+            <UserCheck className="w-4 h-4" />
+            <span>Option A: Profile Frame</span>
           </button>
 
           <button
-            onClick={() => { setFormat('pfp_frame'); setIsGenerated(false); }}
-            className={`px-6 py-3 rounded-xl font-mono text-xs font-bold border-2 border-black shadow-neo transition-all ${
-              format === 'pfp_frame' ? 'bg-hot-pink text-white' : 'bg-goa-green-dark text-cream'
+            onClick={() => { setFormat('id_card'); setIsGenerated(false); }}
+            className={`px-6 py-3 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 border-black shadow-neo transition-all flex items-center gap-2 ${
+              format === 'id_card' ? 'bg-hh-yellow text-black scale-[1.02]' : 'bg-goa-green-dark text-cream hover:bg-goa-green-dark/80'
             }`}
           >
-            🌴 Option A: Profile Frame
+            <CreditCard className="w-4 h-4" />
+            <span>Option B: Builder ID Card</span>
           </button>
         </div>
 
@@ -182,6 +196,11 @@ export const App: React.FC = () => {
             {/* Left Controls Column */}
             <div className="lg:col-span-6 space-y-6">
               
+              {/* Option Heading Label */}
+              <div className="bg-goa-green-dark/80 p-3 rounded-xl border border-black text-center font-mono text-xs font-bold text-hh-yellow uppercase">
+                {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
+              </div>
+
               {/* Photo Upload Box */}
               <div className="bg-cream-card text-black p-6 rounded-2xl border-2 border-black shadow-neo">
                 <label className="block font-mono text-xs font-bold uppercase text-goa-green mb-3">
@@ -262,7 +281,9 @@ export const App: React.FC = () => {
                 className="w-full btn-starburst text-lg py-4 rounded-2xl flex items-center justify-center gap-2 font-extrabold shadow-neo"
               >
                 <Sparkles className="w-5 h-5 text-hot-pink" />
-                <span>Generate Graphic</span>
+                <span>
+                  {format === 'pfp_frame' ? 'Generate My Goa Profile Frame' : 'Generate My HH Goa Builder ID'}
+                </span>
               </button>
 
             </div>

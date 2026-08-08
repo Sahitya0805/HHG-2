@@ -4,48 +4,30 @@ An instant, mobile-first web application where builders and attendees of **HH Go
 
 ![HH Goa 2026 Header](https://img.shields.io/badge/Event-HH%20Goa%202026-08733F?style=for-the-badge)
 ![Hashtag](https://img.shields.io/badge/Hashtag-%23FrameInGoa-FF087C?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-FFD400?style=for-the-badge)
+![Tech Stack](https://img.shields.io/badge/Stack-HTML5%20%7C%20CSS3%20%7C%20JavaScript%20%7C%20React-FFD400?style=for-the-badge)
 
 ---
 
-## ⚡ Core Features
+## 🛠️ Tech Stack
 
-- **Format A: Goa Profile Frame**:
-  - Circular & social-friendly avatar overlays with HH Goa 2026 branding.
-- **Format B: Builder ID Card**:
-  - Event identity badge card featuring Name, Stack / Role, and Builder Title.
-  - Choice of 4 custom card theme presets (*Goa Green, Sunset Gold, Cyber Pink, Retro Pass*).
-- **✨ Builder Title Generator**:
-  - Predefined title generator with 25+ fun Goa hacker persona titles (*Pixel Surfer, Code Coconut, Beach Code Hacker, Debugging Nomad, Solana Shack Builder*, etc.).
-- **Smart Photo Auto-Crop & Positioning**:
-  - Handles portrait, landscape, square, and off-center photos automatically.
-  - Native iOS iPhone **HEIC** photo support.
-  - Fine-tune positioning controls (Zoom, Pan X/Y).
-- **Client-Side HTML5 Canvas Engine**:
-  - Instant (< 1 sec) generation directly in browser. 100% local privacy preserved.
-- **1-Click Social Sharing & Export**:
-  - High-res PNG export (`hhgoa-2026-[name].png`).
-  - 1-Click **Share to X** with pre-filled caption containing mandatory `#FrameInGoa` hashtag.
-  - 1-Click Copy Image to Clipboard.
+- **HTML5** & **CSS3**
+- **JavaScript / TypeScript** & **React 18**
+- **Vite** & **Tailwind CSS**
+- **HTML5 Canvas API**
+- **Lucide Icons**, **canvas-confetti**, **heic2any**
 
 ---
 
-## 🎨 Visual Identity & Color Palette
+## ⚡ Core Options
 
-- **Goa Green**: `#08733F`
-- **HH Yellow**: `#FFD400`
-- **Hot Pink**: `#FF087C`
-- **Cream Card Surface**: `#FFF9E7`
+- **Option A — Profile Frame**:
+  - Turn your profile photo into an HH Goa 2026 branded avatar with circular wrap frame and event dates.
+- **Option B — Builder ID Card**:
+  - Official event builder pass featuring Name, Stack / Role, and a generated Builder Title.
 
 ---
 
 ## 🚀 Getting Started Locally
-
-### Prerequisites
-- Node.js 18+
-- npm 9+
-
-### Installation & Run
 
 ```bash
 # Clone the repository
@@ -60,24 +42,6 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-### Build for Production
-
-```bash
-npm run build
-```
-
----
-
-## 🛠️ Built With
-
-- **React 18** & **TypeScript**
-- **Vite**
-- **Tailwind CSS**
-- **HTML5 Canvas API**
-- **Lucide Icons**
-- **canvas-confetti**
-- **heic2any**
 
 ---
 
