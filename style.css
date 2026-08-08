@@ -27,13 +27,12 @@ body {
 .app-header {
   background-color: var(--goa-green-dark);
   border-bottom: 3px solid var(--dark);
-  padding: 18px 28px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 30;
+  position: relative;
+  z-index: 50;
 }
 .brand-badge {
   width: 44px;
@@ -45,17 +44,18 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  box-shadow: 4px 4px 0px var(--dark);
+  box-shadow: 3px 3px 0px var(--dark);
 }
 .brand-title {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 24px;
+  font-size: 22px;
   color: var(--hh-yellow);
+  line-height: 1.1;
 }
 .brand-sub {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12px;
   color: #FFF9E7;
 }
 .hashtag-pill {
@@ -72,14 +72,16 @@ body {
 .main-container {
   max-width: 1150px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 24px 16px;
 }
 .hero-title {
   font-family: var(--font-display);
-  font-size: 52px;
+  font-size: 46px;
   font-weight: 800;
   text-align: center;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  line-height: 1.15;
 }
 .hero-title span {
   color: var(--hh-yellow);
@@ -88,47 +90,47 @@ body {
 }
 .hero-subtitle {
   text-align: center;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   color: #FFF9E7;
 }
 .format-switcher {
   display: flex;
   justify-content: center;
-  gap: 18px;
-  margin-bottom: 32px;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 .btn-option {
-  padding: 16px 28px;
+  padding: 14px 26px;
   border-radius: 16px;
   font-family: var(--font-mono);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   border: 3px solid var(--dark);
-  box-shadow: 5px 5px 0px var(--dark);
+  box-shadow: 4px 4px 0px var(--dark);
   cursor: pointer;
   background: var(--goa-green-dark);
   color: var(--cream);
 }
 .btn-option:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0px var(--dark);
+  box-shadow: 6px 6px 0px var(--dark);
 }
 .btn-option.active-a {
   background: var(--hot-pink);
   color: #ffffff;
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 .btn-option.active-b {
   background: var(--hh-yellow);
   color: #000000;
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 .studio-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 32px;
+  gap: 28px;
 }
 @media (min-width: 900px) {
   .studio-grid {
@@ -138,11 +140,11 @@ body {
 .card-panel {
   background: var(--cream-card);
   color: var(--dark);
-  padding: 26px;
+  padding: 22px;
   border-radius: 20px;
   border: 3px solid var(--dark);
-  box-shadow: 6px 6px 0px var(--dark);
-  margin-bottom: 24px;
+  box-shadow: 5px 5px 0px var(--dark);
+  margin-bottom: 20px;
 }
 .section-label {
   font-family: var(--font-mono);
@@ -150,12 +152,12 @@ body {
   font-weight: 800;
   text-transform: uppercase;
   color: var(--goa-green);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: block;
 }
 .upload-btn {
   width: 100%;
-  padding: 26px;
+  padding: 22px;
   border: 3px dashed rgba(0, 0, 0, 0.4);
   border-radius: 14px;
   background: var(--cream);
@@ -170,7 +172,7 @@ body {
   background: #FFE14D;
 }
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .form-group label {
   display: block;
@@ -228,45 +230,47 @@ body {
 .preview-panel {
   background: var(--goa-green-dark);
   border: 3px solid var(--dark);
-  padding: 24px;
-  border-radius: 26px;
+  padding: 20px;
+  border-radius: 24px;
   box-shadow: 6px 6px 0px var(--dark);
   text-align: center;
   position: sticky;
-  top: 95px;
+  top: 20px;
 }
 .preview-canvas-wrapper {
   border-radius: 16px;
   border: 3px solid var(--dark);
   overflow: hidden;
-  background: #000000;
-  display: inline-block;
-  max-width: 100%;
+  background: #08733F;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 canvas {
   display: block;
-  max-width: 100%;
+  width: 100%;
   height: auto;
-  max-height: 520px;
-  margin: 0 auto;
+  max-height: 580px;
+  object-fit: contain;
 }
 .result-card {
   background: var(--goa-green-dark);
   border: 3px solid var(--dark);
-  padding: 36px;
+  padding: 32px;
   border-radius: 28px;
-  box-shadow: 7px 7px 0px var(--dark);
+  box-shadow: 6px 6px 0px var(--dark);
   text-align: center;
   max-width: 650px;
   margin: 0 auto;
 }
 .result-card img {
   max-width: 100%;
-  max-height: 520px;
+  max-height: 540px;
   border-radius: 18px;
   border: 3px solid var(--dark);
   box-shadow: 5px 5px 0px var(--dark);
-  margin: 20px 0 26px 0;
+  margin: 18px 0 24px 0;
 }
 .actions-row {
   display: flex;

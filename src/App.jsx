@@ -49,7 +49,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillRect(0, 0, 1200, 1500);
 
     ctx.fillStyle = '#FFD400';
-    ctx.font = 'bold 34px monospace';
+    ctx.font = 'bold 32px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('2:47 PM STUDIO', 80, 75);
 
@@ -72,28 +72,28 @@ function renderCanvas(canvas, format, data, photoImg) {
 
     ctx.textAlign = 'center';
     ctx.fillStyle = '#005A35';
-    ctx.font = '900 88px sans-serif';
-    ctx.fillText('HACKER HOUSE', cardX + cardW / 2, cardY + 120);
+    ctx.font = '900 74px sans-serif';
+    ctx.fillText('HACKER HOUSE', cardX + cardW / 2, cardY + 115);
 
     ctx.save();
-    ctx.translate(cardX + cardW / 2 + 210, cardY + 70);
+    ctx.translate(cardX + cardW / 2 + 180, cardY + 68);
     ctx.rotate((-8 * Math.PI) / 180);
     ctx.fillStyle = '#FF087C';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 4;
-    drawRoundedRect(ctx, -85, -30, 170, 60, 18, true, true);
+    drawRoundedRect(ctx, -75, -26, 150, 52, 16, true, true);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 38px sans-serif';
-    ctx.fillText('गोवा 🌴', 0, 12);
+    ctx.font = 'bold 32px sans-serif';
+    ctx.fillText('गोवा 🌴', 0, 10);
     ctx.restore();
 
     ctx.fillStyle = '#4B5563';
-    ctx.font = 'bold 24px monospace';
-    ctx.fillText('GOA, INDIA  •  BUILDER ID CARD', cardX + cardW / 2, cardY + 162);
+    ctx.font = 'bold 22px monospace';
+    ctx.fillText('GOA, INDIA  •  BUILDER ID CARD', cardX + cardW / 2, cardY + 158);
 
     ctx.beginPath();
-    ctx.moveTo(cardX + 50, cardY + 182);
-    ctx.lineTo(cardX + cardW - 50, cardY + 182);
+    ctx.moveTo(cardX + 50, cardY + 178);
+    ctx.lineTo(cardX + cardW - 50, cardY + 178);
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#000000';
     ctx.stroke();
@@ -129,7 +129,7 @@ function renderCanvas(canvas, format, data, photoImg) {
       ctx.fillStyle = '#E5E7EB';
       ctx.fillRect(boxX + 6, boxY + 6, boxW - 12, boxH - 12);
       ctx.fillStyle = '#9CA3AF';
-      ctx.font = 'bold 40px monospace';
+      ctx.font = 'bold 38px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('YOUR PHOTO', boxX + boxW / 2, boxY + boxH / 2);
     }
@@ -141,51 +141,51 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FFD400';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, 0, 0, 175, 40, 6, true, true);
+    drawRoundedRect(ctx, 0, 0, 165, 38, 6, true, true);
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 18px monospace';
+    ctx.font = 'bold 17px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('VERIFIED BUILDER', 87, 26);
+    ctx.fillText('VERIFIED BUILDER', 82, 24);
     ctx.restore();
 
-    const nameY = boxY + boxH + 68;
+    const nameY = boxY + boxH + 65;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 64px serif';
+    ctx.font = 'bold 60px serif';
     ctx.fillText((data.name || 'YOUR NAME HERE').toUpperCase(), cardX + cardW / 2, nameY);
 
-    const roleY = nameY + 54;
+    const roleY = nameY + 52;
     const roleText = (data.role || 'FULL STACK DEVELOPER').toUpperCase();
-    ctx.font = 'bold 28px monospace';
+    ctx.font = 'bold 26px monospace';
     const roleMetrics = ctx.measureText(roleText);
-    const pillW = roleMetrics.width + 56;
+    const pillW = roleMetrics.width + 52;
     const pillX = cardX + (cardW - pillW) / 2;
 
     ctx.fillStyle = '#000000';
-    drawRoundedRect(ctx, pillX + 4, roleY - 34 + 4, pillW, 52, 14, true, false);
+    drawRoundedRect(ctx, pillX + 4, roleY - 32 + 4, pillW, 48, 14, true, false);
     ctx.fillStyle = '#08733F';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, pillX, roleY - 34, pillW, 52, 14, true, true);
+    drawRoundedRect(ctx, pillX, roleY - 32, pillW, 48, 14, true, true);
     ctx.fillStyle = '#FFD400';
     ctx.fillText(roleText, cardX + cardW / 2, roleY);
 
-    const titleY = roleY + 92;
+    const titleY = roleY + 90;
     const titleText = data.title || '🌴 CODE SURFER';
-    const titleW = 780;
+    const titleW = 760;
     const titleX = cardX + (cardW - titleW) / 2;
 
     ctx.fillStyle = '#000000';
-    drawRoundedRect(ctx, titleX + 6, titleY - 48 + 6, titleW, 92, 18, true, false);
+    drawRoundedRect(ctx, titleX + 6, titleY - 46 + 6, titleW, 88, 16, true, false);
     ctx.fillStyle = '#FFD400';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 4;
-    drawRoundedRect(ctx, titleX, titleY - 48, titleW, 92, 18, true, true);
+    drawRoundedRect(ctx, titleX, titleY - 46, titleW, 88, 16, true, true);
 
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 18px monospace';
-    ctx.fillText('BUILDER CLASS', cardX + cardW / 2, titleY - 24);
-    ctx.font = '800 44px sans-serif';
+    ctx.font = 'bold 17px monospace';
+    ctx.fillText('BUILDER CLASS', cardX + cardW / 2, titleY - 22);
+    ctx.font = '800 42px sans-serif';
     ctx.fillText(`"${titleText}"`, cardX + cardW / 2, titleY + 22);
 
     const footerY = cardY + cardH - 85;
@@ -203,19 +203,19 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FF087C';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
-    drawRoundedRect(ctx, -125, -24, 250, 48, 14, true, true);
+    drawRoundedRect(ctx, -120, -22, 240, 46, 12, true, true);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = '800 24px sans-serif';
+    ctx.font = '800 22px sans-serif';
     ctx.fillText('#FrameInGoa', 0, 8);
     ctx.restore();
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 22px monospace';
+    ctx.font = 'bold 20px monospace';
     ctx.fillText('OCT 28-31, 2026', cardX + cardW - 60, footerY);
-    ctx.font = 'bold 18px monospace';
+    ctx.font = 'bold 16px monospace';
     ctx.fillStyle = '#4B5563';
-    ctx.fillText('GOA, INDIA', cardX + cardW - 60, footerY + 26);
+    ctx.fillText('GOA, INDIA', cardX + cardW - 60, footerY + 24);
 
   } else {
     canvas.width = 1200;
