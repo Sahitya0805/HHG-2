@@ -135,8 +135,14 @@ function renderCanvas(canvas, format, data, photoImg) {
       const dw = photoImg.width * scale;
       const dh = photoImg.height * scale;
 
+      ctx.save();
+      if (data.filter === 'warm') ctx.filter = 'sepia(0.3) contrast(1.1) saturate(1.2)';
+      if (data.filter === 'bw') ctx.filter = 'grayscale(1) contrast(1.2)';
+      if (data.filter === 'vibrant') ctx.filter = 'saturate(1.7) contrast(1.1)';
+
       ctx.translate(cx, cy);
       ctx.drawImage(photoImg, -dw / 2, -dh / 2, dw, dh);
+      ctx.restore();
     } else {
       ctx.fillStyle = '#E5E7EB';
       ctx.fillRect(boxX + 6, boxY + 6, boxW - 12, boxH - 12);
@@ -233,7 +239,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.textAlign = 'right';
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 20px monospace';
-    ctx.fillText('OCT 28-31, 2026', cardX + cardW - 60, footerY);
+    ctx.fillText(data.serial || 'PASS #849204', cardX + cardW - 60, footerY);
     ctx.font = 'bold 16px monospace';
     ctx.fillStyle = '#4B5563';
     ctx.fillText('GOA, INDIA', cardX + cardW - 60, footerY + 24);
@@ -261,8 +267,14 @@ function renderCanvas(canvas, format, data, photoImg) {
       const dw = photoImg.width * scale;
       const dh = photoImg.height * scale;
 
+      ctx.save();
+      if (data.filter === 'warm') ctx.filter = 'sepia(0.3) contrast(1.1) saturate(1.2)';
+      if (data.filter === 'bw') ctx.filter = 'grayscale(1) contrast(1.2)';
+      if (data.filter === 'vibrant') ctx.filter = 'saturate(1.7) contrast(1.1)';
+
       ctx.translate(px, py);
       ctx.drawImage(photoImg, -dw / 2, -dh / 2, dw, dh);
+      ctx.restore();
     } else {
       ctx.fillStyle = '#10B981';
       ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
@@ -335,6 +347,8 @@ export default function App() {
     role: 'Full Stack Developer',
     title: '🌴 Pixel Surfer',
     theme: 'emerald',
+    filter: 'normal',
+    serial: 'PASS #' + Math.floor(100000 + Math.random() * 900000),
     zoom: 1.0,
     offsetX: 0,
     offsetY: 0,
@@ -392,6 +406,7 @@ export default function App() {
       role: rRole,
       title: rTitle,
       theme: rTheme,
+      serial: 'PASS #' + Math.floor(100000 + Math.random() * 900000),
     }));
   };
 
@@ -523,7 +538,25 @@ export default function App() {
 
                 {photoLoaded && (
                   <div style={{ marginTop: '14px' }}>
-                    <span className="section-label">Photo Zoom ({Math.round(data.zoom * 100)}%)</span>
+                    <span className="section-label">Photo Filter</span>
+                    <div className="filter-picker">
+                      {[
+                        { id: 'normal', label: 'Normal' },
+                        { id: 'warm', label: '🌴 Warm' },
+                        { id: 'bw', label: '🕶️ B&W' },
+                        { id: 'vibrant', label: '⚡ Vivid' },
+                      ].map((f) => (
+                        <div
+                          key={f.id}
+                          onClick={() => setData((prev) => ({ ...prev, filter: f.id }))}
+                          className={`filter-item ${data.filter === f.id ? 'active' : ''}`}
+                        >
+                          {f.label}
+                        </div>
+                      ))}
+                    </div>
+
+                    <span className="section-label" style={{ marginTop: '14px' }}>Photo Zoom ({Math.round(data.zoom * 100)}%)</span>
                     <input
                       type="range"
                       min="0.5"
