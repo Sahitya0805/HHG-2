@@ -18,18 +18,6 @@ const TITLES = [
   '⚡ Async Anjuna Hacker',
 ];
 
-const ROLES = [
-  'Full Stack Developer',
-  'Frontend Wizard',
-  'Backend Engineer',
-  'Protocol Architect',
-  'Product Designer',
-  'Smart Contract Dev',
-  'Solana Builder',
-];
-
-const NAMES = ['Sahitya Singh', 'Ananya Sharma', 'Dev Rohan', 'Alex Rivera', 'Vikram Das'];
-
 export default function App() {
   const [format, setFormat] = useState('pfp_frame');
   const [photoUrl, setPhotoUrl] = useState(null);
@@ -41,6 +29,7 @@ export default function App() {
     name: 'Sahitya Singh',
     role: 'Full Stack Developer',
     title: '🌴 Pixel Surfer',
+    frameBadgeText: '🌴 HH GOA 2026 🌴',
     theme: 'emerald',
     filter: 'normal',
     serial: 'PASS #' + Math.floor(100000 + Math.random() * 900000),
@@ -77,20 +66,13 @@ export default function App() {
     setData((prev) => ({ ...prev, title: random }));
   };
 
-  const handleSurpriseMe = () => {
-    const rName = NAMES[Math.floor(Math.random() * NAMES.length)];
-    const rRole = ROLES[Math.floor(Math.random() * ROLES.length)];
-    const rTitle = TITLES[Math.floor(Math.random() * TITLES.length)];
-    const themes = ['emerald', 'sunset', 'cyber', 'retro'];
-    const rTheme = themes[Math.floor(Math.random() * themes.length)];
-
+  const handleResetAdjustments = () => {
     setData((prev) => ({
       ...prev,
-      name: rName,
-      role: rRole,
-      title: rTitle,
-      theme: rTheme,
-      serial: 'PASS #' + Math.floor(100000 + Math.random() * 900000),
+      zoom: 1.0,
+      offsetX: 0,
+      offsetY: 0,
+      filter: 'normal',
     }));
   };
 
@@ -197,14 +179,9 @@ export default function App() {
           <div className="studio-grid">
             <div>
               <div className="card-panel">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="section-label">
-                    {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
-                  </span>
-                  <button onClick={handleSurpriseMe} className="btn-surprise">
-                    🎲 Surprise Me!
-                  </button>
-                </div>
+                <span className="section-label">
+                  {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
+                </span>
 
                 <span className="section-label" style={{ marginTop: '14px' }}>1. Upload Photo (JPG, PNG, HEIC)</span>
                 <input
@@ -221,7 +198,16 @@ export default function App() {
 
                 {photoLoaded && (
                   <div style={{ marginTop: '14px' }}>
-                    <span className="section-label">Photo Filter</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="section-label">Photo Filter</span>
+                      <button
+                        onClick={handleResetAdjustments}
+                        style={{ background: 'none', border: 'none', color: 'var(--goa-green)', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: '800', cursor: 'pointer', textDecoration: 'underline' }}
+                      >
+                        ↺ Reset Adjustments
+                      </button>
+                    </div>
+
                     <div className="filter-picker">
                       {[
                         { id: 'normal', label: 'Normal' },
@@ -282,6 +268,22 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              {format === 'pfp_frame' && (
+                <div className="card-panel">
+                  <span className="section-label">2. Custom Frame Title</span>
+                  <div className="form-group">
+                    <label>Top Badge Text</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={data.frameBadgeText}
+                      onChange={(e) => setData((prev) => ({ ...prev, frameBadgeText: e.target.value }))}
+                      placeholder="e.g. 🌴 HH GOA 2026 🌴"
+                    />
+                  </div>
+                </div>
+              )}
 
               {format === 'id_card' && (
                 <div className="card-panel">

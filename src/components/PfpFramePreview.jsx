@@ -3,7 +3,7 @@ import React from 'react';
 export default function PfpFramePreview({ data, photoUrl, getFilterStyle }) {
   return (
     <div className="pfp-frame-wrapper">
-      <div className="pfp-top-badge">🌴 HH GOA 2026 🌴</div>
+      <div className="pfp-top-badge">{data.frameBadgeText || '🌴 HH GOA 2026 🌴'}</div>
 
       <div className="pfp-avatar-circle">
         {photoUrl ? (
