@@ -168,9 +168,9 @@ function renderCanvas(canvas, format, data, photoImg) {
 
     if (data.stickers && data.stickers.length > 0) {
       data.stickers.forEach((st, i) => {
-        ctx.font = '40px sans-serif';
-        const sx = boxX + boxW + 15;
-        const sy = boxY + 60 + i * 50;
+        ctx.font = '68px sans-serif';
+        const sx = boxX + boxW + 25;
+        const sy = boxY + 75 + i * 75;
         ctx.fillText(st, sx, sy);
       });
     }
@@ -553,16 +553,46 @@ export default function App() {
                       ))}
                     </div>
 
-                    <span className="section-label" style={{ marginTop: '14px' }}>Photo Zoom ({Math.round(data.zoom * 100)}%)</span>
-                    <input
-                      type="range"
-                      min="0.5"
-                      max="2.0"
-                      step="0.05"
-                      value={data.zoom}
-                      onChange={(e) => setData((prev) => ({ ...prev, zoom: parseFloat(e.target.value) }))}
-                      className="range-slider"
-                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '14px' }}>
+                      <div>
+                        <span className="section-label">Zoom ({Math.round(data.zoom * 100)}%)</span>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2.0"
+                          step="0.05"
+                          value={data.zoom}
+                          onChange={(e) => setData((prev) => ({ ...prev, zoom: parseFloat(e.target.value) }))}
+                          className="range-slider"
+                        />
+                      </div>
+
+                      <div>
+                        <span className="section-label">Pan X ({data.offsetX}px)</span>
+                        <input
+                          type="range"
+                          min="-150"
+                          max="150"
+                          step="5"
+                          value={data.offsetX}
+                          onChange={(e) => setData((prev) => ({ ...prev, offsetX: parseInt(e.target.value) }))}
+                          className="range-slider"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '10px' }}>
+                      <span className="section-label">Pan Y ({data.offsetY}px)</span>
+                      <input
+                        type="range"
+                        min="-150"
+                        max="150"
+                        step="5"
+                        value={data.offsetY}
+                        onChange={(e) => setData((prev) => ({ ...prev, offsetY: parseInt(e.target.value) }))}
+                        className="range-slider"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
