@@ -227,6 +227,61 @@ body {
   box-shadow: 4px 4px 0px var(--dark);
   cursor: pointer;
 }
+.btn-surprise {
+  padding: 10px 16px;
+  background: #000000;
+  color: var(--hh-yellow);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  border: 2px solid var(--dark);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.sticker-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.sticker-item {
+  padding: 6px 12px;
+  background: var(--cream);
+  border: 2px solid var(--dark);
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.sticker-item.active {
+  background: var(--hh-yellow);
+  box-shadow: 2px 2px 0px var(--dark);
+}
+.theme-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.theme-item {
+  padding: 8px 4px;
+  border: 2px solid var(--dark);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  background: var(--cream);
+}
+.theme-item.active {
+  background: var(--hh-yellow);
+  box-shadow: 2px 2px 0px var(--dark);
+}
+.range-slider {
+  width: 100%;
+  accent-color: var(--hot-pink);
+}
 .preview-panel {
   background: var(--goa-green-dark);
   border: 3px solid var(--dark);

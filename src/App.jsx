@@ -14,6 +14,18 @@ const TITLES = [
   '⚡ Async Anjuna Hacker',
 ];
 
+const ROLES = [
+  'Full Stack Developer',
+  'Frontend Wizard',
+  'Backend Engineer',
+  'Protocol Architect',
+  'Product Designer',
+  'Smart Contract Dev',
+  'Solana Builder',
+];
+
+const NAMES = ['Sahitya Singh', 'Ananya Sharma', 'Dev Rohan', 'Alex Rivera', 'Vikram Das'];
+
 function drawRoundedRect(ctx, x, y, width, height, radius, fill = true, stroke = true) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -117,9 +129,9 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.clip();
 
     if (photoImg) {
-      const cx = boxX + boxW / 2;
-      const cy = boxY + boxH / 2;
-      const scale = Math.max((boxW - 12) / photoImg.width, (boxH - 12) / photoImg.height);
+      const cx = boxX + boxW / 2 + (data.offsetX || 0);
+      const cy = boxY + boxH / 2 + (data.offsetY || 0);
+      const scale = Math.max((boxW - 12) / photoImg.width, (boxH - 12) / photoImg.height) * (data.zoom || 1.0);
       const dw = photoImg.width * scale;
       const dh = photoImg.height * scale;
 
@@ -148,14 +160,21 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillText('VERIFIED BUILDER', 82, 24);
     ctx.restore();
 
-    // Name down further at 775px
+    if (data.stickers && data.stickers.length > 0) {
+      data.stickers.forEach((st, i) => {
+        ctx.font = '40px sans-serif';
+        const sx = boxX + boxW + 15;
+        const sy = boxY + 60 + i * 50;
+        ctx.fillText(st, sx, sy);
+      });
+    }
+
     const nameY = boxY + boxH + 110;
     ctx.textAlign = 'center';
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 60px serif';
     ctx.fillText((data.name || 'YOUR NAME HERE').toUpperCase(), cardX + cardW / 2, nameY);
 
-    // Role Pill down further at 860px
     const roleY = nameY + 80;
     const roleText = (data.role || 'FULL STACK DEVELOPER').toUpperCase();
     ctx.font = 'bold 26px monospace';
@@ -172,7 +191,6 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FFD400';
     ctx.fillText(roleText, cardX + cardW / 2, roleY);
 
-    // Builder Class yellow box down further at 995px
     const titleY = roleY + 135;
     const titleText = data.title || '🌴 CODE SURFER';
     const titleW = 760;
@@ -237,11 +255,13 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.clip();
 
     if (photoImg) {
-      const scale = Math.max((r * 2) / photoImg.width, (r * 2) / photoImg.height);
+      const px = cx + (data.offsetX || 0);
+      const py = cy + (data.offsetY || 0);
+      const scale = Math.max((r * 2) / photoImg.width, (r * 2) / photoImg.height) * (data.zoom || 1.0);
       const dw = photoImg.width * scale;
       const dh = photoImg.height * scale;
 
-      ctx.translate(cx, cy);
+      ctx.translate(px, py);
       ctx.drawImage(photoImg, -dw / 2, -dh / 2, dw, dh);
     } else {
       ctx.fillStyle = '#10B981';
@@ -315,6 +335,10 @@ export default function App() {
     role: 'Full Stack Developer',
     title: '🌴 Pixel Surfer',
     theme: 'emerald',
+    zoom: 1.0,
+    offsetX: 0,
+    offsetY: 0,
+    stickers: ['🌴', '⚡'],
   });
 
   const canvasRef = useRef(null);
@@ -353,6 +377,30 @@ export default function App() {
   const handleRandomTitle = () => {
     const random = TITLES[Math.floor(Math.random() * TITLES.length)];
     setData((prev) => ({ ...prev, title: random }));
+  };
+
+  const handleSurpriseMe = () => {
+    const rName = NAMES[Math.floor(Math.random() * NAMES.length)];
+    const rRole = ROLES[Math.floor(Math.random() * ROLES.length)];
+    const rTitle = TITLES[Math.floor(Math.random() * TITLES.length)];
+    const themes = ['emerald', 'sunset', 'cyber', 'retro'];
+    const rTheme = themes[Math.floor(Math.random() * themes.length)];
+
+    setData((prev) => ({
+      ...prev,
+      name: rName,
+      role: rRole,
+      title: rTitle,
+      theme: rTheme,
+    }));
+  };
+
+  const toggleSticker = (st) => {
+    setData((prev) => {
+      const exists = prev.stickers.includes(st);
+      const updated = exists ? prev.stickers.filter((s) => s !== st) : [...prev.stickers, st];
+      return { ...prev, stickers: updated };
+    });
   };
 
   const handleGenerate = () => {
@@ -451,9 +499,14 @@ export default function App() {
           <div className="studio-grid">
             <div>
               <div className="card-panel">
-                <span className="section-label">
-                  {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
-                </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="section-label">
+                    {format === 'pfp_frame' ? 'Option A — Goa Profile Frame' : 'Option B — Builder ID Card'}
+                  </span>
+                  <button onClick={handleSurpriseMe} className="btn-surprise">
+                    🎲 Surprise Me!
+                  </button>
+                </div>
 
                 <span className="section-label" style={{ marginTop: '14px' }}>1. Upload Photo (JPG, PNG, HEIC)</span>
                 <input
@@ -467,6 +520,21 @@ export default function App() {
                 <button onClick={() => fileInputRef.current?.click()} className="upload-btn">
                   📷 {photoLoaded ? 'Photo Loaded! (Click to Change)' : 'Choose or Drag Photo Here'}
                 </button>
+
+                {photoLoaded && (
+                  <div style={{ marginTop: '14px' }}>
+                    <span className="section-label">Photo Zoom ({Math.round(data.zoom * 100)}%)</span>
+                    <input
+                      type="range"
+                      min="0.5"
+                      max="2.0"
+                      step="0.05"
+                      value={data.zoom}
+                      onChange={(e) => setData((prev) => ({ ...prev, zoom: parseFloat(e.target.value) }))}
+                      className="range-slider"
+                    />
+                  </div>
+                )}
               </div>
 
               {format === 'id_card' && (
@@ -509,6 +577,42 @@ export default function App() {
                       </button>
                     </div>
                   </div>
+
+                  <div className="form-group">
+                    <label>Badge Theme Color</label>
+                    <div className="theme-picker">
+                      {[
+                        { id: 'emerald', label: 'Jungle' },
+                        { id: 'sunset', label: 'Sunset' },
+                        { id: 'cyber', label: 'Cyber' },
+                        { id: 'retro', label: 'Retro' },
+                      ].map((t) => (
+                        <div
+                          key={t.id}
+                          onClick={() => setData((prev) => ({ ...prev, theme: t.id }))}
+                          className={`theme-item ${data.theme === t.id ? 'active' : ''}`}
+                        >
+                          {t.label}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Goa Stickers</label>
+                    <div className="sticker-picker">
+                      {['🌴', '🍹', '🚀', '⚡', '🌊', '🕶️'].map((st) => (
+                        <div
+                          key={st}
+                          onClick={() => toggleSticker(st)}
+                          className={`sticker-item ${data.stickers.includes(st) ? 'active' : ''}`}
+                        >
+                          {st}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
               )}
 
