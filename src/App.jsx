@@ -50,12 +50,12 @@ function renderCanvas(canvas, format, data, photoImg) {
     canvas.width = 1200;
     canvas.height = 1500;
 
-    let bgColor = '#08733F';
-    let cardBg = '#FFF9E7';
+    let bgColor = '#076337';
+    let cardBg = '#FFFDF5';
 
-    if (data.theme === 'sunset') bgColor = '#7C1C08';
-    if (data.theme === 'cyber') bgColor = '#1A0826';
-    if (data.theme === 'retro') bgColor = '#1E3A2B';
+    if (data.theme === 'sunset') bgColor = '#6B1605';
+    if (data.theme === 'cyber') bgColor = '#180724';
+    if (data.theme === 'retro') bgColor = '#1A3326';
 
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, 1200, 1500);
@@ -83,7 +83,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     drawRoundedRect(ctx, cardX, cardY, cardW, cardH, 24, true, true);
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#005A35';
+    ctx.fillStyle = '#054D2B';
     ctx.font = '900 74px sans-serif';
     ctx.fillText('HACKER HOUSE', cardX + cardW / 2, cardY + 115);
 
@@ -190,7 +190,7 @@ function renderCanvas(canvas, format, data, photoImg) {
 
     ctx.fillStyle = '#000000';
     drawRoundedRect(ctx, pillX + 4, roleY - 32 + 4, pillW, 48, 14, true, false);
-    ctx.fillStyle = '#08733F';
+    ctx.fillStyle = '#076337';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 3;
     drawRoundedRect(ctx, pillX, roleY - 32, pillW, 48, 14, true, true);
@@ -248,7 +248,7 @@ function renderCanvas(canvas, format, data, photoImg) {
     canvas.width = 1200;
     canvas.height = 1200;
 
-    ctx.fillStyle = '#08733F';
+    ctx.fillStyle = '#076337';
     ctx.fillRect(0, 0, 1200, 1200);
 
     const cx = 600;
@@ -311,26 +311,23 @@ function renderCanvas(canvas, format, data, photoImg) {
     ctx.fillStyle = '#FFD400';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 5;
-    drawRoundedRect(ctx, -260, -45, 520, 90, 24, true, true);
+    drawRoundedRect(ctx, -250, -40, 500, 80, 20, true, true);
     ctx.fillStyle = '#000000';
-    ctx.font = '900 48px sans-serif';
+    ctx.font = '900 44px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🌴 HH GOA 2026 🌴', 0, 16);
+    ctx.fillText('🌴 HH GOA 2026 🌴', 0, 14);
     ctx.restore();
 
     ctx.save();
-    ctx.translate(cx, cy + r + 10);
+    ctx.translate(cx, cy + r + 20);
     ctx.fillStyle = '#FF087C';
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 5;
-    drawRoundedRect(ctx, -300, -45, 600, 90, 24, true, true);
+    drawRoundedRect(ctx, -240, -35, 480, 70, 20, true, true);
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 36px monospace';
+    ctx.font = '800 36px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('#FrameInGoa', 0, -2);
-    ctx.font = 'bold 22px sans-serif';
-    ctx.fillStyle = '#FFD400';
-    ctx.fillText('GOA, INDIA  •  28—31 OCT 2026', 0, 28);
+    ctx.fillText('#FrameInGoa', 0, 12);
     ctx.restore();
   }
 }
