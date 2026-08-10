@@ -6,7 +6,7 @@ A mobile-first generator built for HH Goa 2026 Shortlisting Task 01. It creates 
 
 - **Goa PFP** — a 1080 × 1080 profile frame.
 - **Builder ID** — a 1080 × 1350 editorial identity card with a deterministic builder class and ID generated from the user's details.
-- **Squad Signal** — a combined 1080 × 1350 team poster for two to four builders.
+- **Team Frame** — a combined 1080 × 1350 poster for two to four teammates.
 
 ## Task requirements covered
 
