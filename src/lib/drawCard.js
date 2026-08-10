@@ -6,7 +6,7 @@ export const OUTPUT_SIZES = {
 
 export const PALETTES = {
   jungle: {
-    label: 'Official Goa',
+    label: 'HH Goa',
     bg: '#043B28',
     panel: '#FFF8E7',
     ink: '#0B1611',
@@ -15,30 +15,7 @@ export const PALETTES = {
     pop: '#FF087C',
     soft: '#D9F4DF',
   },
-  midnight: {
-    label: 'Night shift',
-    bg: '#071D2D',
-    panel: '#F7F1DF',
-    ink: '#07131C',
-    green: '#0B6E69',
-    accent: '#A6FF4D',
-    pop: '#FF6B35',
-    soft: '#D5F4F0',
-  },
-  sunset: {
-    label: 'Anjuna afterglow',
-    bg: '#4B1426',
-    panel: '#FFF5DB',
-    ink: '#20100F',
-    green: '#A83B2F',
-    accent: '#FFD33D',
-    pop: '#FF5C8A',
-    soft: '#FFE1C7',
-  },
 };
-
-const CLASS_PREFIXES = ['Tidal', 'Monsoon', 'Midnight', 'Susegad', 'Coastal', 'Neon', 'Coconut', 'Sunset'];
-const CLASS_FALLBACKS = ['System Shipper', 'Product Pirate', 'Prototype Pilot', 'Signal Builder', 'Bug Whisperer', 'Idea Surfer'];
 
 export function hashString(value = '') {
   let hash = 2166136261;
@@ -49,22 +26,17 @@ export function hashString(value = '') {
   return Math.abs(hash >>> 0);
 }
 
-export function getBuilderClass(name, role, seed = 0) {
-  const source = `${name}|${role}|${seed}`.toLowerCase();
-  const hash = hashString(source);
-  const prefix = CLASS_PREFIXES[hash % CLASS_PREFIXES.length];
-
-  let builderType = CLASS_FALLBACKS[(hash >>> 3) % CLASS_FALLBACKS.length];
-  if (/design|figma|ui|ux|visual/.test(source)) builderType = 'Pixel Alchemist';
-  else if (/ai|ml|model|data/.test(source)) builderType = 'Model Whisperer';
-  else if (/rust|system|infra|devops|cloud/.test(source)) builderType = 'Systems Diver';
-  else if (/front|react|web|javascript|typescript/.test(source)) builderType = 'Interface Surfer';
-  else if (/back|api|node|python|java|go/.test(source)) builderType = 'Backend Buccaneer';
-  else if (/mobile|ios|android|flutter/.test(source)) builderType = 'Pocket Shipper';
-  else if (/product|founder|growth/.test(source)) builderType = 'Product Navigator';
-  else if (/blockchain|web3|solidity|crypto/.test(source)) builderType = 'Chain Cartographer';
-
-  return `${prefix} ${builderType}`;
+export function getBuilderClass(name, role) {
+  const source = `${name}|${role}`.toLowerCase();
+  if (/design|figma|ui|ux|visual/.test(source)) return 'Design Builder';
+  if (/ai|ml|model|data/.test(source)) return 'AI / Data Builder';
+  if (/rust|system|infra|devops|cloud/.test(source)) return 'Systems Builder';
+  if (/front|react|web|javascript|typescript/.test(source)) return 'Frontend Builder';
+  if (/back|api|node|python|java|golang/.test(source)) return 'Backend Builder';
+  if (/mobile|ios|android|flutter/.test(source)) return 'Mobile Builder';
+  if (/product|founder|growth/.test(source)) return 'Product Builder';
+  if (/blockchain|web3|solidity|crypto/.test(source)) return 'Web3 Builder';
+  return 'HH Goa Builder';
 }
 
 export function getPassNumber(name, role) {
@@ -364,7 +336,7 @@ function drawPfp(ctx, state, palette) {
   drawTape(ctx, 114, 400, 170, 48, -0.14, palette.accent);
   drawTape(ctx, 790, 738, 170, 48, 0.12, palette.accent);
 
-  const badge = (badgeText || 'BUILDING FROM THE BEACH').toUpperCase().slice(0, 36);
+  const badge = (badgeText || 'FRAME IN GOA').toUpperCase().slice(0, 36);
   roundedRect(ctx, 108, 872, 864, 112, 20, palette.panel, palette.ink, 9);
   ctx.fillStyle = palette.pop;
   ctx.fillRect(108, 872, 18, 112);
@@ -383,7 +355,7 @@ function drawPfp(ctx, state, palette) {
 function drawPass(ctx, state, palette) {
   const name = (state.name || 'YOUR NAME').trim().toUpperCase();
   const role = (state.role || 'YOUR STACK / ROLE').trim().toUpperCase();
-  const builderClass = getBuilderClass(state.name, state.role, state.classSeed);
+  const builderClass = getBuilderClass(state.name, state.role);
   const builderId = getBuilderId(state.name, state.role);
   const teamName = (state.teamName || 'INDEPENDENT BUILDER').trim().toUpperCase();
 
@@ -469,7 +441,7 @@ function drawPass(ctx, state, palette) {
   ctx.fillStyle = palette.accent;
   ctx.textAlign = 'left';
   ctx.font = '800 17px "Space Mono", monospace';
-  ctx.fillText('GENERATED IDENTITY', 94, 1119);
+  ctx.fillText('HH GOA BUILDER', 94, 1119);
   ctx.fillStyle = '#FFFFFF';
   const classSize = fitText(ctx, builderClass, 820, 36, 25, 'Syne', 800);
   ctx.font = `800 ${classSize}px "Syne", sans-serif`;
@@ -480,7 +452,7 @@ function drawPass(ctx, state, palette) {
   ctx.fillText('#FrameInGoa', 64, 1254);
   ctx.font = '700 16px "Space Mono", monospace';
   ctx.fillStyle = palette.accent;
-  ctx.fillText('HHGOA.COM · LESS NOISE. MORE SIGNAL.', 64, 1288);
+  ctx.fillText('HHGOA.COM · TASK 01', 64, 1288);
   ctx.textAlign = 'right';
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 34px "Space Mono", monospace';
@@ -545,7 +517,7 @@ function drawSquad(ctx, state, palette) {
   ctx.fillStyle = '#FFFFFF';
   ctx.textAlign = 'left';
   ctx.font = '800 28px "Space Mono", monospace';
-  ctx.fillText('ONE FRAME. WHOLE CREW.', 64, 332);
+  ctx.fillText('HH GOA TEAM FRAME', 64, 332);
 
   ctx.save();
   ctx.globalAlpha = 0.36;
@@ -589,7 +561,7 @@ function drawSquad(ctx, state, palette) {
   ctx.textAlign = 'right';
   ctx.fillStyle = palette.pop;
   ctx.font = '800 34px "Syne", sans-serif';
-  ctx.fillText('GOA BOUND →', 984, 1226);
+  ctx.fillText('HH GOA ’26', 984, 1226);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '700 15px "Space Mono", monospace';

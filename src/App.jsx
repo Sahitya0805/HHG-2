@@ -1,27 +1,26 @@
 import React, { useMemo, useRef, useState } from 'react';
-import confetti from 'canvas-confetti';
 import Header from './components/Header.jsx';
 import BuilderCanvas from './components/BuilderCanvas.jsx';
-import { getBuilderClass, OUTPUT_SIZES, PALETTES } from './lib/drawCard.js';
+import { getBuilderClass, OUTPUT_SIZES } from './lib/drawCard.js';
 
 const MODES = [
   {
     id: 'pfp',
-    eyebrow: '01 / PROFILE',
+    eyebrow: '01 / PFP',
     name: 'Goa PFP',
-    description: 'A bold square frame made for your X profile.',
+    description: 'Square profile frame',
   },
   {
     id: 'pass',
-    eyebrow: '02 / SOLO',
+    eyebrow: '02 / ID',
     name: 'Builder ID',
-    description: 'Your photo, stack, team and generated builder class.',
+    description: 'Photo, name and stack',
   },
   {
     id: 'squad',
     eyebrow: '03 / TEAM',
-    name: 'Squad Signal',
-    description: 'Bring your whole crew into one combined frame.',
+    name: 'Team Frame',
+    description: 'One combined teammate frame',
   },
 ];
 
@@ -209,12 +208,11 @@ function Field({ label, hint, children }) {
 export default function App() {
   const canvasRef = useRef(null);
   const [mode, setMode] = useState('pass');
-  const [palette, setPalette] = useState('jungle');
+  const palette = 'jungle';
   const [photo, setPhoto] = useState(null);
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
-  const [badgeText, setBadgeText] = useState('BUILDING FROM THE BEACH');
-  const [classSeed, setClassSeed] = useState(0);
+  const [badgeText, setBadgeText] = useState('FRAME IN GOA');
   const [teamName, setTeamName] = useState('');
   const [teamMembers, setTeamMembers] = useState([newMember(0), newMember(1)]);
   const [selectedMemberId, setSelectedMemberId] = useState(null);
@@ -228,12 +226,11 @@ export default function App() {
     name,
     role,
     badgeText,
-    classSeed,
     teamName,
     teamMembers,
-  }), [badgeText, classSeed, name, palette, photo, role, teamMembers, teamName]);
+  }), [badgeText, name, photo, role, teamMembers, teamName]);
 
-  const builderClass = getBuilderClass(name, role, classSeed);
+  const builderClass = getBuilderClass(name, role);
   const completeTeamMembers = teamMembers.filter((member) => member.photo && member.name.trim());
   const canGenerate = mode === 'pfp'
     ? Boolean(photo)
@@ -284,19 +281,13 @@ export default function App() {
       setNotice(mode === 'squad'
         ? 'Add a team name and at least two teammates with names and photos.'
         : mode === 'pass'
-          ? 'Add your photo, name and stack before generating the pass.'
+          ? 'Add your photo, name and stack before generating the ID.'
           : 'Add a photo before generating the frame.');
       return;
     }
 
     setGeneratedMode(mode);
     setNotice('Your high-resolution graphic is ready to download or share.');
-    confetti({
-      particleCount: 110,
-      spread: 76,
-      origin: { y: 0.72 },
-      colors: ['#FFD400', '#FF087C', '#08733F', '#FFF8E7'],
-    });
   };
 
   const outputName = () => {
@@ -331,8 +322,8 @@ export default function App() {
       .join(' · ')
       .slice(0, 62);
     const caption = mode === 'squad'
-      ? `Our crew ${teamName || ''} is in the frame for Hacker House Goa '26 🌴\n\n${crewNames}\n\nMake your crew frame: ${liveLink}\n\nWhich team should frame in next?\n\n#FrameInGoa @247pmstudio`
-      : `I'm in the frame for Hacker House Goa '26 🌴\n\n${name || 'Builder'} · ${builderClass}\n${role || ''}\n\nCreate yours: ${liveLink}\n\nWhat are you shipping in Goa? 👇\n\n#FrameInGoa @247pmstudio`;
+      ? `${teamName || 'Our team'} for Hacker House Goa '26 🌴\n\n${crewNames}\n\nCreate your team frame: ${liveLink}\n\n#FrameInGoa @247pmstudio`
+      : `My Hacker House Goa '26 builder frame 🌴\n\n${name || 'Builder'} · ${builderClass}\n${role || ''}\n\nCreate yours: ${liveLink}\n\n#FrameInGoa @247pmstudio`;
     const file = dataUrlToFile(canvas.toDataURL('image/png', 1), outputName());
 
     try {
@@ -372,15 +363,16 @@ export default function App() {
       <main>
         <section className="hero">
           <div className="hero-copy">
-            <h1>Make your builder signal <em>impossible to miss.</em></h1>
+            <p className="kicker"><span /> TASK 01 · #FRAMEINGOA</p>
+            <h1>Build your HH Goa <em>frame.</em></h1>
             <p className="hero-description">
-              Upload once. Get a crisp, share-ready HH Goa graphic—solo or with your whole crew.
+              Upload a real photo. Add your details. Download or share.
             </p>
           </div>
-          <div className="deadline-card">
-            <span className="deadline-label">SUBMIT BEFORE</span>
-            <strong>13 AUG · 11:59 PM</strong>
-            <small>One submission per team</small>
+          <div className="hero-art" aria-hidden="true">
+            <img src="/brand/goa-sunrise.webp" alt="" />
+            <span className="hero-art-number">01</span>
+            <strong>#FrameInGoa</strong>
           </div>
         </section>
 
@@ -407,7 +399,7 @@ export default function App() {
                 <div className="panel">
                   <div className="panel-title">
                     <span className="step-number">01</span>
-                    <div><strong>Bring the photo</strong><small>We auto-fit every aspect ratio.</small></div>
+                    <div><strong>Upload photo</strong></div>
                   </div>
                   <PhotoUpload
                     id="solo-photo"
@@ -415,7 +407,7 @@ export default function App() {
                     photo={photo}
                     onPhoto={(file) => replacePhoto(file, photo, setPhoto)}
                   />
-                  <p className="photo-rule">Use your own real photo. AI portraits, Ghibli art and random images are rejected.</p>
+                  <p className="photo-rule">Use a real photo — no AI art or random images.</p>
                   <CropControls photo={photo} onChange={setPhoto} />
                 </div>
 
@@ -423,7 +415,7 @@ export default function App() {
                   <div className="panel">
                     <div className="panel-title">
                       <span className="step-number">02</span>
-                      <div><strong>Make it yours</strong><small>Short, sharp and readable on mobile.</small></div>
+                      <div><strong>Your details</strong></div>
                     </div>
                     <Field label="Builder name" hint={`${name.length}/28`}>
                       <input value={name} maxLength={28} onChange={(event) => setName(event.target.value)} placeholder="Ravi Sharma" />
@@ -431,13 +423,12 @@ export default function App() {
                     <Field label="Stack / role" hint={`${role.length}/38`}>
                       <input value={role} maxLength={38} onChange={(event) => setRole(event.target.value)} placeholder="React · Product · Open source" />
                     </Field>
-                    <Field label="Team name" hint="Optional · makes your ID distinct">
+                    <Field label="Team name" hint="Optional">
                       <input value={teamName} maxLength={34} onChange={(event) => setTeamName(event.target.value)} placeholder="Your team" />
                     </Field>
-                    <Field label="Generated builder class" hint="Based on your stack">
+                    <Field label="Builder class" hint="Generated from your stack">
                       <div className="generated-class">
                         <span>{builderClass}</span>
-                        <button type="button" onClick={() => setClassSeed((seed) => seed + 1)}>Remix</button>
                       </div>
                     </Field>
                   </div>
@@ -445,10 +436,10 @@ export default function App() {
                   <div className="panel">
                     <div className="panel-title">
                       <span className="step-number">02</span>
-                      <div><strong>Set your signal</strong><small>One line, maximum energy.</small></div>
+                      <div><strong>Frame text</strong></div>
                     </div>
                     <Field label="Frame headline" hint={`${badgeText.length}/36`}>
-                      <input value={badgeText} maxLength={36} onChange={(event) => setBadgeText(event.target.value)} placeholder="BUILDING FROM THE BEACH" />
+                      <input value={badgeText} maxLength={36} onChange={(event) => setBadgeText(event.target.value)} placeholder="FRAME IN GOA" />
                     </Field>
                   </div>
                 )}
@@ -458,7 +449,7 @@ export default function App() {
                 <div className="panel">
                   <div className="panel-title">
                     <span className="step-number">01</span>
-                    <div><strong>Name the crew</strong><small>This becomes the spine of your team poster.</small></div>
+                    <div><strong>Team name</strong></div>
                   </div>
                   <Field label="Team name" hint={`${teamName.length}/34`}>
                     <input value={teamName} maxLength={34} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" />
@@ -468,7 +459,7 @@ export default function App() {
                 <div className="panel">
                   <div className="panel-title team-title-row">
                     <span className="step-number">02</span>
-                    <div><strong>Add the builders</strong><small>Two to four teammates, one combined frame.</small></div>
+                    <div><strong>Team photos</strong><small>Two to four people</small></div>
                     {teamMembers.length < 4 ? (
                       <button type="button" className="small-button" onClick={() => setTeamMembers((members) => [...members, newMember(members.length)])}>+ Add</button>
                     ) : null}
@@ -496,7 +487,7 @@ export default function App() {
                       </article>
                     ))}
                   </div>
-                  <p className="photo-rule">Real teammate photos only. The combined frame is explicitly required by Task 01.</p>
+                  <p className="photo-rule">Use real teammate photos.</p>
 
                   {selectedMember?.photo ? (
                     <div className="member-crop-panel">
@@ -508,23 +499,8 @@ export default function App() {
               </>
             )}
 
-            <div className="panel theme-panel">
-              <div className="panel-title compact-title">
-                <span className="step-number">{mode === 'squad' ? '03' : '03'}</span>
-                <div><strong>Choose the edition</strong><small>Official branding stays recognizable in every version.</small></div>
-              </div>
-              <div className="palette-picker">
-                {Object.entries(PALETTES).map(([id, colors]) => (
-                  <button type="button" key={id} className={palette === id ? 'active' : ''} onClick={() => setPalette(id)}>
-                    <span className="swatches"><i style={{ background: colors.bg }} /><i style={{ background: colors.accent }} /><i style={{ background: colors.pop }} /></span>
-                    <span>{colors.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <button type="button" className="generate-button" disabled={busy} onClick={handleGenerate}>
-              <span>{busy ? 'PROCESSING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'SQUAD SIGNAL' : 'BUILDER ID'}`}</span>
+              <span>{busy ? 'PROCESSING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'TEAM FRAME' : 'BUILDER ID'}`}</span>
               <b>↗</b>
             </button>
             <p className="privacy-note">Photos stay in your browser. Nothing is uploaded or stored.</p>
@@ -541,39 +517,31 @@ export default function App() {
 
             <div className={`result-actions ${generatedMode === mode ? 'visible' : ''}`}>
               <div>
-                <strong>{generatedMode === mode ? 'Ready for the HH Goa Radar.' : 'Finish the details, then generate.'}</strong>
-                <small>{generatedMode === mode ? 'The caption includes the live link, exact hashtag and a genuine reply prompt.' : 'The preview updates as you type.'}</small>
+                <strong>{generatedMode === mode ? 'PNG ready.' : 'Add your details and generate.'}</strong>
+                <small>{generatedMode === mode ? 'Download it or share to X.' : 'The preview updates as you type.'}</small>
               </div>
               <div className="action-buttons">
                 <button type="button" className="download-button" disabled={generatedMode !== mode} onClick={downloadCanvas}>Download PNG</button>
                 <button type="button" className="share-button" disabled={generatedMode !== mode} onClick={shareToX}>Share to X ↗</button>
               </div>
             </div>
-            <p className="share-explainer">On supported phones, Share to X sends the image itself. Desktop copies the PNG for one-paste posting, with download as a universal fallback.</p>
+            <p className="share-explainer">On desktop, attach the downloaded PNG to your X post.</p>
             <div className="post-check" aria-label="X post rejection check">
-              <strong>ZERO-REJECTION POST CHECK</strong>
-              <span>✓ Your real photo</span>
+              <strong>BEFORE POSTING</strong>
+              <span>✓ Real photo</span>
               <span>✓ PNG attached</span>
-              <span>✓ Live generator link</span>
-              <span>✓ Exact #FrameInGoa</span>
+              <span>✓ Live link</span>
+              <span>✓ #FrameInGoa</span>
             </div>
           </aside>
         </section>
 
-        <div className="notice" role="status" aria-live="polite">{notice || 'Tip: use Squad Signal for the combined teammate frame requested in Task 01.'}</div>
-
-        <section className="proof-strip">
-          <span>NO LOGIN</span><i />
-          <span>AUTO-FIT PHOTOS</span><i />
-          <span>REAL 1080PX PNG</span><i />
-          <span>MOBILE IMAGE SHARE</span><i />
-          <span>#FRAMEINGOA READY</span>
-        </section>
+        {notice ? <div className="notice" role="status" aria-live="polite">{notice}</div> : null}
       </main>
 
       <footer>
-        <span>BUILT FOR HH GOA 2026 · OPEN TRIAL 01</span>
-        <span>28—31 OCT · GOA, INDIA</span>
+        <span>HH GOA 2026 · TASK 01</span>
+        <span>#FrameInGoa</span>
       </footer>
     </div>
   );
