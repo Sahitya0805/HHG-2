@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="fade" x1="0" x2="1">
+      <stop offset="0" stop-color="#002d1e"/>
+      <stop offset="0.58" stop-color="#002d1e" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#002d1e" stop-opacity="0.08"/>
+    </linearGradient>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse">
+      <path d="M38 0H0V38" fill="none" stroke="#fee101" stroke-opacity="0.08"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#0b6839"/>
+  <image href="brand/goa-sunrise.webp" x="570" y="0" width="630" height="630" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="1200" height="630" fill="url(#fade)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <image href="brand/hacker-house.png" x="58" y="42" width="620" height="128" preserveAspectRatio="xMinYMid meet"/>
+  <image href="brand/goa-hindi.svg" x="326" y="52" width="106" height="106"/>
+  <image href="brand/247pm.svg" x="1038" y="38" width="100" height="74" preserveAspectRatio="xMidYMid meet"/>
+  <rect x="60" y="204" width="204" height="44" rx="10" fill="#ff087c" stroke="#07130d" stroke-width="5"/>
+  <text x="162" y="233" fill="#fff" text-anchor="middle" font-family="monospace" font-size="16" font-weight="800">OPEN TRIAL · 01</text>
+  <text x="58" y="342" fill="#fffaf0" font-family="Arial, sans-serif" font-size="74" font-weight="900" letter-spacing="-3">FRAME IN</text>
+  <text x="58" y="420" fill="#fee101" font-family="Arial, sans-serif" font-size="86" font-weight="900" letter-spacing="-4">GOA.</text>
+  <text x="62" y="474" fill="#fffaf0" font-family="monospace" font-size="20" font-weight="700">PFP · BUILDER ID · SQUAD SIGNAL</text>
+  <rect x="60" y="516" width="448" height="66" rx="14" fill="#fff8e7" stroke="#07130d" stroke-width="7"/>
+  <text x="284" y="558" fill="#07130d" text-anchor="middle" font-family="Arial, sans-serif" font-size="27" font-weight="900">MAKE YOUR #FrameInGoa</text>
+  <text x="1142" y="588" fill="#fff" text-anchor="end" font-family="monospace" font-size="15" font-weight="700">28—31 OCT 2026 · GOA, INDIA</text>
+</svg>

@@ -6,7 +6,7 @@ export const OUTPUT_SIZES = {
 
 export const PALETTES = {
   jungle: {
-    label: 'Jungle radio',
+    label: 'Official Goa',
     bg: '#043B28',
     panel: '#FFF8E7',
     ink: '#0B1611',
@@ -16,7 +16,7 @@ export const PALETTES = {
     soft: '#D9F4DF',
   },
   midnight: {
-    label: 'Midnight build',
+    label: 'Night shift',
     bg: '#071D2D',
     panel: '#F7F1DF',
     ink: '#07131C',
@@ -26,7 +26,7 @@ export const PALETTES = {
     soft: '#D5F4F0',
   },
   sunset: {
-    label: 'Anjuna sunset',
+    label: 'Anjuna afterglow',
     bg: '#4B1426',
     panel: '#FFF5DB',
     ink: '#20100F',
@@ -69,6 +69,17 @@ export function getBuilderClass(name, role, seed = 0) {
 
 export function getPassNumber(name, role) {
   return String((hashString(`${name}|${role}`) % 900000) + 100000);
+}
+
+export function getBuilderId(name, role) {
+  const initials = (name || 'GOA')
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 3)
+    .toUpperCase() || 'GOA';
+  return `HHG26-${initials}-${getPassNumber(name, role).slice(-4)}`;
 }
 
 function roundedRect(ctx, x, y, width, height, radius, fill, stroke, strokeWidth = 0) {
@@ -197,6 +208,103 @@ function fitText(ctx, value, maxWidth, initialSize, minSize, family = 'Syne', we
   return size;
 }
 
+function drawImageContain(ctx, image, x, y, width, height) {
+  if (!image) return;
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const scale = Math.min(width / imageWidth, height / imageHeight);
+  const drawWidth = imageWidth * scale;
+  const drawHeight = imageHeight * scale;
+  ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
+}
+
+function drawOfficialBackdrop(ctx, state, palette, width, height) {
+  ctx.fillStyle = palette.bg;
+  ctx.fillRect(0, 0, width, height);
+
+  const scene = state.brandAssets?.sunrise;
+  if (scene) {
+    const sceneSize = width;
+    ctx.save();
+    ctx.globalAlpha = state.palette === 'jungle' ? 0.96 : 0.64;
+    ctx.drawImage(scene, 0, height - sceneSize, width, sceneSize);
+    ctx.restore();
+  } else {
+    drawPattern(ctx, palette, width, height);
+  }
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, 'rgba(1, 28, 18, 0.82)');
+  gradient.addColorStop(0.38, 'rgba(1, 28, 18, 0.18)');
+  gradient.addColorStop(1, 'rgba(1, 28, 18, 0.22)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  if (state.palette !== 'jungle') {
+    ctx.save();
+    ctx.globalAlpha = 0.24;
+    ctx.fillStyle = palette.bg;
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+  }
+}
+
+function drawBrandLockup(ctx, assets, x, y, width, height) {
+  if (assets?.wordmark) {
+    drawImageContain(ctx, assets.wordmark, x, y, width, height);
+    if (assets.hindi) {
+      const hindiSize = height * 0.86;
+      drawImageContain(ctx, assets.hindi, x + width * 0.44, y + height * 0.06, hindiSize, hindiSize);
+    }
+    return;
+  }
+
+  ctx.fillStyle = '#FEE101';
+  ctx.textAlign = 'left';
+  ctx.font = `800 ${Math.round(height * 0.48)}px "Syne", sans-serif`;
+  ctx.fillText('HACKER HOUSE', x, y + height * 0.65);
+  ctx.fillStyle = '#FF087C';
+  ctx.font = `800 ${Math.round(height * 0.24)}px "Syne", sans-serif`;
+  ctx.fillText('GOA 2026', x + width * 0.34, y + height * 0.92);
+}
+
+function drawStudioMark(ctx, assets, x, y, width, height) {
+  if (assets?.studio) {
+    drawImageContain(ctx, assets.studio, x, y, width, height);
+    return;
+  }
+  ctx.fillStyle = '#FEE101';
+  ctx.textAlign = 'center';
+  ctx.font = '800 18px "Space Mono", monospace';
+  ctx.fillText('2:47PM', x + width / 2, y + height / 2);
+}
+
+function drawTape(ctx, x, y, width, height, rotation, color) {
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2);
+  ctx.rotate(rotation);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.9;
+  ctx.fillRect(-width / 2, -height / 2, width, height);
+  ctx.restore();
+}
+
+function wrapText(ctx, value, x, y, maxWidth, lineHeight, maxLines = 2) {
+  const words = String(value || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  words.forEach((word) => {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width <= maxWidth || !line) line = test;
+    else {
+      lines.push(line);
+      line = word;
+    }
+  });
+  if (line) lines.push(line);
+  lines.slice(0, maxLines).forEach((text, index) => ctx.fillText(text, x, y + index * lineHeight));
+}
+
 function drawTicketEdge(ctx, palette, height) {
   ctx.save();
   ctx.fillStyle = palette.accent;
@@ -213,157 +321,172 @@ function drawTicketEdge(ctx, palette, height) {
 
 function drawPfp(ctx, state, palette) {
   const { photo, badgeText } = state;
-  ctx.fillStyle = palette.bg;
-  ctx.fillRect(0, 0, 1080, 1080);
-  drawPattern(ctx, palette, 1080, 1080);
+  drawOfficialBackdrop(ctx, state, palette, 1080, 1080);
 
-  ctx.save();
-  ctx.globalAlpha = 0.95;
-  ctx.fillStyle = palette.green;
-  ctx.beginPath();
-  ctx.arc(965, 96, 200, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+  roundedRect(ctx, 26, 26, 1028, 1028, 42, null, palette.ink, 12);
+  drawBrandLockup(ctx, state.brandAssets, 76, 38, 760, 148);
+  drawStudioMark(ctx, state.brandAssets, 900, 46, 112, 92);
 
-  roundedRect(ctx, 44, 42, 330, 86, 43, palette.accent, palette.ink, 8);
-  ctx.fillStyle = palette.ink;
-  ctx.font = '800 31px "Space Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('HH GOA / 26', 92, 96);
-  drawPalmMark(ctx, 328, 85, 44, palette.ink);
-
-  ctx.save();
-  ctx.translate(918, 220);
-  ctx.rotate(0.09);
-  roundedRect(ctx, -110, -40, 220, 80, 20, palette.pop, palette.ink, 7);
+  roundedRect(ctx, 78, 184, 260, 54, 18, palette.pop, palette.ink, 6);
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '800 24px "Space Mono", monospace';
+  ctx.font = '800 18px "Space Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('OPEN TRIAL 01', 0, 8);
-  ctx.restore();
+  ctx.fillText('OPEN TRIAL · 01', 208, 219);
+
+  ctx.fillStyle = palette.accent;
+  ctx.textAlign = 'right';
+  ctx.font = '800 18px "Space Mono", monospace';
+  ctx.fillText('28—31 OCT 2026', 1002, 208);
+  ctx.fillText('GOA, INDIA', 1002, 234);
 
   ctx.save();
   ctx.beginPath();
-  ctx.arc(540, 545, 390, 0, Math.PI * 2);
-  ctx.fillStyle = palette.accent;
+  ctx.arc(540, 575, 350, 0, Math.PI * 2);
+  ctx.fillStyle = palette.panel;
   ctx.fill();
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = palette.ink;
+  ctx.stroke();
   ctx.beginPath();
-  ctx.arc(540, 545, 352, 0, Math.PI * 2);
-  ctx.fillStyle = palette.ink;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(540, 545, 332, 0, Math.PI * 2);
+  ctx.arc(540, 575, 322, 0, Math.PI * 2);
   ctx.clip();
-  drawPhotoCover(ctx, photo, 208, 213, 664, 664);
+  drawPhotoCover(ctx, photo, 218, 253, 644, 644);
   ctx.restore();
 
   ctx.strokeStyle = palette.pop;
   ctx.lineWidth = 12;
-  ctx.setLineDash([8, 20]);
+  ctx.setLineDash([12, 16]);
   ctx.beginPath();
-  ctx.arc(540, 545, 418, 0.05, Math.PI * 1.96);
+  ctx.arc(540, 575, 378, 0.04, Math.PI * 1.95);
   ctx.stroke();
   ctx.setLineDash([]);
 
+  drawTape(ctx, 114, 400, 170, 48, -0.14, palette.accent);
+  drawTape(ctx, 790, 738, 170, 48, 0.12, palette.accent);
+
   const badge = (badgeText || 'BUILDING FROM THE BEACH').toUpperCase().slice(0, 36);
-  roundedRect(ctx, 170, 892, 740, 102, 26, palette.panel, palette.ink, 8);
+  roundedRect(ctx, 108, 872, 864, 112, 20, palette.panel, palette.ink, 9);
+  ctx.fillStyle = palette.pop;
+  ctx.fillRect(108, 872, 18, 112);
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'center';
-  const badgeSize = fitText(ctx, badge, 650, 36, 22, 'Syne', 800);
+  const badgeSize = fitText(ctx, badge, 760, 42, 24, 'Syne', 800);
   ctx.font = `800 ${badgeSize}px "Syne", sans-serif`;
-  ctx.fillText(badge, 540, 953);
+  ctx.fillText(badge, 548, 938);
 
-  ctx.fillStyle = palette.panel;
-  ctx.font = '700 22px "Space Mono", monospace';
-  ctx.fillText('28–31 OCT · GOA, INDIA · #FrameInGoa', 540, 1040);
+  roundedRect(ctx, 290, 990, 500, 52, 16, palette.ink, palette.accent, 4);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 20px "Space Mono", monospace';
+  ctx.fillText('#FrameInGoa  ·  HHGOA.COM', 540, 1024);
 }
 
 function drawPass(ctx, state, palette) {
   const name = (state.name || 'YOUR NAME').trim().toUpperCase();
   const role = (state.role || 'YOUR STACK / ROLE').trim().toUpperCase();
   const builderClass = getBuilderClass(state.name, state.role, state.classSeed);
-  const passNumber = getPassNumber(state.name, state.role);
+  const builderId = getBuilderId(state.name, state.role);
+  const teamName = (state.teamName || 'INDEPENDENT BUILDER').trim().toUpperCase();
 
-  ctx.fillStyle = palette.bg;
-  ctx.fillRect(0, 0, 1080, 1350);
-  drawPattern(ctx, palette, 1080, 1350);
+  drawOfficialBackdrop(ctx, state, palette, 1080, 1350);
+  roundedRect(ctx, 28, 28, 1024, 1294, 42, null, palette.ink, 12);
   drawTicketEdge(ctx, palette, 1350);
 
-  roundedRect(ctx, 68, 60, 944, 1230, 46, palette.panel, palette.ink, 10);
-  roundedRect(ctx, 68, 60, 944, 156, 46, palette.green);
-  ctx.fillStyle = palette.green;
-  ctx.fillRect(68, 160, 944, 56);
-
-  roundedRect(ctx, 98, 88, 92, 92, 24, palette.accent, palette.ink, 7);
-  drawPalmMark(ctx, 144, 139, 48, palette.ink);
+  drawBrandLockup(ctx, state.brandAssets, 62, 42, 670, 136);
+  drawStudioMark(ctx, state.brandAssets, 906, 46, 118, 94);
   ctx.fillStyle = '#FFFFFF';
-  ctx.textAlign = 'left';
-  ctx.font = '800 46px "Syne", sans-serif';
-  ctx.fillText('HH GOA 2026', 220, 132);
-  ctx.font = '700 20px "Space Mono", monospace';
-  ctx.fillStyle = palette.accent;
-  ctx.fillText('BUILDER PASS // OPEN TRIAL 01', 222, 170);
-
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 18px "Space Mono", monospace';
-  ctx.fillText('28—31 OCT', 962, 122);
-  ctx.fillText('GOA, INDIA', 962, 154);
-
-  drawPhotoCover(ctx, state.photo, 112, 258, 856, 520, 34);
-  roundedRect(ctx, 112, 258, 856, 520, 34, null, palette.ink, 9);
-  roundedRect(ctx, 138, 286, 236, 54, 18, palette.accent, palette.ink, 6);
-  ctx.fillStyle = palette.ink;
-  ctx.textAlign = 'center';
   ctx.font = '800 18px "Space Mono", monospace';
-  ctx.fillText('VERIFIED BUILDER', 256, 321);
+  ctx.textAlign = 'right';
+  ctx.fillText('28—31 OCT 2026', 1016, 172);
+  ctx.fillText('GOA, INDIA', 1016, 198);
 
-  roundedRect(ctx, 784, 704, 154, 50, 18, palette.pop, palette.ink, 6);
+  roundedRect(ctx, 66, 190, 392, 56, 18, palette.pop, palette.ink, 6);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 19px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('OPEN TRIAL · BUILDER ID', 262, 226);
+
+  roundedRect(ctx, 62, 266, 596, 632, 20, palette.panel, palette.ink, 10);
+  drawPhotoCover(ctx, state.photo, 84, 288, 552, 516, 10);
+  roundedRect(ctx, 84, 288, 552, 516, 10, null, palette.ink, 6);
+  drawTape(ctx, 42, 278, 158, 46, -0.12, palette.accent);
+  drawTape(ctx, 520, 788, 158, 46, 0.1, palette.accent);
+  ctx.fillStyle = palette.ink;
+  ctx.textAlign = 'left';
+  ctx.font = '700 15px "Space Mono", monospace';
+  ctx.fillText('GOA, INDIA · 15.2993° N / 74.1240° E', 90, 846);
+  ctx.fillStyle = palette.green;
+  ctx.font = '800 19px "Space Mono", monospace';
+  ctx.fillText('REAL BUILDER · REAL PHOTO', 90, 878);
+
+  roundedRect(ctx, 682, 266, 336, 632, 24, '#FFF8E7', palette.ink, 10);
+  roundedRect(ctx, 706, 292, 184, 50, 12, palette.pop, palette.ink, 5);
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 17px "Space Mono", monospace';
-  ctx.fillText(`NO. ${passNumber.slice(-3)}`, 861, 736);
-
-  ctx.textAlign = 'left';
-  ctx.fillStyle = palette.ink;
-  const nameSize = fitText(ctx, name, 790, 70, 40, 'Syne', 800);
-  ctx.font = `800 ${nameSize}px "Syne", sans-serif`;
-  ctx.fillText(name, 112, 878);
-
-  ctx.font = '700 22px "Space Mono", monospace';
-  roundedRect(ctx, 112, 910, Math.min(820, Math.max(310, ctx.measureText(role.slice(0, 38)).width + 80)), 60, 24, palette.green);
-  ctx.fillStyle = palette.accent;
-  ctx.fillText(role.slice(0, 38), 148, 949);
+  ctx.textAlign = 'center';
+  ctx.fillText('BUILDER CLASS', 798, 324);
 
   ctx.fillStyle = palette.green;
-  ctx.font = '800 18px "Space Mono", monospace';
-  ctx.fillText('GENERATED BUILDER CLASS', 112, 1034);
+  ctx.textAlign = 'left';
+  ctx.font = 'italic 47px "Instrument Serif", serif';
+  wrapText(ctx, builderClass, 710, 404, 280, 48, 3);
+
+  ctx.fillStyle = palette.pop;
+  ctx.font = '800 15px "Space Mono", monospace';
+  ctx.fillText('STACK / ROLE', 710, 558);
   ctx.fillStyle = palette.ink;
-  const classSize = fitText(ctx, builderClass, 820, 42, 28, 'Syne', 800);
-  ctx.font = `800 ${classSize}px "Syne", sans-serif`;
-  ctx.fillText(builderClass, 112, 1084);
+  ctx.font = '800 22px "Syne", sans-serif';
+  wrapText(ctx, role, 710, 596, 278, 27, 4);
+
+  ctx.fillStyle = palette.pop;
+  ctx.font = '800 15px "Space Mono", monospace';
+  ctx.fillText('TEAM SIGNAL', 710, 704);
+  ctx.fillStyle = palette.ink;
+  ctx.font = '800 23px "Syne", sans-serif';
+  wrapText(ctx, teamName, 710, 741, 278, 29, 2);
 
   ctx.strokeStyle = palette.ink;
-  ctx.lineWidth = 3;
-  ctx.setLineDash([10, 10]);
+  ctx.lineWidth = 4;
+  ctx.setLineDash([8, 8]);
   ctx.beginPath();
-  ctx.moveTo(112, 1130);
-  ctx.lineTo(968, 1130);
+  ctx.moveTo(710, 814);
+  ctx.lineTo(990, 814);
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.fillStyle = palette.green;
+  ctx.font = '800 16px "Space Mono", monospace';
+  ctx.fillText(builderId, 710, 854);
 
+  roundedRect(ctx, 62, 924, 956, 134, 18, palette.panel, palette.ink, 10);
+  ctx.fillStyle = palette.pop;
+  ctx.fillRect(62, 924, 18, 134);
   ctx.fillStyle = palette.ink;
-  ctx.font = '800 26px "Space Mono", monospace';
-  ctx.fillText('#FrameInGoa', 112, 1195);
-  ctx.font = '700 17px "Space Mono", monospace';
-  ctx.fillStyle = '#536158';
-  ctx.fillText('ADMIT ONE BUILDER · SHIP OR SHIP', 112, 1234);
+  ctx.textAlign = 'left';
+  const nameSize = fitText(ctx, name, 850, 72, 42, 'Syne', 800);
+  ctx.font = `800 ${nameSize}px "Syne", sans-serif`;
+  ctx.fillText(name, 106, 1012);
 
+  roundedRect(ctx, 62, 1082, 956, 106, 22, palette.green, palette.ink, 8);
+  ctx.fillStyle = palette.accent;
+  ctx.textAlign = 'left';
+  ctx.font = '800 17px "Space Mono", monospace';
+  ctx.fillText('GENERATED IDENTITY', 94, 1119);
+  ctx.fillStyle = '#FFFFFF';
+  const classSize = fitText(ctx, builderClass, 820, 36, 25, 'Syne', 800);
+  ctx.font = `800 ${classSize}px "Syne", sans-serif`;
+  ctx.fillText(builderClass, 94, 1163);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 25px "Space Mono", monospace';
+  ctx.fillText('#FrameInGoa', 64, 1254);
+  ctx.font = '700 16px "Space Mono", monospace';
+  ctx.fillStyle = palette.accent;
+  ctx.fillText('HHGOA.COM · LESS NOISE. MORE SIGNAL.', 64, 1288);
   ctx.textAlign = 'right';
-  ctx.fillStyle = palette.ink;
-  ctx.font = '800 40px "Space Mono", monospace';
-  ctx.fillText('▌▌ ▌ ▌▌▌ ▌ ▌▌', 962, 1204);
-  ctx.font = '700 15px "Space Mono", monospace';
-  ctx.fillText(`PASS ${passNumber}`, 962, 1234);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 34px "Space Mono", monospace';
+  ctx.fillText('▌▌ ▌ ▌▌▌ ▌ ▌▌', 1016, 1258);
+  ctx.font = '700 14px "Space Mono", monospace';
+  ctx.fillText(builderId, 1016, 1288);
 }
 
 function getSquadLayout(count) {
@@ -394,72 +517,84 @@ function drawSquad(ctx, state, palette) {
   const teamName = (state.teamName || 'YOUR CREW').trim().toUpperCase();
   const layout = getSquadLayout(visibleMembers.length);
 
-  ctx.fillStyle = palette.bg;
-  ctx.fillRect(0, 0, 1080, 1350);
-  drawPattern(ctx, palette, 1080, 1350);
+  drawOfficialBackdrop(ctx, state, palette, 1080, 1350);
+  roundedRect(ctx, 28, 28, 1024, 1294, 42, null, palette.ink, 12);
+  drawBrandLockup(ctx, state.brandAssets, 58, 36, 650, 126);
+  drawStudioMark(ctx, state.brandAssets, 906, 44, 118, 94);
 
-  ctx.fillStyle = palette.accent;
-  ctx.font = '800 20px "Space Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('HH GOA 2026 // TEAM SIGNAL', 70, 76);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 17px "Space Mono", monospace';
   ctx.textAlign = 'right';
-  ctx.fillText('28—31 OCT · GOA', 1010, 76);
+  ctx.fillText('28—31 OCT 2026', 1016, 170);
+  ctx.fillText('GOA, INDIA', 1016, 196);
 
-  ctx.textAlign = 'left';
-  ctx.fillStyle = palette.panel;
-  ctx.font = '800 82px "Syne", sans-serif';
-  ctx.fillText('BUILD TOGETHER.', 70, 184);
+  roundedRect(ctx, 64, 188, 952, 100, 20, palette.panel, palette.ink, 9);
   ctx.fillStyle = palette.pop;
-  ctx.font = 'italic 68px "Instrument Serif", serif';
-  ctx.fillText('Land in Goa.', 70, 253);
-
-  roundedRect(ctx, 70, 282, 940, 58, 24, palette.green, palette.accent, 5);
-  ctx.fillStyle = palette.accent;
-  ctx.font = '800 24px "Space Mono", monospace';
+  ctx.fillRect(64, 188, 18, 100);
+  ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
-  ctx.fillText(teamName.slice(0, 34), 104, 320);
-  ctx.textAlign = 'right';
-  ctx.fillText(`CREW OF ${visibleMembers.length}`, 974, 320);
+  const teamSize = fitText(ctx, teamName, 710, 56, 32, 'Syne', 800);
+  ctx.font = `800 ${teamSize}px "Syne", sans-serif`;
+  ctx.fillText(teamName.slice(0, 34), 104, 254);
+  roundedRect(ctx, 824, 210, 164, 56, 16, palette.accent, palette.ink, 5);
+  ctx.fillStyle = palette.ink;
+  ctx.font = '800 18px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`CREW OF ${visibleMembers.length}`, 906, 246);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'left';
+  ctx.font = '800 28px "Space Mono", monospace';
+  ctx.fillText('ONE FRAME. WHOLE CREW.', 64, 332);
+
+  ctx.save();
+  ctx.globalAlpha = 0.36;
+  roundedRect(ctx, 54, 344, 972, 778, 34, '#002A1A', palette.accent, 6);
+  ctx.restore();
 
   visibleMembers.forEach((member, index) => {
     const box = layout[index];
-    drawPhotoCover(ctx, member.photo, box.x, box.y, box.w, box.h, 28);
-    roundedRect(ctx, box.x, box.y, box.w, box.h, 28, null, palette.ink, 8);
-
-    const bandHeight = 94;
+    const bandHeight = 104;
+    roundedRect(ctx, box.x, box.y, box.w, box.h, 22, palette.panel, palette.ink, 9);
+    drawPhotoCover(ctx, member.photo, box.x + 16, box.y + 16, box.w - 32, box.h - bandHeight - 38, 10);
+    roundedRect(ctx, box.x + 16, box.y + 16, box.w - 32, box.h - bandHeight - 38, 10, null, palette.ink, 5);
     ctx.save();
-    roundedRect(ctx, box.x + 14, box.y + box.h - bandHeight - 14, box.w - 28, bandHeight, 22, palette.panel, palette.ink, 6);
     ctx.fillStyle = palette.ink;
     ctx.textAlign = 'left';
     const memberName = (member.name || `BUILDER ${index + 1}`).toUpperCase();
     const memberNameSize = fitText(ctx, memberName, box.w - 82, 30, 19, 'Syne', 800);
     ctx.font = `800 ${memberNameSize}px "Syne", sans-serif`;
-    ctx.fillText(memberName, box.x + 38, box.y + box.h - 66);
+    ctx.fillText(memberName, box.x + 28, box.y + box.h - 62);
     ctx.fillStyle = palette.green;
     ctx.font = '700 16px "Space Mono", monospace';
-    ctx.fillText((member.role || 'BUILDER').toUpperCase().slice(0, 30), box.x + 38, box.y + box.h - 34);
+    ctx.fillText((member.role || 'BUILDER').toUpperCase().slice(0, 30), box.x + 28, box.y + box.h - 29);
     ctx.restore();
 
-    roundedRect(ctx, box.x + box.w - 62, box.y + 18, 44, 44, 14, index % 2 ? palette.pop : palette.accent, palette.ink, 5);
+    roundedRect(ctx, box.x + box.w - 68, box.y + 24, 44, 44, 12, index % 2 ? palette.pop : palette.accent, palette.ink, 5);
     ctx.fillStyle = index % 2 ? '#FFFFFF' : palette.ink;
     ctx.textAlign = 'center';
     ctx.font = '800 18px "Space Mono", monospace';
-    ctx.fillText(String(index + 1).padStart(2, '0'), box.x + box.w - 40, box.y + 47);
+    ctx.fillText(String(index + 1).padStart(2, '0'), box.x + box.w - 46, box.y + 53);
   });
 
-  roundedRect(ctx, 70, 1144, 940, 132, 30, palette.panel, palette.ink, 8);
-  drawPalmMark(ctx, 130, 1212, 62, palette.green);
+  roundedRect(ctx, 64, 1144, 952, 134, 24, palette.panel, palette.ink, 9);
+  drawPalmMark(ctx, 126, 1212, 60, palette.green);
   ctx.textAlign = 'left';
   ctx.fillStyle = palette.ink;
   ctx.font = '800 30px "Space Mono", monospace';
-  ctx.fillText('#FrameInGoa', 192, 1205);
+  ctx.fillText('#FrameInGoa', 188, 1202);
   ctx.fillStyle = palette.green;
   ctx.font = '700 17px "Space Mono", monospace';
-  ctx.fillText('ONE CREW · ONE FRAME · NO FLUFF', 192, 1242);
+  ctx.fillText('REAL TEAMMATES · ONE COMBINED FRAME', 188, 1240);
   ctx.textAlign = 'right';
   ctx.fillStyle = palette.pop;
-  ctx.font = '800 38px "Syne", sans-serif';
-  ctx.fillText('GOA BOUND →', 970, 1227);
+  ctx.font = '800 34px "Syne", sans-serif';
+  ctx.fillText('GOA BOUND →', 984, 1226);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '700 15px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('HHGOA.COM · BUILT TOGETHER · 28—31 OCT 2026', 540, 1310);
 }
 
 export function drawBuilderGraphic(canvas, mode, state) {

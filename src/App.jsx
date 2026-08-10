@@ -14,8 +14,8 @@ const MODES = [
   {
     id: 'pass',
     eyebrow: '02 / SOLO',
-    name: 'Builder Pass',
-    description: 'Your photo, stack and generated builder class.',
+    name: 'Builder ID',
+    description: 'Your photo, stack, team and generated builder class.',
   },
   {
     id: 'squad',
@@ -304,13 +304,20 @@ export default function App() {
     return `hhgoa-2026-${mode}-${safeFileName(identity)}.png`;
   };
 
+  const saveFile = (file) => {
+    const anchor = document.createElement('a');
+    const url = URL.createObjectURL(file);
+    anchor.href = url;
+    anchor.download = file.name;
+    anchor.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const anchor = document.createElement('a');
-    anchor.href = canvas.toDataURL('image/png', 1);
-    anchor.download = outputName();
-    anchor.click();
+    const file = dataUrlToFile(canvas.toDataURL('image/png', 1), outputName());
+    saveFile(file);
     setNotice('PNG downloaded. Keep #FrameInGoa in your X post.');
   };
 
@@ -318,10 +325,14 @@ export default function App() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const subject = mode === 'squad'
-      ? `${teamName || 'Our crew'} is Goa bound`
-      : `${name || 'A builder'} is Goa bound`;
-    const caption = `${subject} 🌴\n\nBuilt our HH Goa 2026 ${mode === 'pfp' ? 'profile frame' : mode === 'squad' ? 'team signal' : 'builder pass'} in seconds.\n\n#FrameInGoa #HHGoa26`;
+    const liveLink = `${window.location.origin}${window.location.pathname}`;
+    const crewNames = completeTeamMembers
+      .map((member) => member.name.trim().split(/\s+/)[0])
+      .join(' · ')
+      .slice(0, 62);
+    const caption = mode === 'squad'
+      ? `Our crew ${teamName || ''} is in the frame for Hacker House Goa '26 🌴\n\n${crewNames}\n\nMake your crew frame: ${liveLink}\n\nWhich team should frame in next?\n\n#FrameInGoa @247pmstudio`
+      : `I'm in the frame for Hacker House Goa '26 🌴\n\n${name || 'Builder'} · ${builderClass}\n${role || ''}\n\nCreate yours: ${liveLink}\n\nWhat are you shipping in Goa? 👇\n\n#FrameInGoa @247pmstudio`;
     const file = dataUrlToFile(canvas.toDataURL('image/png', 1), outputName());
 
     try {
@@ -337,21 +348,21 @@ export default function App() {
     const intentUrl = `https://x.com/intent/post?text=${encodeURIComponent(caption)}`;
     const postWindow = window.open('about:blank', '_blank');
     if (postWindow) postWindow.opener = null;
+    saveFile(file);
     try {
       if (navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': file })]);
         if (postWindow) postWindow.location.href = intentUrl;
-        setNotice('X opened and the PNG is copied. Paste once into the post, then publish.');
+        setNotice('X opened, the PNG was downloaded and copied. Paste or attach it before posting.');
         return;
       }
     } catch {
       // Fall through to the universal download fallback.
     }
 
-    downloadCanvas();
     if (postWindow) postWindow.location.href = intentUrl;
     else window.open(intentUrl, '_blank', 'noopener,noreferrer');
-    setNotice('X opened with the caption. Attach the downloaded PNG, then publish.');
+    setNotice('X opened with the live link and hashtag. Attach the downloaded PNG before posting.');
   };
 
   return (
@@ -401,10 +412,11 @@ export default function App() {
                   </div>
                   <PhotoUpload
                     id="solo-photo"
-                    label="Drop your best builder photo"
+                    label="Drop your real builder selfie"
                     photo={photo}
                     onPhoto={(file) => replacePhoto(file, photo, setPhoto)}
                   />
+                  <p className="photo-rule">Use your own real photo. AI portraits, Ghibli art and random images are rejected.</p>
                   <CropControls photo={photo} onChange={setPhoto} />
                 </div>
 
@@ -419,6 +431,9 @@ export default function App() {
                     </Field>
                     <Field label="Stack / role" hint={`${role.length}/38`}>
                       <input value={role} maxLength={38} onChange={(event) => setRole(event.target.value)} placeholder="React · Product · Open source" />
+                    </Field>
+                    <Field label="Team name" hint="Optional · makes your ID distinct">
+                      <input value={teamName} maxLength={34} onChange={(event) => setTeamName(event.target.value)} placeholder="Your team" />
                     </Field>
                     <Field label="Generated builder class" hint="Based on your stack">
                       <div className="generated-class">
@@ -482,6 +497,7 @@ export default function App() {
                       </article>
                     ))}
                   </div>
+                  <p className="photo-rule">Real teammate photos only. The combined frame is explicitly required by Task 01.</p>
 
                   {selectedMember?.photo ? (
                     <div className="member-crop-panel">
@@ -496,7 +512,7 @@ export default function App() {
             <div className="panel theme-panel">
               <div className="panel-title compact-title">
                 <span className="step-number">{mode === 'squad' ? '03' : '03'}</span>
-                <div><strong>Choose the frequency</strong><small>Same HH Goa identity, different energy.</small></div>
+                <div><strong>Choose the edition</strong><small>Official branding stays recognizable in every version.</small></div>
               </div>
               <div className="palette-picker">
                 {Object.entries(PALETTES).map(([id, colors]) => (
@@ -509,7 +525,7 @@ export default function App() {
             </div>
 
             <button type="button" className="generate-button" disabled={busy} onClick={handleGenerate}>
-              <span>{busy ? 'PROCESSING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'SQUAD SIGNAL' : 'BUILDER PASS'}`}</span>
+              <span>{busy ? 'PROCESSING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'SQUAD SIGNAL' : 'BUILDER ID'}`}</span>
               <b>↗</b>
             </button>
             <p className="privacy-note">Photos stay in your browser. Nothing is uploaded or stored.</p>
@@ -526,8 +542,8 @@ export default function App() {
 
             <div className={`result-actions ${generatedMode === mode ? 'visible' : ''}`}>
               <div>
-                <strong>{generatedMode === mode ? 'Ready to leave the group chat.' : 'Finish the details, then generate.'}</strong>
-                <small>{generatedMode === mode ? 'Download the PNG or share the image from your phone.' : 'The preview updates as you type.'}</small>
+                <strong>{generatedMode === mode ? 'Ready for the HH Goa Radar.' : 'Finish the details, then generate.'}</strong>
+                <small>{generatedMode === mode ? 'The caption includes the live link, exact hashtag and a genuine reply prompt.' : 'The preview updates as you type.'}</small>
               </div>
               <div className="action-buttons">
                 <button type="button" className="download-button" disabled={generatedMode !== mode} onClick={downloadCanvas}>Download PNG</button>
@@ -535,6 +551,13 @@ export default function App() {
               </div>
             </div>
             <p className="share-explainer">On supported phones, Share to X sends the image itself. Desktop copies the PNG for one-paste posting, with download as a universal fallback.</p>
+            <div className="post-check" aria-label="X post rejection check">
+              <strong>ZERO-REJECTION POST CHECK</strong>
+              <span>✓ Your real photo</span>
+              <span>✓ PNG attached</span>
+              <span>✓ Live generator link</span>
+              <span>✓ Exact #FrameInGoa</span>
+            </div>
           </aside>
         </section>
 
