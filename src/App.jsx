@@ -372,7 +372,6 @@ export default function App() {
       <main>
         <section className="hero">
           <div className="hero-copy">
-            <p className="kicker"><span /> HH GOA OPEN TRIAL · TASK 01</p>
             <h1>Make your builder signal <em>impossible to miss.</em></h1>
             <p className="hero-description">
               Upload once. Get a crisp, share-ready HH Goa graphic—solo or with your whole crew.

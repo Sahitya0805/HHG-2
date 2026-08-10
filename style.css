@@ -207,25 +207,6 @@ main {
   transform: rotate(12deg);
 }
 
-.kicker {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--green);
-  font: 700 12px/1 var(--mono);
-  letter-spacing: 0.12em;
-  margin-bottom: 20px;
-}
-
-.kicker span {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--pink);
-  box-shadow: 0 0 0 5px rgba(255, 8, 124, 0.12);
-}
-
 .hero h1 {
   max-width: 930px;
   font: 800 clamp(45px, 6vw, 86px)/0.95 var(--display);
