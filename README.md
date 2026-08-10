@@ -1,19 +1,38 @@
-# HH Goa 2026 Frame & Builder ID Generator
+# HH Goa 2026 Builder Signal Generator
 
-A simple web application where builders and attendees of HH Goa 2026 can generate branded profile frames and builder identity cards.
+A mobile-first generator built for HH Goa 2026 Shortlisting Task 01. It creates crisp, downloadable graphics directly in the browser—no login, upload server, or manual cropping required.
 
-## Features
+## Output modes
 
-- **Option A — Profile Frame**: Profile picture overlay frame with event dates.
-- **Option B — Builder ID Card**: Digital event pass card with Name, Role, and Builder Title.
-- **Image Support**: Upload JPG, PNG, or iPhone HEIC photos.
-- **Export**: Instant PNG download and Share to X with `#FrameInGoa` hashtag.
+- **Goa PFP** — a 1080 × 1080 profile frame.
+- **Builder Pass** — a 1080 × 1350 event-style pass with a deterministic builder class generated from the user's stack.
+- **Squad Signal** — a combined 1080 × 1350 team poster for two to four builders.
 
-## Local Setup
+## Task requirements covered
+
+- JPG, PNG, WebP, HEIC and HEIF input.
+- Automatic cover fitting for portrait, landscape and unusual aspect ratios.
+- Optional zoom, pan and photo filters.
+- Real high-resolution PNG download.
+- Native image sharing on supported mobile browsers.
+- Desktop X fallback with a pre-filled caption and mandatory `#FrameInGoa` hashtag.
+- Fully client-side photo processing.
+- Responsive, one-pass flow with no account gate.
+
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173 in your browser.
+Production check:
+
+```bash
+npm run build
+npm run preview
+```
+
+## Submission reminder
+
+Only one submission is accepted per team. The submission must include the live link and an X post that actually contains `#FrameInGoa`.
