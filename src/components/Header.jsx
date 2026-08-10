@@ -2,15 +2,24 @@ import React from 'react';
 
 export default function Header() {
   return (
-    <header className="app-header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <div className="brand-badge">🌴</div>
-        <div>
-          <div className="brand-title">HH GOA 2026</div>
-          <div className="brand-sub">28–31 OCT 2026 • GOA, INDIA</div>
-        </div>
+    <header className="site-header">
+      <a className="brand" href="#top" aria-label="HH Goa 2026 generator home">
+        <span className="brand-lockup" aria-hidden="true">
+          <img className="brand-wordmark" src="/brand/hacker-house.png" alt="" />
+          <img className="brand-hindi" src="/brand/goa-hindi.svg" alt="" />
+        </span>
+        <span className="brand-product">
+          <strong>FRAME LAB</strong>
+          <small>COMMUNITY-BUILT · OPEN TRIAL 01</small>
+        </span>
+      </a>
+      <div className="header-meta">
+        <span>28—31 OCT 2026</span>
+        <span>GOA, INDIA</span>
       </div>
-      <div className="hashtag-pill">#FrameInGoa</div>
+      <a className="hashtag-link" href="https://x.com/search?q=%23FrameInGoa" target="_blank" rel="noreferrer">
+        #FrameInGoa ↗
+      </a>
     </header>
   );
 }
