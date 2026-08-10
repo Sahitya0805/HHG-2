@@ -349,7 +349,7 @@ function drawPfp(ctx, state, palette) {
   roundedRect(ctx, 290, 990, 500, 52, 16, palette.ink, palette.accent, 4);
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 20px "Space Mono", monospace';
-  ctx.fillText('#FrameInGoa  ·  HHGOA.COM', 540, 1024);
+  ctx.fillText('HHGOA.COM  ·  TASK 01', 540, 1024);
 }
 
 function drawPass(ctx, state, palette) {
@@ -449,7 +449,7 @@ function drawPass(ctx, state, palette) {
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 25px "Space Mono", monospace';
-  ctx.fillText('#FrameInGoa', 64, 1254);
+  ctx.fillText('HHGOA.COM', 64, 1254);
   ctx.font = '700 16px "Space Mono", monospace';
   ctx.fillStyle = palette.accent;
   ctx.fillText('HHGOA.COM · TASK 01', 64, 1288);
@@ -554,7 +554,7 @@ function drawSquad(ctx, state, palette) {
   ctx.textAlign = 'left';
   ctx.fillStyle = palette.ink;
   ctx.font = '800 30px "Space Mono", monospace';
-  ctx.fillText('#FrameInGoa', 188, 1202);
+  ctx.fillText('HH GOA TEAM FRAME', 188, 1202);
   ctx.fillStyle = palette.green;
   ctx.font = '700 17px "Space Mono", monospace';
   ctx.fillText('REAL TEAMMATES · ONE COMBINED FRAME', 188, 1240);
