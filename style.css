@@ -308,6 +308,7 @@ main {
   background: var(--forest);
   overflow: hidden;
   position: relative;
+  container-type: inline-size;
   transform: rotate(1deg);
 }
 
@@ -344,11 +345,14 @@ main {
 .hero-art strong {
   position: absolute;
   left: 24px;
+  right: 24px;
   bottom: 22px;
   z-index: 1;
   color: #fff;
-  font: 800 clamp(25px, 3vw, 42px)/1 var(--display);
+  display: block;
+  font: 800 clamp(22px, 8cqw, 36px)/1 var(--display);
   letter-spacing: -0.04em;
+  white-space: nowrap;
 }
 
 .mode-picker {
