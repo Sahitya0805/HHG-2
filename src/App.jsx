@@ -293,9 +293,18 @@ export default function App() {
     setSelectedMemberId(id);
   });
 
-  const removeMember = (id) => {
-    setTeamMembers((members) => members.filter((item) => item.id !== id));
-    if (selectedMemberId === id) setSelectedMemberId(null);
+  const setTeamSize = (targetCount) => {
+    setTeamMembers((current) => {
+      if (current.length === targetCount) return current;
+      if (current.length < targetCount) {
+        const added = [];
+        for (let i = current.length; i < targetCount; i += 1) {
+          added.push(newMember(i));
+        }
+        return [...current, ...added];
+      }
+      return current.slice(0, targetCount);
+    });
   };
 
   const selectedMember = teamMembers.find((member) => member.id === selectedMemberId);
@@ -502,10 +511,19 @@ export default function App() {
                 <div className="panel">
                   <div className="panel-title team-title-row">
                     <span className="step-number">02</span>
-                    <div><strong>Team photos</strong><small>Two to four people</small></div>
-                    {teamMembers.length < 4 ? (
-                      <button type="button" className="small-button" onClick={() => setTeamMembers((members) => [...members, newMember(members.length)])}>+ Add</button>
-                    ) : null}
+                    <div><strong>Team photos</strong><small>Select team size</small></div>
+                    <div className="team-size-picker">
+                      {[2, 3, 4].map((count) => (
+                        <button
+                          type="button"
+                          key={count}
+                          className={`size-button ${teamMembers.length === count ? 'active' : ''}`}
+                          onClick={() => setTeamSize(count)}
+                        >
+                          {count} Builders
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="member-list">

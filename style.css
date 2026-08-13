@@ -734,6 +734,30 @@ main {
   margin-left: auto;
 }
 
+.team-size-picker {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.size-button {
+  padding: 6px 10px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+  font: 800 10px/1 var(--mono);
+  transition: background 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.size-button:hover,
+.size-button.active {
+  background: var(--pink);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
 .member-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
