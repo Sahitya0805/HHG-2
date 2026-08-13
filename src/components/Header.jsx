@@ -12,7 +12,6 @@ export default function Header() {
         </a>
 
         <div className="header-task">
-          <span>TASK 01</span>
           <strong>FRAME / ID GENERATOR</strong>
         </div>
 

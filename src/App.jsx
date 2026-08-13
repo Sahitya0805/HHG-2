@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from './components/Header.jsx';
 import BuilderCanvas from './components/BuilderCanvas.jsx';
-import { getBuilderClass, getTeamRoster, OUTPUT_SIZES } from './lib/drawCard.js';
+import { getBuilderClass, isMemberComplete, OUTPUT_SIZES } from './lib/drawCard.js';
 
 const MODES = [
   {
@@ -254,12 +254,30 @@ export default function App() {
   }), [badgeText, name, photo, role, teamMembers, teamName]);
 
   const builderClass = getBuilderClass(name, role);
-  const completeTeamMembers = getTeamRoster(teamMembers);
+  const completeTeamMembers = teamMembers.filter(isMemberComplete);
+  // Every slot on the frame has to be filled, so what you see in the preview is
+  // what comes out of the download.
+  const teamReady = teamMembers.length >= 2 && completeTeamMembers.length === teamMembers.length;
   const canGenerate = mode === 'pfp'
     ? Boolean(photo)
     : mode === 'pass'
       ? Boolean(photo && name.trim() && role.trim())
-      : Boolean(teamName.trim() && completeTeamMembers.length >= 2);
+      : Boolean(teamName.trim() && teamReady);
+
+  // Say exactly which slot is short of what, rather than one vague sentence.
+  const describeTeamGap = () => {
+    if (!teamName.trim()) return 'Give the team a name first.';
+    const gaps = teamMembers.flatMap((member, index) => {
+      const missing = [];
+      if (!member.name.trim()) missing.push('a name');
+      if (!member.photo?.image) missing.push('a photo');
+      return missing.length
+        ? [`Builder ${String(index + 1).padStart(2, '0')} still needs ${missing.join(' and ')}`]
+        : [];
+    });
+    if (!gaps.length) return 'You need at least two teammates on the frame.';
+    return `${gaps.join('. ')}. Remove the slot if that person is not coming.`;
+  };
 
   const replacePhoto = async (file, commit) => {
     setBusy(true);
@@ -293,7 +311,7 @@ export default function App() {
   const handleGenerate = () => {
     if (!canGenerate) {
       say(mode === 'squad'
-        ? 'Needs a team name, plus at least two teammates who each have a name and a photo.'
+        ? describeTeamGap()
         : mode === 'pass'
           ? 'Fill in the photo, name and stack first.'
           : 'Pick a photo first.', 'error');
@@ -403,7 +421,7 @@ export default function App() {
       <main>
         <section className="hero">
           <div className="hero-copy">
-            <p className="kicker"><span /> TASK 01 · #FRAMEINGOA</p>
+            <p className="kicker"><span /> #FRAMEINGOA</p>
             <h1>Build your HH Goa <em>frame.</em></h1>
             <p className="hero-description">
               Drop in a photo, type your details, save the PNG. It all runs in this tab.
@@ -527,7 +545,7 @@ export default function App() {
                       </article>
                     ))}
                   </div>
-                  <p className="photo-rule">Real photos of the actual teammates. A name and a photo each, or they will not show up on the frame.</p>
+                  <p className="photo-rule">Real photos of the actual teammates. Every slot on the frame needs a name and a photo before you can generate.</p>
 
                   {selectedMember?.photo ? (
                     <div className="member-crop-panel">
@@ -591,7 +609,7 @@ export default function App() {
       ) : null}
 
       <footer>
-        <span>HH GOA 2026 · TASK 01</span>
+        <span>HH GOA 2026</span>
         <span>#FrameInGoa</span>
       </footer>
     </div>

@@ -1,8 +1,8 @@
 # Frame In Goa · HH Goa 2026
 
-A small browser tool for HH Goa 2026 Shortlisting Task 01. You give it a photo and
-your details, it gives you back a PNG you can post. There is no login, no upload
-server, and no cropping in a separate app first.
+A small browser tool for HH Goa 2026. You give it a photo and your details, it
+gives you back a PNG you can post. There is no login, no upload server, and no
+cropping in a separate app first.
 
 ## What it makes
 
@@ -37,7 +37,8 @@ Every photo is processed in the browser. Nothing is uploaded anywhere.
 
 The Hacker House wordmark, the गोवा lockup, the 2:47PM Studio mark and the Goa
 sunrise illustration all come from [hhgoa.com](https://hhgoa.com/). This is a
-community build for Open Trial 01. It does not represent admission or selection.
+community build. The graphics it makes are for sharing, and do not represent
+admission or selection.
 
 ## Running it
 
@@ -53,7 +54,7 @@ npm run build
 npm run preview
 ```
 
-## Before you submit
+## Posting
 
-One submission per team. Use real photos of real people, attach the generated PNG,
-include the live link, and keep `#FrameInGoa` spelled exactly that way in the post.
+Use real photos of real people, attach the generated PNG rather than only a link,
+and keep `#FrameInGoa` spelled exactly that way.

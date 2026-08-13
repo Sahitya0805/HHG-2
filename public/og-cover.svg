@@ -16,12 +16,12 @@
   <image href="brand/hacker-house.png" x="58" y="42" width="620" height="128" preserveAspectRatio="xMinYMid meet"/>
   <image href="brand/goa-hindi.svg" x="326" y="52" width="106" height="106"/>
   <image href="brand/247pm.svg" x="1038" y="38" width="100" height="74" preserveAspectRatio="xMidYMid meet"/>
-  <rect x="60" y="204" width="204" height="44" rx="10" fill="#ff087c" stroke="#07130d" stroke-width="5"/>
-  <text x="162" y="233" fill="#fff" text-anchor="middle" font-family="monospace" font-size="16" font-weight="800">OPEN TRIAL · 01</text>
+  <rect x="60" y="204" width="184" height="44" rx="10" fill="#ff087c" stroke="#07130d" stroke-width="5"/>
+  <text x="152" y="233" fill="#fff" text-anchor="middle" font-family="monospace" font-size="16" font-weight="800">HH GOA 2026</text>
   <text x="58" y="342" fill="#fffaf0" font-family="Arial, sans-serif" font-size="74" font-weight="900" letter-spacing="-3">FRAME IN</text>
   <text x="58" y="420" fill="#fee101" font-family="Arial, sans-serif" font-size="86" font-weight="900" letter-spacing="-4">GOA.</text>
   <text x="62" y="474" fill="#fffaf0" font-family="monospace" font-size="20" font-weight="700">PFP · BUILDER ID · TEAM FRAME</text>
   <rect x="60" y="516" width="448" height="66" rx="14" fill="#fff8e7" stroke="#07130d" stroke-width="7"/>
   <text x="284" y="558" fill="#07130d" text-anchor="middle" font-family="Arial, sans-serif" font-size="27" font-weight="900">MAKE YOUR #FrameInGoa</text>
-  <text x="1142" y="588" fill="#fff" text-anchor="end" font-family="monospace" font-size="15" font-weight="700">28—31 OCT 2026 · GOA, INDIA</text>
+  <text x="1142" y="588" fill="#fff" text-anchor="end" font-family="monospace" font-size="15" font-weight="700">28–31 OCT 2026 · GOA, INDIA</text>
 </svg>

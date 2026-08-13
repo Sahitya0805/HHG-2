@@ -11,7 +11,10 @@ export const PALETTES = {
     panel: '#FFF8E7',
     ink: '#0B1611',
     green: '#08733F',
-    accent: '#FFD400',
+    // Sampled straight out of the official wordmark PNG. The palette used to carry
+    // #FFD400 here while the logo fallbacks hardcoded #FEE101, so two different
+    // yellows were shipping side by side.
+    accent: '#FEE101',
     pop: '#FF087C',
     soft: '#D9F4DF',
   },
@@ -59,11 +62,10 @@ export function getBuilderId(name, role) {
   return `HHG26-${initials}-${getPassNumber(name, role).slice(-4)}`;
 }
 
-// A teammate only counts once they have both a photo and a name, so the preview
-// shows exactly what the download will contain.
-export function getTeamRoster(teamMembers = []) {
-  const ready = teamMembers.filter((member) => member.photo?.image && member.name.trim());
-  return ready.length >= 2 ? ready.slice(0, 4) : [];
+// A slot is only ready to print once it has both a photo and a name. The preview
+// still draws every slot you have added, so adding one is visible immediately.
+export function isMemberComplete(member) {
+  return Boolean(member?.photo?.image && member?.name?.trim());
 }
 
 function roundedRect(ctx, x, y, width, height, radius, fill, stroke, strokeWidth = 0) {
@@ -280,6 +282,19 @@ function drawStudioMark(ctx, assets, x, y, width, height) {
   ctx.fillText('2:47PM', x + width / 2, y + height / 2);
 }
 
+// A panel with a colour strip down its leading edge. The strip is clipped to the
+// rounded path so it stops poking out past the corner radius.
+function drawEdgePanel(ctx, x, y, width, height, radius, fill, edge, edgeWidth, stroke, strokeWidth) {
+  roundedRect(ctx, x, y, width, height, radius, fill);
+  ctx.save();
+  roundedRect(ctx, x, y, width, height, radius);
+  ctx.clip();
+  ctx.fillStyle = edge;
+  ctx.fillRect(x, y, edgeWidth, height);
+  ctx.restore();
+  if (stroke && strokeWidth) roundedRect(ctx, x, y, width, height, radius, null, stroke, strokeWidth);
+}
+
 function drawTape(ctx, x, y, width, height, rotation, color) {
   ctx.save();
   ctx.translate(x + width / 2, y + height / 2);
@@ -328,11 +343,11 @@ function drawPfp(ctx, state, palette) {
   drawBrandLockup(ctx, state.brandAssets, 76, 38, 760, 148);
   drawStudioMark(ctx, state.brandAssets, 900, 46, 112, 92);
 
-  roundedRect(ctx, 78, 184, 260, 54, 18, palette.pop, palette.ink, 6);
+  roundedRect(ctx, 78, 184, 230, 54, 18, palette.pop, palette.ink, 6);
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 18px "Space Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('OPEN TRIAL · 01', 208, 219);
+  ctx.fillText('HH GOA 2026', 193, 219);
 
   ctx.fillStyle = palette.accent;
   ctx.textAlign = 'right';
@@ -365,20 +380,20 @@ function drawPfp(ctx, state, palette) {
   drawTape(ctx, 114, 400, 170, 48, -0.14, palette.accent);
   drawTape(ctx, 790, 738, 170, 48, 0.12, palette.accent);
 
+  // Brand yellow on the dark panel, the way the wordmark is set. Yellow on the old
+  // cream panel would have been about 1.4:1 and unreadable.
   const badge = (badgeText || 'FRAME IN GOA').toUpperCase().slice(0, 36);
-  roundedRect(ctx, 108, 872, 864, 112, 20, palette.panel, palette.ink, 9);
-  ctx.fillStyle = palette.pop;
-  ctx.fillRect(108, 872, 18, 112);
-  ctx.fillStyle = palette.ink;
+  drawEdgePanel(ctx, 108, 872, 864, 112, 20, palette.ink, palette.pop, 18, palette.accent, 9);
+  ctx.fillStyle = palette.accent;
   ctx.textAlign = 'center';
   const badgeSize = fitText(ctx, badge, 760, 42, 24, 'Syne', 800);
   ctx.font = `800 ${badgeSize}px "Syne", sans-serif`;
   ctx.fillText(badge, 548, 938);
 
-  roundedRect(ctx, 290, 990, 500, 52, 16, palette.ink, palette.accent, 4);
-  ctx.fillStyle = '#FFFFFF';
+  roundedRect(ctx, 350, 990, 380, 52, 16, palette.panel, palette.ink, 4);
+  ctx.fillStyle = palette.ink;
   ctx.font = '800 20px "Space Mono", monospace';
-  ctx.fillText('HHGOA.COM  ·  TASK 01', 540, 1024);
+  ctx.fillText('HHGOA.COM', 540, 1024);
 }
 
 function drawPass(ctx, state, palette) {
@@ -400,11 +415,11 @@ function drawPass(ctx, state, palette) {
   ctx.fillText('28–31 OCT 2026', 1016, 172);
   ctx.fillText('GOA, INDIA', 1016, 198);
 
-  roundedRect(ctx, 66, 190, 392, 56, 18, palette.pop, palette.ink, 6);
+  roundedRect(ctx, 66, 190, 240, 56, 18, palette.pop, palette.ink, 6);
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 19px "Space Mono", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('OPEN TRIAL · BUILDER ID', 262, 226);
+  ctx.fillText('BUILDER ID', 186, 226);
 
   roundedRect(ctx, 62, 266, 596, 632, 20, palette.panel, palette.ink, 10);
   drawPhotoCover(ctx, state.photo, 84, 288, 552, 516, 10);
@@ -457,9 +472,7 @@ function drawPass(ctx, state, palette) {
   ctx.font = '800 16px "Space Mono", monospace';
   ctx.fillText(builderId, 710, 854);
 
-  roundedRect(ctx, 62, 924, 956, 134, 18, palette.panel, palette.ink, 10);
-  ctx.fillStyle = palette.pop;
-  ctx.fillRect(62, 924, 18, 134);
+  drawEdgePanel(ctx, 62, 924, 956, 134, 18, palette.panel, palette.pop, 18, palette.ink, 10);
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
   const nameSize = fitText(ctx, name, 850, 72, 42, 'Syne', 800);
@@ -479,13 +492,9 @@ function drawPass(ctx, state, palette) {
   // Seat the footer on a solid strip. Left over bare artwork it was unreadable.
   roundedRect(ctx, 62, 1212, 956, 84, 18, palette.ink, palette.accent, 5);
   ctx.fillStyle = palette.accent;
-  ctx.textAlign = 'left';
+  ctx.textAlign = 'center';
   ctx.font = '800 22px "Space Mono", monospace';
-  ctx.fillText('HHGOA.COM', 96, 1262);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 16px "Space Mono", monospace';
-  ctx.fillText('TASK 01', 984, 1262);
+  ctx.fillText('HHGOA.COM', 540, 1262);
 }
 
 // Every layout fills the frame down to y=1106 so no arrangement leaves a dead gap
@@ -513,8 +522,9 @@ function getSquadLayout(count) {
 }
 
 function drawSquad(ctx, state, palette) {
-  const roster = getTeamRoster(state.teamMembers);
-  const visibleMembers = roster.length ? roster : state.teamMembers.slice(0, 2);
+  // Draw every slot the user has added, filled in or not, so adding or removing a
+  // teammate changes the frame straight away.
+  const visibleMembers = state.teamMembers.slice(0, 4);
   const teamName = (state.teamName || 'YOUR CREW').trim().toUpperCase();
   const layout = getSquadLayout(visibleMembers.length);
 
@@ -529,9 +539,7 @@ function drawSquad(ctx, state, palette) {
   ctx.fillText('28–31 OCT 2026', 1016, 170);
   ctx.fillText('GOA, INDIA', 1016, 196);
 
-  roundedRect(ctx, 64, 188, 952, 100, 20, palette.panel, palette.ink, 9);
-  ctx.fillStyle = palette.pop;
-  ctx.fillRect(64, 188, 18, 100);
+  drawEdgePanel(ctx, 64, 188, 952, 100, 20, palette.panel, palette.pop, 18, palette.ink, 9);
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
   const teamSize = fitText(ctx, teamName, 700, 56, 32, 'Syne', 800);
