@@ -1,26 +1,26 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Header from './components/Header.jsx';
 import BuilderCanvas from './components/BuilderCanvas.jsx';
-import { getBuilderClass, OUTPUT_SIZES } from './lib/drawCard.js';
+import { getBuilderClass, getTeamRoster, OUTPUT_SIZES } from './lib/drawCard.js';
 
 const MODES = [
   {
     id: 'pfp',
     eyebrow: '01 / PFP',
     name: 'Goa PFP',
-    description: 'Square profile frame',
+    description: 'Square, for your profile picture',
   },
   {
     id: 'pass',
     eyebrow: '02 / ID',
     name: 'Builder ID',
-    description: 'Photo, name and stack',
+    description: 'Your photo, name and what you build',
   },
   {
     id: 'squad',
     eyebrow: '03 / TEAM',
     name: 'Team Frame',
-    description: 'One combined teammate frame',
+    description: 'Two to four of you on one poster',
   },
 ];
 
@@ -42,15 +42,18 @@ function loadImage(url) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error('That photo could not be read. Try a JPG or PNG instead.'));
+    image.onerror = () => reject(new Error('Could not read that file. A JPG or PNG usually works.'));
     image.src = url;
   });
 }
 
 async function preparePhoto(file) {
   if (!file) return null;
+  if (!/^image\//.test(file.type) && !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)) {
+    throw new Error('That does not look like an image file.');
+  }
   if (file.size > 20 * 1024 * 1024) {
-    throw new Error('Please choose a photo smaller than 20 MB.');
+    throw new Error('That photo is over 20 MB. Pick a smaller one.');
   }
 
   const fileName = file.name.toLowerCase();
@@ -63,23 +66,24 @@ async function preparePhoto(file) {
       const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
       blob = Array.isArray(converted) ? converted[0] : converted;
     } catch {
-      throw new Error('This HEIC photo could not be converted. Try exporting it as JPG first.');
+      throw new Error('Could not convert that HEIC. Export it as a JPG and try again.');
     }
   }
 
+  // Decode first, then hand the blob URL straight back. The decoded bitmap lives on
+  // the image element from here on, so holding the URL open would just leak memory.
   const url = URL.createObjectURL(blob);
   try {
     const image = await loadImage(url);
+    if (image.decode) await image.decode().catch(() => {});
     return {
       image,
-      url,
       fileName: file.name,
       filter: 'normal',
       crop: { zoom: 1, x: 0, y: 0 },
     };
-  } catch (error) {
+  } finally {
     URL.revokeObjectURL(url);
-    throw error;
   }
 }
 
@@ -115,8 +119,15 @@ function PhotoUpload({ id, label, photo, onPhoto, compact = false }) {
         id={id}
         className="visually-hidden"
         type="file"
+        tabIndex={-1}
+        aria-hidden="true"
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
-        onChange={(event) => acceptFile(event.target.files?.[0])}
+        onChange={(event) => {
+          acceptFile(event.target.files?.[0]);
+          // Without this, picking the same file twice fires no change event, so
+          // re-choosing a photo you just reset would silently do nothing.
+          event.target.value = '';
+        }}
       />
       <button
         type="button"
@@ -124,7 +135,9 @@ function PhotoUpload({ id, label, photo, onPhoto, compact = false }) {
         onClick={() => inputRef.current?.click()}
         onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
         onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
+        onDragLeave={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setDragging(false);
+        }}
         onDrop={(event) => {
           event.preventDefault();
           setDragging(false);
@@ -133,8 +146,8 @@ function PhotoUpload({ id, label, photo, onPhoto, compact = false }) {
       >
         <span className="upload-icon" aria-hidden="true">{photo ? '✓' : '+'}</span>
         <span>
-          <strong>{photo ? 'Photo ready' : label}</strong>
-          <small>{photo ? photo.fileName : 'JPG, PNG, WebP or iPhone HEIC · up to 20 MB'}</small>
+          <strong>{photo ? 'Photo added' : label}</strong>
+          <small>{photo ? photo.fileName : 'JPG, PNG, WebP or iPhone HEIC, up to 20 MB'}</small>
         </span>
         <span className="upload-action">{photo ? 'Replace' : 'Choose'}</span>
       </button>
@@ -207,6 +220,7 @@ function Field({ label, hint, children }) {
 
 export default function App() {
   const canvasRef = useRef(null);
+  const previewRef = useRef(null);
   const [mode, setMode] = useState('pass');
   const palette = 'jungle';
   const [photo, setPhoto] = useState(null);
@@ -218,7 +232,16 @@ export default function App() {
   const [selectedMemberId, setSelectedMemberId] = useState(null);
   const [generatedMode, setGeneratedMode] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState(null);
+
+  const say = (message, tone = 'info') => setNotice({ message, tone, key: Date.now() });
+
+  // Successes clear themselves; errors stay put until the next action.
+  useEffect(() => {
+    if (!notice || notice.tone === 'error') return undefined;
+    const timer = window.setTimeout(() => setNotice(null), 7000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
 
   const state = useMemo(() => ({
     palette,
@@ -231,23 +254,21 @@ export default function App() {
   }), [badgeText, name, photo, role, teamMembers, teamName]);
 
   const builderClass = getBuilderClass(name, role);
-  const completeTeamMembers = teamMembers.filter((member) => member.photo && member.name.trim());
+  const completeTeamMembers = getTeamRoster(teamMembers);
   const canGenerate = mode === 'pfp'
     ? Boolean(photo)
     : mode === 'pass'
       ? Boolean(photo && name.trim() && role.trim())
       : Boolean(teamName.trim() && completeTeamMembers.length >= 2);
 
-  const replacePhoto = async (file, currentPhoto, commit) => {
+  const replacePhoto = async (file, commit) => {
     setBusy(true);
-    setNotice('Preparing your photo…');
+    say('Reading the photo…');
     try {
-      const nextPhoto = await preparePhoto(file);
-      if (currentPhoto?.url) URL.revokeObjectURL(currentPhoto.url);
-      commit(nextPhoto);
-      setNotice('Photo fitted automatically. Fine-tune it only if you want.');
+      commit(await preparePhoto(file));
+      say('Photo is in. Nudge the zoom or position if the crop looks off.');
     } catch (error) {
-      setNotice(error.message);
+      say(error.message, 'error');
     } finally {
       setBusy(false);
     }
@@ -257,20 +278,13 @@ export default function App() {
     setTeamMembers((members) => members.map((member) => member.id === id ? { ...member, ...patch } : member));
   };
 
-  const uploadMemberPhoto = async (id, file) => {
-    const current = teamMembers.find((member) => member.id === id);
-    await replacePhoto(file, current?.photo, (nextPhoto) => {
-      updateMember(id, { photo: nextPhoto });
-      setSelectedMemberId(id);
-    });
-  };
+  const uploadMemberPhoto = (id, file) => replacePhoto(file, (nextPhoto) => {
+    updateMember(id, { photo: nextPhoto });
+    setSelectedMemberId(id);
+  });
 
   const removeMember = (id) => {
-    setTeamMembers((members) => {
-      const member = members.find((item) => item.id === id);
-      if (member?.photo?.url) URL.revokeObjectURL(member.photo.url);
-      return members.filter((item) => item.id !== id);
-    });
+    setTeamMembers((members) => members.filter((item) => item.id !== id));
     if (selectedMemberId === id) setSelectedMemberId(null);
   };
 
@@ -278,16 +292,19 @@ export default function App() {
 
   const handleGenerate = () => {
     if (!canGenerate) {
-      setNotice(mode === 'squad'
-        ? 'Add a team name and at least two teammates with names and photos.'
+      say(mode === 'squad'
+        ? 'Needs a team name, plus at least two teammates who each have a name and a photo.'
         : mode === 'pass'
-          ? 'Add your photo, name and stack before generating the ID.'
-          : 'Add a photo before generating the frame.');
+          ? 'Fill in the photo, name and stack first.'
+          : 'Pick a photo first.', 'error');
       return;
     }
 
     setGeneratedMode(mode);
-    setNotice('Your high-resolution graphic is ready to download or share.');
+    say('Done. Save it, or send it straight to X.');
+    // On narrow screens the preview sits above the controls, so without this the
+    // button appears to do nothing.
+    previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   const outputName = () => {
@@ -307,9 +324,8 @@ export default function App() {
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const file = dataUrlToFile(canvas.toDataURL('image/png', 1), outputName());
-    saveFile(file);
-    setNotice('PNG downloaded. Keep #FrameInGoa in your X post.');
+    saveFile(dataUrlToFile(canvas.toDataURL('image/png'), outputName()));
+    say('Saved to your downloads. Keep the #FrameInGoa tag on the post.');
   };
 
   const shareToX = async () => {
@@ -321,15 +337,32 @@ export default function App() {
       .map((member) => member.name.trim().split(/\s+/)[0])
       .join(' · ')
       .slice(0, 62);
-    const caption = mode === 'squad'
-      ? `${teamName || 'Our team'} for Hacker House Goa '26 🌴\n\n${crewNames}\n\nCreate your team frame: ${liveLink}\n\n#FrameInGoa @247pmstudio`
-      : `My Hacker House Goa '26 builder frame 🌴\n\n${name || 'Builder'} · ${builderClass}\n${role || ''}\n\nCreate yours: ${liveLink}\n\n#FrameInGoa @247pmstudio`;
-    const file = dataUrlToFile(canvas.toDataURL('image/png', 1), outputName());
+    const buildCaption = () => {
+      if (mode === 'squad') {
+        return `${teamName || 'Our team'} for Hacker House Goa '26 🌴\n\n${crewNames}`;
+      }
+      if (mode === 'pfp') {
+        return "My Hacker House Goa '26 frame 🌴";
+      }
+      // Skip the role line rather than leaving a blank one behind when it is empty.
+      return [
+        "My Hacker House Goa '26 builder ID 🌴",
+        '',
+        `${name || 'Builder'} · ${builderClass}`,
+        role.trim(),
+      ].filter((line, index) => index < 3 || line).join('\n');
+    };
+
+    const caption = `${buildCaption()}\n\nMake yours: ${liveLink}\n\n#FrameInGoa @247pmstudio`;
+
+    // Build the file up front: everything below has to stay inside the click gesture
+    // or the browser will swallow the popup.
+    const file = dataUrlToFile(canvas.toDataURL('image/png'), outputName());
 
     try {
       if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
         await navigator.share({ files: [file], title: 'HH Goa 2026', text: caption });
-        setNotice('Share sheet opened with the graphic attached. Choose X and post.');
+        say('Share sheet is open with the image attached. Pick X from there.');
         return;
       }
     } catch (error) {
@@ -340,20 +373,27 @@ export default function App() {
     const postWindow = window.open('about:blank', '_blank');
     if (postWindow) postWindow.opener = null;
     saveFile(file);
+
+    let copied = false;
     try {
       if (navigator.clipboard && window.ClipboardItem) {
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': file })]);
-        if (postWindow) postWindow.location.href = intentUrl;
-        setNotice('X opened, the PNG was downloaded and copied. Paste or attach it before posting.');
-        return;
+        copied = true;
       }
     } catch {
-      // Fall through to the universal download fallback.
+      // Clipboard images are blocked in plenty of browsers. The download still works.
     }
 
+    const opened = postWindow || window.open(intentUrl, '_blank', 'noopener,noreferrer');
     if (postWindow) postWindow.location.href = intentUrl;
-    else window.open(intentUrl, '_blank', 'noopener,noreferrer');
-    setNotice('X opened with the live link and hashtag. Attach the downloaded PNG before posting.');
+
+    if (!opened) {
+      say('Your browser blocked the new tab. The PNG is in your downloads, so open X yourself and attach it.', 'error');
+    } else if (copied) {
+      say('X is open. The PNG is in your downloads and on the clipboard, so paste it into the post.');
+    } else {
+      say('X is open. Attach the PNG that just downloaded before you post.');
+    }
   };
 
   return (
@@ -366,7 +406,7 @@ export default function App() {
             <p className="kicker"><span /> TASK 01 · #FRAMEINGOA</p>
             <h1>Build your HH Goa <em>frame.</em></h1>
             <p className="hero-description">
-              Upload a real photo. Add your details. Download or share.
+              Drop in a photo, type your details, save the PNG. It all runs in this tab.
             </p>
           </div>
           <div className="hero-art" aria-hidden="true">
@@ -382,7 +422,7 @@ export default function App() {
               type="button"
               key={option.id}
               className={mode === option.id ? 'active' : ''}
-              onClick={() => { setMode(option.id); setGeneratedMode(null); setNotice(''); }}
+              onClick={() => { setMode(option.id); setGeneratedMode(null); setNotice(null); }}
             >
               <span className="mode-index">{option.eyebrow}</span>
               <strong>{option.name}</strong>
@@ -403,11 +443,11 @@ export default function App() {
                   </div>
                   <PhotoUpload
                     id="solo-photo"
-                    label="Drop your real builder selfie"
+                    label="Drop a photo of yourself"
                     photo={photo}
-                    onPhoto={(file) => replacePhoto(file, photo, setPhoto)}
+                    onPhoto={(file) => replacePhoto(file, setPhoto)}
                   />
-                  <p className="photo-rule">Use a real photo — no AI art or random images.</p>
+                  <p className="photo-rule">It has to be a real photo of you. No AI art, no stock images.</p>
                   <CropControls photo={photo} onChange={setPhoto} />
                 </div>
 
@@ -426,7 +466,7 @@ export default function App() {
                     <Field label="Team name" hint="Optional">
                       <input value={teamName} maxLength={34} onChange={(event) => setTeamName(event.target.value)} placeholder="Your team" />
                     </Field>
-                    <Field label="Builder class" hint="Generated from your stack">
+                    <Field label="Builder class" hint="Picked from your stack">
                       <div className="generated-class">
                         <span>{builderClass}</span>
                       </div>
@@ -474,7 +514,7 @@ export default function App() {
                         </div>
                         <PhotoUpload
                           id={`member-${member.id}`}
-                          label="Add teammate photo"
+                          label="Add a photo"
                           photo={member.photo}
                           compact
                           onPhoto={(file) => uploadMemberPhoto(member.id, file)}
@@ -487,11 +527,11 @@ export default function App() {
                       </article>
                     ))}
                   </div>
-                  <p className="photo-rule">Use real teammate photos.</p>
+                  <p className="photo-rule">Real photos of the actual teammates. A name and a photo each, or they will not show up on the frame.</p>
 
                   {selectedMember?.photo ? (
                     <div className="member-crop-panel">
-                      <span>Adjusting {selectedMember.name || 'selected teammate'}</span>
+                      <span>Adjusting {selectedMember.name || 'this teammate'}</span>
                       <CropControls photo={selectedMember.photo} onChange={(nextPhoto) => updateMember(selectedMember.id, { photo: nextPhoto })} />
                     </div>
                   ) : null}
@@ -500,13 +540,13 @@ export default function App() {
             )}
 
             <button type="button" className="generate-button" disabled={busy} onClick={handleGenerate}>
-              <span>{busy ? 'PROCESSING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'TEAM FRAME' : 'BUILDER ID'}`}</span>
+              <span>{busy ? 'READING PHOTO…' : `GENERATE ${mode === 'pfp' ? 'PFP FRAME' : mode === 'squad' ? 'TEAM FRAME' : 'BUILDER ID'}`}</span>
               <b>↗</b>
             </button>
-            <p className="privacy-note">Photos stay in your browser. Nothing is uploaded or stored.</p>
+            <p className="privacy-note">Nothing gets uploaded. Your photos never leave this tab.</p>
           </div>
 
-          <aside className="preview-column">
+          <aside className="preview-column" ref={previewRef}>
             <div className="preview-toolbar">
               <div><span className="live-dot" /> LIVE OUTPUT</div>
               <span>{OUTPUT_SIZES[mode].label} PNG</span>
@@ -517,16 +557,16 @@ export default function App() {
 
             <div className={`result-actions ${generatedMode === mode ? 'visible' : ''}`}>
               <div>
-                <strong>{generatedMode === mode ? 'PNG ready.' : 'Add your details and generate.'}</strong>
-                <small>{generatedMode === mode ? 'Download it or share to X.' : 'The preview updates as you type.'}</small>
+                <strong>{generatedMode === mode ? 'Your PNG is ready.' : 'Nothing generated yet.'}</strong>
+                <small>{generatedMode === mode ? 'Save it, or send it over to X.' : 'The preview keeps up as you type.'}</small>
               </div>
               <div className="action-buttons">
                 <button type="button" className="download-button" disabled={generatedMode !== mode} onClick={downloadCanvas}>Download PNG</button>
                 <button type="button" className="share-button" disabled={generatedMode !== mode} onClick={shareToX}>Share to X ↗</button>
               </div>
             </div>
-            <p className="share-explainer">On desktop, attach the downloaded PNG to your X post.</p>
-            <div className="post-check" aria-label="X post rejection check">
+            <p className="share-explainer">X will not pick the image up on its own from a desktop browser, so attach the download yourself.</p>
+            <div className="post-check" aria-label="Checklist before posting">
               <strong>BEFORE POSTING</strong>
               <span>✓ Real photo</span>
               <span>✓ PNG attached</span>
@@ -536,8 +576,19 @@ export default function App() {
           </aside>
         </section>
 
-        {notice ? <div className="notice" role="status" aria-live="polite">{notice}</div> : null}
       </main>
+
+      {notice ? (
+        <div
+          key={notice.key}
+          className={`notice notice-${notice.tone}`}
+          role={notice.tone === 'error' ? 'alert' : 'status'}
+          aria-live={notice.tone === 'error' ? 'assertive' : 'polite'}
+        >
+          <span>{notice.message}</span>
+          <button type="button" onClick={() => setNotice(null)} aria-label="Dismiss message">×</button>
+        </div>
+      ) : null}
 
       <footer>
         <span>HH GOA 2026 · TASK 01</span>

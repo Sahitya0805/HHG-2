@@ -26,7 +26,7 @@ export default function Header() {
       <div className="event-bar">
         <span>GOA, INDIA</span>
         <i aria-hidden="true" />
-        <span>28—31 OCT 2026</span>
+        <span>28–31 OCT 2026</span>
       </div>
     </>
   );

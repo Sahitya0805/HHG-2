@@ -1,45 +1,59 @@
 # Frame In Goa · HH Goa 2026
 
-A mobile-first generator built for HH Goa 2026 Shortlisting Task 01. It creates crisp, downloadable graphics directly in the browser—no login, upload server, or manual cropping required.
+A small browser tool for HH Goa 2026 Shortlisting Task 01. You give it a photo and
+your details, it gives you back a PNG you can post. There is no login, no upload
+server, and no cropping in a separate app first.
 
-## Output modes
+## What it makes
 
-- **Goa PFP** — a 1080 × 1080 profile frame.
-- **Builder ID** — a 1080 × 1350 editorial identity card with a deterministic builder class and ID generated from the user's details.
-- **Team Frame** — a combined 1080 × 1350 poster for two to four teammates.
+**Goa PFP** is a 1080 × 1080 square for your profile picture.
 
-## Task requirements covered
+**Builder ID** is a 1080 × 1350 identity card. The builder class and the ID number
+come out of what you type in the stack field, so the same input always gives the
+same card.
 
-- JPG, PNG, WebP, HEIC and HEIF input.
-- Automatic cover fitting for portrait, landscape and unusual aspect ratios.
-- Optional zoom, pan and photo filters.
-- Real high-resolution PNG download.
-- Native image sharing on supported mobile browsers.
-- Native file sharing on supported phones so the PNG reaches X as an attachment.
-- Desktop fallback that downloads and copies the PNG before opening X.
-- Pre-filled X caption containing the deployment link, `@247pmstudio`, and mandatory `#FrameInGoa` hashtag.
-- Static 1200 × 630 Open Graph cover so the deployment link has a branded X preview.
-- Fully client-side photo processing.
-- Responsive, one-pass flow with no account gate.
+**Team Frame** puts two to four teammates on one 1080 × 1350 poster.
+
+## What it handles
+
+Photos can be JPG, PNG, WebP, or HEIC/HEIF straight off an iPhone. Portrait,
+landscape and odd aspect ratios all get cover-fitted into the frame on their own,
+and you can nudge the zoom, the position and the filter afterwards if the automatic
+crop misses.
+
+The download is a real full-resolution PNG, not a screenshot of the preview. On
+phones that support it, the share button opens the native share sheet with the
+image already attached, so it reaches X as a proper attachment. On desktop the
+image downloads and gets copied to the clipboard, then X opens with the caption
+already filled in: the deployment link, `@247pmstudio`, and the `#FrameInGoa`
+hashtag the task requires.
+
+There is also a static 1200 × 630 Open Graph cover so the link itself previews
+properly on X.
+
+Every photo is processed in the browser. Nothing is uploaded anywhere.
 
 ## Branding
 
-The generator uses the recognizable Hacker House wordmark, `गोवा` lockup, 2:47PM Studio mark, and Goa sunrise illustration published on [hhgoa.com](https://hhgoa.com/). The product is community-built for Open Trial 01 and does not claim official admission or selection.
+The Hacker House wordmark, the गोवा lockup, the 2:47PM Studio mark and the Goa
+sunrise illustration all come from [hhgoa.com](https://hhgoa.com/). This is a
+community build for Open Trial 01. It does not represent admission or selection.
 
-## Run locally
+## Running it
 
 ```bash
 npm install
 npm run dev
 ```
 
-Production check:
+To check a production build:
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## Submission reminder
+## Before you submit
 
-Only one submission is accepted per team. Use real participant photos, attach the generated PNG, include the live deployment link, and keep the exact `#FrameInGoa` hashtag in the X post.
+One submission per team. Use real photos of real people, attach the generated PNG,
+include the live link, and keep `#FrameInGoa` spelled exactly that way in the post.
