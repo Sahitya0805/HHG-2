@@ -70,9 +70,6 @@ button:disabled {
 
 .app-shell {
   min-height: 100vh;
-  /* clip, not hidden: `overflow: hidden` turns this into a scroll container, which
-     kills position: sticky on the preview column. clip contains the rotated hero art
-     without that side effect. */
   overflow-x: clip;
   position: relative;
   isolation: isolate;
@@ -1008,8 +1005,6 @@ main {
   white-space: nowrap;
 }
 
-/* Fixed, not in the page flow: the old inline notice sat at the bottom of main,
-   several screens below the upload controls that produce the errors. */
 .notice {
   position: fixed;
   left: 50%;

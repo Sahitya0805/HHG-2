@@ -70,8 +70,6 @@ async function preparePhoto(file) {
     }
   }
 
-  // Decode first, then hand the blob URL straight back. The decoded bitmap lives on
-  // the image element from here on, so holding the URL open would just leak memory.
   const url = URL.createObjectURL(blob);
   try {
     const image = await loadImage(url);
@@ -124,8 +122,6 @@ function PhotoUpload({ id, label, photo, onPhoto, compact = false }) {
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         onChange={(event) => {
           acceptFile(event.target.files?.[0]);
-          // Without this, picking the same file twice fires no change event, so
-          // re-choosing a photo you just reset would silently do nothing.
           event.target.value = '';
         }}
       />
@@ -236,7 +232,6 @@ export default function App() {
 
   const say = (message, tone = 'info') => setNotice({ message, tone, key: Date.now() });
 
-  // Successes clear themselves; errors stay put until the next action.
   useEffect(() => {
     if (!notice || notice.tone === 'error') return undefined;
     const timer = window.setTimeout(() => setNotice(null), 7000);
@@ -255,8 +250,6 @@ export default function App() {
 
   const builderClass = getBuilderClass(name, role);
   const completeTeamMembers = teamMembers.filter(isMemberComplete);
-  // Every slot on the frame has to be filled, so what you see in the preview is
-  // what comes out of the download.
   const teamReady = teamMembers.length >= 2 && completeTeamMembers.length === teamMembers.length;
   const canGenerate = mode === 'pfp'
     ? Boolean(photo)
@@ -264,7 +257,6 @@ export default function App() {
       ? Boolean(photo && name.trim() && role.trim())
       : Boolean(teamName.trim() && teamReady);
 
-  // Say exactly which slot is short of what, rather than one vague sentence.
   const describeTeamGap = () => {
     if (!teamName.trim()) return 'Give the team a name first.';
     const gaps = teamMembers.flatMap((member, index) => {
@@ -320,8 +312,6 @@ export default function App() {
 
     setGeneratedMode(mode);
     say('Done. Save it, or send it straight to X.');
-    // On narrow screens the preview sits above the controls, so without this the
-    // button appears to do nothing.
     previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
@@ -362,7 +352,6 @@ export default function App() {
       if (mode === 'pfp') {
         return "My Hacker House Goa '26 frame 🌴";
       }
-      // Skip the role line rather than leaving a blank one behind when it is empty.
       return [
         "My Hacker House Goa '26 builder ID 🌴",
         '',
@@ -372,9 +361,6 @@ export default function App() {
     };
 
     const caption = `${buildCaption()}\n\nMake yours: ${liveLink}\n\n#FrameInGoa @247pmstudio`;
-
-    // Build the file up front: everything below has to stay inside the click gesture
-    // or the browser will swallow the popup.
     const file = dataUrlToFile(canvas.toDataURL('image/png'), outputName());
 
     try {
@@ -399,7 +385,6 @@ export default function App() {
         copied = true;
       }
     } catch {
-      // Clipboard images are blocked in plenty of browsers. The download still works.
     }
 
     const opened = postWindow || window.open(intentUrl, '_blank', 'noopener,noreferrer');

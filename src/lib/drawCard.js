@@ -11,9 +11,6 @@ export const PALETTES = {
     panel: '#FFF8E7',
     ink: '#0B1611',
     green: '#08733F',
-    // Sampled straight out of the official wordmark PNG. The palette used to carry
-    // #FFD400 here while the logo fallbacks hardcoded #FEE101, so two different
-    // yellows were shipping side by side.
     accent: '#FEE101',
     pop: '#FF087C',
     soft: '#D9F4DF',
@@ -29,9 +26,6 @@ export function hashString(value = '') {
   return Math.abs(hash >>> 0);
 }
 
-// Whole words only. Unanchored fragments used to fire on ordinary text: "ml" hit
-// HTML, and "ai" hit names like Nair or Jain, so plenty of people were labelled
-// AI / Data Builder for no reason.
 const BUILDER_CLASSES = [
   { label: 'Design Builder', test: /\b(design|designer|figma|ui|ux|visual|brand)\b/ },
   { label: 'Web3 Builder', test: /\b(blockchain|web3|solidity|crypto|onchain|ethereum)\b/ },
@@ -43,7 +37,6 @@ const BUILDER_CLASSES = [
   { label: 'Product Builder', test: /\b(product|founder|growth|pm|marketing)\b/ },
 ];
 
-// Driven by the stack field only. The name has no bearing on what someone builds.
 export function getBuilderClass(name, role) {
   const source = String(role || '').toLowerCase();
   return BUILDER_CLASSES.find(({ test }) => test.test(source))?.label || 'HH Goa Builder';
@@ -62,8 +55,6 @@ export function getBuilderId(name, role) {
   return `HHG26-${initials}-${getPassNumber(name, role).slice(-4)}`;
 }
 
-// A slot is only ready to print once it has both a photo and a name. The preview
-// still draws every slot you have added, so adding one is visible immediately.
 export function isMemberComplete(member) {
   return Boolean(member?.photo?.image && member?.name?.trim());
 }
@@ -238,9 +229,6 @@ function drawOfficialBackdrop(ctx, state, palette, width, height) {
   }
 }
 
-// The गोवा badge sits over the R of HACKER. These ratios are measured against the
-// wordmark itself, not the box it was fitted into, so the lockup holds together at
-// any size (same numbers as .brand-hindi in style.css).
 const HINDI_LEFT_RATIO = 0.419;
 const HINDI_TOP_RATIO = -0.062;
 const HINDI_SIZE_RATIO = 0.216;
@@ -282,8 +270,6 @@ function drawStudioMark(ctx, assets, x, y, width, height) {
   ctx.fillText('2:47PM', x + width / 2, y + height / 2);
 }
 
-// A panel with a colour strip down its leading edge. The strip is clipped to the
-// rounded path so it stops poking out past the corner radius.
 function drawEdgePanel(ctx, x, y, width, height, radius, fill, edge, edgeWidth, stroke, strokeWidth) {
   roundedRect(ctx, x, y, width, height, radius, fill);
   ctx.save();
@@ -335,6 +321,24 @@ function drawTicketEdge(ctx, palette, height) {
   ctx.restore();
 }
 
+function drawLeftSideTag(ctx, palette, x, y, text = '#FrameInGoa') {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-Math.PI / 2);
+
+  const pillWidth = 230;
+  const pillHeight = 44;
+  roundedRect(ctx, -pillWidth / 2, -pillHeight / 2, pillWidth, pillHeight, 14, palette.pop, palette.ink, 5);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '800 18px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 0, 0);
+
+  ctx.restore();
+}
+
 function drawPfp(ctx, state, palette) {
   const { photo, badgeText } = state;
   drawOfficialBackdrop(ctx, state, palette, 1080, 1080);
@@ -380,8 +384,8 @@ function drawPfp(ctx, state, palette) {
   drawTape(ctx, 114, 400, 170, 48, -0.14, palette.accent);
   drawTape(ctx, 790, 738, 170, 48, 0.12, palette.accent);
 
-  // Brand yellow on the dark panel, the way the wordmark is set. Yellow on the old
-  // cream panel would have been about 1.4:1 and unreadable.
+  drawLeftSideTag(ctx, palette, 64, 575, '#FrameInGoa');
+
   const badge = (badgeText || 'FRAME IN GOA').toUpperCase().slice(0, 36);
   drawEdgePanel(ctx, 108, 872, 864, 112, 20, palette.ink, palette.pop, 18, palette.accent, 9);
   ctx.fillStyle = palette.accent;
@@ -426,6 +430,7 @@ function drawPass(ctx, state, palette) {
   roundedRect(ctx, 84, 288, 552, 516, 10, null, palette.ink, 6);
   drawTape(ctx, 42, 278, 158, 46, -0.12, palette.accent);
   drawTape(ctx, 520, 788, 158, 46, 0.1, palette.accent);
+  drawLeftSideTag(ctx, palette, 64, 580, '#FrameInGoa');
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
   ctx.font = '700 15px "Space Mono", monospace';
@@ -489,7 +494,6 @@ function drawPass(ctx, state, palette) {
   ctx.font = `800 ${classSize}px "Syne", sans-serif`;
   ctx.fillText(builderClass, 94, 1163);
 
-  // Seat the footer on a solid strip. Left over bare artwork it was unreadable.
   roundedRect(ctx, 62, 1212, 956, 84, 18, palette.ink, palette.accent, 5);
   ctx.fillStyle = palette.accent;
   ctx.textAlign = 'center';
@@ -497,8 +501,6 @@ function drawPass(ctx, state, palette) {
   ctx.fillText('HHGOA.COM', 540, 1262);
 }
 
-// Every layout fills the frame down to y=1106 so no arrangement leaves a dead gap
-// above the footer band.
 function getSquadLayout(count) {
   if (count <= 2) {
     return [
@@ -522,8 +524,6 @@ function getSquadLayout(count) {
 }
 
 function drawSquad(ctx, state, palette) {
-  // Draw every slot the user has added, filled in or not, so adding or removing a
-  // teammate changes the frame straight away.
   const visibleMembers = state.teamMembers.slice(0, 4);
   const teamName = (state.teamName || 'YOUR CREW').trim().toUpperCase();
   const layout = getSquadLayout(visibleMembers.length);
@@ -555,6 +555,8 @@ function drawSquad(ctx, state, palette) {
   ctx.globalAlpha = 0.36;
   roundedRect(ctx, 54, 344, 972, 778, 34, '#002A1A', palette.accent, 6);
   ctx.restore();
+
+  drawLeftSideTag(ctx, palette, 56, 733, '#FrameInGoa');
 
   visibleMembers.forEach((member, index) => {
     const box = layout[index];
