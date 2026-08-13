@@ -326,12 +326,12 @@ function drawLeftSideTag(ctx, palette, x, y, text = '#FrameInGoa') {
   ctx.translate(x, y);
   ctx.rotate(-Math.PI / 2);
 
-  const pillWidth = 230;
-  const pillHeight = 44;
-  roundedRect(ctx, -pillWidth / 2, -pillHeight / 2, pillWidth, pillHeight, 14, palette.pop, palette.ink, 5);
+  const pillWidth = 300;
+  const pillHeight = 58;
+  roundedRect(ctx, -pillWidth / 2, -pillHeight / 2, pillWidth, pillHeight, 18, palette.pop, palette.ink, 6);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '800 18px "Space Mono", monospace';
+  ctx.font = '800 25px "Space Mono", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 0, 0);

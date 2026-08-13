@@ -568,14 +568,6 @@ export default function App() {
                 <button type="button" className="share-button" disabled={generatedMode !== mode} onClick={shareToX}>Share to X ↗</button>
               </div>
             </div>
-            <p className="share-explainer">X will not pick the image up on its own from a desktop browser, so attach the download yourself.</p>
-            <div className="post-check" aria-label="Checklist before posting">
-              <strong>BEFORE POSTING</strong>
-              <span>✓ Real photo</span>
-              <span>✓ PNG attached</span>
-              <span>✓ Live link</span>
-              <span>✓ #FrameInGoa</span>
-            </div>
           </aside>
         </section>
 
