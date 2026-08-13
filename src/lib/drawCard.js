@@ -26,17 +26,24 @@ export function hashString(value = '') {
   return Math.abs(hash >>> 0);
 }
 
+// Whole words only. Unanchored fragments used to fire on ordinary text: "ml" hit
+// HTML, and "ai" hit names like Nair or Jain, so plenty of people were labelled
+// AI / Data Builder for no reason.
+const BUILDER_CLASSES = [
+  { label: 'Design Builder', test: /\b(design|designer|figma|ui|ux|visual|brand)\b/ },
+  { label: 'Web3 Builder', test: /\b(blockchain|web3|solidity|crypto|onchain|ethereum)\b/ },
+  { label: 'AI / Data Builder', test: /\b(ai|ml|llm|nlp|model|models|data|genai)\b/ },
+  { label: 'Mobile Builder', test: /\b(mobile|ios|android|flutter|swift|kotlin|react native)\b/ },
+  { label: 'Systems Builder', test: /\b(rust|system|systems|infra|infrastructure|devops|cloud|platform|kubernetes)\b/ },
+  { label: 'Frontend Builder', test: /\b(frontend|front end|react|web|javascript|typescript|next|nextjs|svelte|vue|css)\b/ },
+  { label: 'Backend Builder', test: /\b(backend|back end|api|apis|node|python|java|golang|go|django|rails)\b/ },
+  { label: 'Product Builder', test: /\b(product|founder|growth|pm|marketing)\b/ },
+];
+
+// Driven by the stack field only. The name has no bearing on what someone builds.
 export function getBuilderClass(name, role) {
-  const source = `${name}|${role}`.toLowerCase();
-  if (/design|figma|ui|ux|visual/.test(source)) return 'Design Builder';
-  if (/ai|ml|model|data/.test(source)) return 'AI / Data Builder';
-  if (/rust|system|infra|devops|cloud/.test(source)) return 'Systems Builder';
-  if (/front|react|web|javascript|typescript/.test(source)) return 'Frontend Builder';
-  if (/back|api|node|python|java|golang/.test(source)) return 'Backend Builder';
-  if (/mobile|ios|android|flutter/.test(source)) return 'Mobile Builder';
-  if (/product|founder|growth/.test(source)) return 'Product Builder';
-  if (/blockchain|web3|solidity|crypto/.test(source)) return 'Web3 Builder';
-  return 'HH Goa Builder';
+  const source = String(role || '').toLowerCase();
+  return BUILDER_CLASSES.find(({ test }) => test.test(source))?.label || 'HH Goa Builder';
 }
 
 export function getPassNumber(name, role) {
@@ -44,14 +51,19 @@ export function getPassNumber(name, role) {
 }
 
 export function getBuilderId(name, role) {
-  const initials = (name || 'GOA')
-    .trim()
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 3)
-    .toUpperCase() || 'GOA';
+  const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+  const raw = words.length > 1
+    ? words.map((word) => word[0]).join('')
+    : (words[0] || '');
+  const initials = raw.replace(/[^a-z0-9]/gi, '').slice(0, 3).toUpperCase() || 'GOA';
   return `HHG26-${initials}-${getPassNumber(name, role).slice(-4)}`;
+}
+
+// A teammate only counts once they have both a photo and a name, so the preview
+// shows exactly what the download will contain.
+export function getTeamRoster(teamMembers = []) {
+  const ready = teamMembers.filter((member) => member.photo?.image && member.name.trim());
+  return ready.length >= 2 ? ready.slice(0, 4) : [];
 }
 
 function roundedRect(ctx, x, y, width, height, radius, fill, stroke, strokeWidth = 0) {
@@ -181,13 +193,16 @@ function fitText(ctx, value, maxWidth, initialSize, minSize, family = 'Syne', we
 }
 
 function drawImageContain(ctx, image, x, y, width, height) {
-  if (!image) return;
+  if (!image) return null;
   const imageWidth = image.naturalWidth || image.width;
   const imageHeight = image.naturalHeight || image.height;
   const scale = Math.min(width / imageWidth, height / imageHeight);
   const drawWidth = imageWidth * scale;
   const drawHeight = imageHeight * scale;
-  ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  return { x: drawX, y: drawY, width: drawWidth, height: drawHeight };
 }
 
 function drawOfficialBackdrop(ctx, state, palette, width, height) {
@@ -221,12 +236,26 @@ function drawOfficialBackdrop(ctx, state, palette, width, height) {
   }
 }
 
+// The गोवा badge sits over the R of HACKER. These ratios are measured against the
+// wordmark itself, not the box it was fitted into, so the lockup holds together at
+// any size (same numbers as .brand-hindi in style.css).
+const HINDI_LEFT_RATIO = 0.419;
+const HINDI_TOP_RATIO = -0.062;
+const HINDI_SIZE_RATIO = 0.216;
+
 function drawBrandLockup(ctx, assets, x, y, width, height) {
   if (assets?.wordmark) {
-    drawImageContain(ctx, assets.wordmark, x, y, width, height);
-    if (assets.hindi) {
-      const hindiSize = height * 0.86;
-      drawImageContain(ctx, assets.hindi, x + width * 0.44, y + height * 0.06, hindiSize, hindiSize);
+    const mark = drawImageContain(ctx, assets.wordmark, x, y, width, height);
+    if (assets.hindi && mark) {
+      const hindiSize = mark.width * HINDI_SIZE_RATIO;
+      drawImageContain(
+        ctx,
+        assets.hindi,
+        mark.x + mark.width * HINDI_LEFT_RATIO,
+        mark.y + mark.height * HINDI_TOP_RATIO,
+        hindiSize,
+        hindiSize,
+      );
     }
     return;
   }
@@ -308,7 +337,7 @@ function drawPfp(ctx, state, palette) {
   ctx.fillStyle = palette.accent;
   ctx.textAlign = 'right';
   ctx.font = '800 18px "Space Mono", monospace';
-  ctx.fillText('28—31 OCT 2026', 1002, 208);
+  ctx.fillText('28–31 OCT 2026', 1002, 208);
   ctx.fillText('GOA, INDIA', 1002, 234);
 
   ctx.save();
@@ -357,7 +386,7 @@ function drawPass(ctx, state, palette) {
   const role = (state.role || 'YOUR STACK / ROLE').trim().toUpperCase();
   const builderClass = getBuilderClass(state.name, state.role);
   const builderId = getBuilderId(state.name, state.role);
-  const teamName = (state.teamName || 'INDEPENDENT BUILDER').trim().toUpperCase();
+  const teamName = (state.teamName || 'FLYING SOLO').trim().toUpperCase();
 
   drawOfficialBackdrop(ctx, state, palette, 1080, 1350);
   roundedRect(ctx, 28, 28, 1024, 1294, 42, null, palette.ink, 12);
@@ -368,7 +397,7 @@ function drawPass(ctx, state, palette) {
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 18px "Space Mono", monospace';
   ctx.textAlign = 'right';
-  ctx.fillText('28—31 OCT 2026', 1016, 172);
+  ctx.fillText('28–31 OCT 2026', 1016, 172);
   ctx.fillText('GOA, INDIA', 1016, 198);
 
   roundedRect(ctx, 66, 190, 392, 56, 18, palette.pop, palette.ink, 6);
@@ -385,10 +414,10 @@ function drawPass(ctx, state, palette) {
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
   ctx.font = '700 15px "Space Mono", monospace';
-  ctx.fillText('GOA, INDIA · 15.2993° N / 74.1240° E', 90, 846);
+  ctx.fillText('HACKER HOUSE GOA', 90, 846);
   ctx.fillStyle = palette.green;
   ctx.font = '800 19px "Space Mono", monospace';
-  ctx.fillText('REAL BUILDER · REAL PHOTO', 90, 878);
+  ctx.fillText('28–31 OCT 2026', 90, 878);
 
   roundedRect(ctx, 682, 266, 336, 632, 24, '#FFF8E7', palette.ink, 10);
   roundedRect(ctx, 706, 292, 184, 50, 12, palette.pop, palette.ink, 5);
@@ -411,7 +440,7 @@ function drawPass(ctx, state, palette) {
 
   ctx.fillStyle = palette.pop;
   ctx.font = '800 15px "Space Mono", monospace';
-  ctx.fillText('TEAM SIGNAL', 710, 704);
+  ctx.fillText('TEAM', 710, 704);
   ctx.fillStyle = palette.ink;
   ctx.font = '800 23px "Syne", sans-serif';
   wrapText(ctx, teamName, 710, 741, 278, 29, 2);
@@ -447,25 +476,25 @@ function drawPass(ctx, state, palette) {
   ctx.font = `800 ${classSize}px "Syne", sans-serif`;
   ctx.fillText(builderClass, 94, 1163);
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '800 25px "Space Mono", monospace';
-  ctx.fillText('HHGOA.COM', 64, 1254);
-  ctx.font = '700 16px "Space Mono", monospace';
+  // Seat the footer on a solid strip. Left over bare artwork it was unreadable.
+  roundedRect(ctx, 62, 1212, 956, 84, 18, palette.ink, palette.accent, 5);
   ctx.fillStyle = palette.accent;
-  ctx.fillText('HHGOA.COM · TASK 01', 64, 1288);
+  ctx.textAlign = 'left';
+  ctx.font = '800 22px "Space Mono", monospace';
+  ctx.fillText('HHGOA.COM', 96, 1262);
   ctx.textAlign = 'right';
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '800 34px "Space Mono", monospace';
-  ctx.fillText('▌▌ ▌ ▌▌▌ ▌ ▌▌', 1016, 1258);
-  ctx.font = '700 14px "Space Mono", monospace';
-  ctx.fillText(builderId, 1016, 1288);
+  ctx.font = '700 16px "Space Mono", monospace';
+  ctx.fillText('TASK 01', 984, 1262);
 }
 
+// Every layout fills the frame down to y=1106 so no arrangement leaves a dead gap
+// above the footer band.
 function getSquadLayout(count) {
   if (count <= 2) {
     return [
-      { x: 96, y: 356, w: 430, h: 600 },
-      { x: 554, y: 356, w: 430, h: 600 },
+      { x: 96, y: 356, w: 430, h: 750 },
+      { x: 554, y: 356, w: 430, h: 750 },
     ];
   }
   if (count === 3) {
@@ -476,16 +505,16 @@ function getSquadLayout(count) {
     ];
   }
   return [
-    { x: 96, y: 356, w: 430, h: 350 },
-    { x: 554, y: 356, w: 430, h: 350 },
-    { x: 96, y: 734, w: 430, h: 350 },
-    { x: 554, y: 734, w: 430, h: 350 },
+    { x: 96, y: 356, w: 430, h: 365 },
+    { x: 554, y: 356, w: 430, h: 365 },
+    { x: 96, y: 741, w: 430, h: 365 },
+    { x: 554, y: 741, w: 430, h: 365 },
   ];
 }
 
 function drawSquad(ctx, state, palette) {
-  const members = state.teamMembers.filter((member) => member.photo?.image || member.name || member.role).slice(0, 4);
-  const visibleMembers = members.length ? members : state.teamMembers.slice(0, 2);
+  const roster = getTeamRoster(state.teamMembers);
+  const visibleMembers = roster.length ? roster : state.teamMembers.slice(0, 2);
   const teamName = (state.teamName || 'YOUR CREW').trim().toUpperCase();
   const layout = getSquadLayout(visibleMembers.length);
 
@@ -497,7 +526,7 @@ function drawSquad(ctx, state, palette) {
   ctx.fillStyle = '#FFFFFF';
   ctx.font = '800 17px "Space Mono", monospace';
   ctx.textAlign = 'right';
-  ctx.fillText('28—31 OCT 2026', 1016, 170);
+  ctx.fillText('28–31 OCT 2026', 1016, 170);
   ctx.fillText('GOA, INDIA', 1016, 196);
 
   roundedRect(ctx, 64, 188, 952, 100, 20, palette.panel, palette.ink, 9);
@@ -505,19 +534,14 @@ function drawSquad(ctx, state, palette) {
   ctx.fillRect(64, 188, 18, 100);
   ctx.fillStyle = palette.ink;
   ctx.textAlign = 'left';
-  const teamSize = fitText(ctx, teamName, 710, 56, 32, 'Syne', 800);
+  const teamSize = fitText(ctx, teamName, 700, 56, 32, 'Syne', 800);
   ctx.font = `800 ${teamSize}px "Syne", sans-serif`;
-  ctx.fillText(teamName.slice(0, 34), 104, 254);
+  ctx.fillText(teamName, 104, 254);
   roundedRect(ctx, 824, 210, 164, 56, 16, palette.accent, palette.ink, 5);
   ctx.fillStyle = palette.ink;
   ctx.font = '800 18px "Space Mono", monospace';
   ctx.textAlign = 'center';
   ctx.fillText(`CREW OF ${visibleMembers.length}`, 906, 246);
-
-  ctx.fillStyle = '#FFFFFF';
-  ctx.textAlign = 'left';
-  ctx.font = '800 28px "Space Mono", monospace';
-  ctx.fillText('HH GOA TEAM FRAME', 64, 332);
 
   ctx.save();
   ctx.globalAlpha = 0.36;
@@ -557,16 +581,11 @@ function drawSquad(ctx, state, palette) {
   ctx.fillText('HH GOA TEAM FRAME', 188, 1202);
   ctx.fillStyle = palette.green;
   ctx.font = '700 17px "Space Mono", monospace';
-  ctx.fillText('REAL TEAMMATES · ONE COMBINED FRAME', 188, 1240);
+  ctx.fillText('HHGOA.COM · 28–31 OCT 2026', 188, 1240);
   ctx.textAlign = 'right';
   ctx.fillStyle = palette.pop;
   ctx.font = '800 34px "Syne", sans-serif';
   ctx.fillText('HH GOA ’26', 984, 1226);
-
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = '700 15px "Space Mono", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('HHGOA.COM · BUILT TOGETHER · 28—31 OCT 2026', 540, 1310);
 }
 
 export function drawBuilderGraphic(canvas, mode, state) {
