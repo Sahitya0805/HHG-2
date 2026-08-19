@@ -1,76 +1,78 @@
 """
-MSMARCO-XI Dataset Loader and Ingestion Module.
-Provides AI4Bharat MSMARCO-XI dataset passages and benchmark queries.
+Reads the corpus that ingestion.build_corpus produced from the real parquet.
+
+No inlined passages, no sample fixtures -- missing files raise rather than
+letting the pipeline look functional with no data behind it.
 """
 
+from __future__ import annotations
+
+import gzip
 import json
-import os
-from typing import List, Dict, Any
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict, List
 
-# AI4Bharat MSMARCO-XI sample corpus representing diverse QA topics
-MSMARCO_XI_SAMPLE_DATA = [
-    {
-        "doc_id": "msmarco_doc_001",
-        "title": "Symptoms of Influenza and Seasonal Flu",
-        "text": "Seasonal influenza (flu) is a contagious respiratory illness caused by influenza viruses that infect the nose, throat, and sometimes the lungs. Typical symptoms include fever, chills, cough, sore throat, runny or stuffy nose, muscle or body aches, headaches, and fatigue. Some people may have vomiting and diarrhea, though this is more common in children than adults. Symptoms usually start suddenly rather than gradually."
-    },
-    {
-        "doc_id": "msmarco_doc_002",
-        "title": "Causes of Hypertension and High Blood Pressure",
-        "text": "Hypertension, or high blood pressure, occurs when the force of blood against arterial walls is consistently too high. Primary hypertension develops gradually over many years without a single identifiable cause. Factors contributing to hypertension include excessive sodium consumption, lack of physical activity, chronic stress, obesity, alcohol consumption, genetics, and advancing age. Secondary hypertension is caused by an underlying condition such as kidney disease or adrenal gland disorders."
-    },
-    {
-        "doc_id": "msmarco_doc_003",
-        "title": "Photosynthesis Process in Plants",
-        "text": "Photosynthesis is the chemical process by which green plants, algae, and certain bacteria convert light energy, usually from the sun, into chemical energy stored in glucose molecules. Water and carbon dioxide are converted into oxygen and carbohydrates using chlorophyll in plant chloroplasts. Sunlight excites chlorophyll electrons, driving the photolysis of water into oxygen, hydrogen ions, and electrons."
-    },
-    {
-        "doc_id": "msmarco_doc_004",
-        "title": "Mechanism of Action of Penicillin Antibiotics",
-        "text": "Penicillin is a beta-lactam antibiotic derived from Penicillium fungi. It works by inhibiting the synthesis of bacterial cell walls. Specifically, penicillin binds to transpeptidase enzymes (penicillin-binding proteins) that cross-link peptidoglycan chains in bacterial cell walls. This weakens the cell wall structure, causing osmotic lysis and cell death in actively dividing Gram-positive bacteria."
-    },
-    {
-        "doc_id": "msmarco_doc_005",
-        "title": "Causes of Global Climate Change and Warming",
-        "text": "Global climate change is primarily driven by human activities that release greenhouse gases into the atmosphere. The burning of fossil fuels such as coal, oil, and natural gas produces carbon dioxide and nitrous oxide. Deforestation reduces the planet's capacity to absorb CO2. Industrial processes, agricultural emissions of methane, and livestock farming further amplify the greenhouse effect, leading to rising global temperatures, thermal ocean expansion, and melting polar ice."
-    },
-    {
-        "doc_id": "msmarco_doc_006",
-        "title": "The Solar System and Planetary Orbits",
-        "text": "The Solar System consists of the Sun and eight planets held by gravitational attraction: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. Jupiter is the largest planet, composed mostly of hydrogen and helium. Planetary orbits are elliptical, governed by Kepler's laws of planetary motion and Newton's law of universal gravitation."
-    },
-    {
-        "doc_id": "msmarco_doc_007",
-        "title": "How Artificial Neural Networks Learn",
-        "text": "Artificial Neural Networks (ANNs) consist of connected nodes or artificial neurons organized in layers: input, hidden, and output. Learning in ANNs occurs through backpropagation and gradient descent optimization. During training, prediction errors are calculated using a loss function, and weights between neurons are updated iteratively to minimize loss."
-    },
-    {
-        "doc_id": "msmarco_doc_008",
-        "title": "Deep Ocean Ecosystems and Hydrothermal Vents",
-        "text": "Hydrothermal vents are fissures on the ocean seafloor that geothermally heat water. Bacteria surrounding hydrothermal vents use chemosynthesis rather than photosynthesis to produce organic matter from hydrogen sulfide and methane. Chemosynthetic communities support tube worms, giant clams, and specialized crustaceans in deep oceanic abyssal zones."
-    },
-    {
-        "doc_id": "msmarco_doc_009",
-        "title": "History of the Silk Road Trade Network",
-        "text": "The Silk Road was an ancient network of Eurasian trade routes active from the Han dynasty (130 BCE) until the Ottoman Empire boycotted trade with the West in 1453 CE. Stretching over 6,400 kilometers, it facilitated economic, cultural, political, and religious interactions between East Asia, South Asia, Persia, the Arabian Peninsula, and the Mediterranean basin."
-    },
-    {
-        "doc_id": "msmarco_doc_010",
-        "title": "Principles of Quantum Computing and Qubits",
-        "text": "Quantum computing utilizes principles of quantum mechanics such as superposition and entanglement. Unlike classical bits that represent binary states 0 or 1, quantum bits (qubits) can exist in superpositions of states simultaneously. Quantum algorithms such as Shor's algorithm for prime factorization and Grover's algorithm for database search demonstrate exponential speedups over classical computing."
-    },
-    {
-        "doc_id": "msmarco_doc_011",
-        "title": "Structure and Function of Deoxyribonucleic Acid (DNA)",
-        "text": "Deoxyribonucleic acid (DNA) is a double-stranded helical macromolecule containing genetic instructions for all living organisms. DNA consists of nucleotides made of a deoxyribose sugar, a phosphate group, and one of four nitrogenous bases: Adenine (A), Thymine (T), Cytosine (C), and Guanine (G). Base pairing rules dictate that A pairs with T via two hydrogen bonds, while C pairs with G via three hydrogen bonds."
-    },
-    {
-        "doc_id": "msmarco_doc_012",
-        "title": "The Water Cycle and Hydrological Processes",
-        "text": "The hydrological cycle describes the continuous movement of water on, above, and below the surface of the Earth. Key processes include evaporation from oceans and lakes, transpiration from plants, condensation of atmospheric water vapor into clouds, precipitation as rain or snow, infiltration into soil, and surface runoff into rivers."
-    }
-]
+DATA_DIR = Path(__file__).parent / "data"
+CORPUS = DATA_DIR / "corpus.jsonl"
+QUERIES = DATA_DIR / "queries.jsonl"
+MANIFEST = DATA_DIR / "manifest.json"
 
-def load_msmarco_dataset() -> List[Dict[str, Any]]:
-    """Loads MSMARCO-XI dataset documents."""
-    return MSMARCO_XI_SAMPLE_DATA
+
+class CorpusMissing(FileNotFoundError):
+    pass
+
+
+def _resolve(path: Path) -> Path:
+    """Prefers the plain .jsonl, falls back to the committed .jsonl.gz."""
+    if path.exists():
+        return path
+    gz = path.with_suffix(path.suffix + ".gz")
+    if gz.exists():
+        return gz
+    return path
+
+
+def _require(path: Path) -> None:
+    if not path.exists():
+        raise CorpusMissing(
+            f"{path.name} not found. Build it from the real dataset first:\n"
+            f"  python -m ingestion.build_corpus --parquet <hinval.parquet>"
+        )
+
+
+def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
+    resolved = _resolve(path)
+    _require(resolved)
+    opener = gzip.open if resolved.suffix == ".gz" else open
+    with opener(resolved, "rt", encoding="utf-8") as f:
+        return [json.loads(line) for line in f if line.strip()]
+
+
+@lru_cache(maxsize=1)
+def load_passages() -> List[Dict[str, Any]]:
+    """Passage records: passage_id, query_id, text, is_selected, query_type, lang."""
+    return _read_jsonl(CORPUS)
+
+
+@lru_cache(maxsize=1)
+def load_queries() -> List[Dict[str, Any]]:
+    """Query records including gold_passage_ids from MSMARCO `is_selected`."""
+    return _read_jsonl(QUERIES)
+
+
+@lru_cache(maxsize=1)
+def manifest() -> Dict[str, Any]:
+    _require(MANIFEST)
+    return json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+
+def passages_by_query() -> Dict[str, List[Dict[str, Any]]]:
+    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    for p in load_passages():
+        grouped.setdefault(p["query_id"], []).append(p)
+    return grouped
+
+
+def is_available() -> bool:
+    return all(_resolve(p).exists() for p in (CORPUS, QUERIES, MANIFEST))
