@@ -1,105 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getHealth, getCorpus, getStrategies } from '../lib/api.js';
 
+// Everything here is read from /api/health. Nothing hardcoded.
 export default function SystemStatus() {
-  const services = [
-    {
-      name: 'Speech-To-Text (STT)',
-      provider: 'Sarvam AI / ElevenLabs / WebSpeech API',
-      status: 'ONLINE',
-      latency: '42 ms',
-      type: 'Audio Transcriber'
-    },
-    {
-      name: 'Query Normalizer & Cleaners',
-      provider: 'Filler Word Stripper & Tokenizer',
-      status: 'ONLINE',
-      latency: '0.04 ms',
-      type: 'Text Processor'
-    },
-    {
-      name: 'Embedding Engine',
-      provider: 'Ultra-low Latency Vector Encoder',
-      status: 'ONLINE',
-      latency: '0.08 ms',
-      type: 'Online Vectorizer'
-    },
-    {
-      name: 'Vector Database Index',
-      provider: 'In-Memory FAISS / Multi-Strategy Index',
-      status: 'ONLINE',
-      latency: '0.12 ms',
-      type: 'Knowledge Retrieval'
-    },
-    {
-      name: 'Stage 2 Reranker',
-      provider: 'Relevance & Term Density Scorer',
-      status: 'ONLINE',
-      latency: '0.05 ms',
-      type: 'Candidate Reranker'
-    },
-    {
-      name: '5-Layer Guardrail Harness',
-      provider: 'Abstention & Grounding Verifier',
-      status: 'ONLINE',
-      latency: '0.03 ms',
-      type: 'Safety & Verification'
-    },
-    {
-      name: 'Grounded Answer Generator',
-      provider: 'Extractive Synthesizer / Grounded LLM',
-      status: 'ONLINE',
-      latency: '0.15 ms',
-      type: 'Answer Generator'
-    }
-  ];
+  const [health, setHealth] = useState(null);
+  const [corpus, setCorpus] = useState(null);
+  const [strategies, setStrategies] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    getHealth().then(setHealth).catch((e) => setError(e.message));
+    getCorpus().then(setCorpus).catch(() => {});
+    getStrategies().then((d) => setStrategies(d.strategies || [])).catch(() => {});
+  }, []);
+
+  if (error) {
+    return <div className="glass-panel"><p style={{ color: '#b91c1c' }}>Backend unreachable: {error}</p></div>;
+  }
+  if (!health) {
+    return <div className="glass-panel"><p style={{ fontFamily: 'var(--font-mono)' }}>Loading status…</p></div>;
+  }
+
+  const Row = ({ label, value, ok }) => (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '0.6rem 0',
+      borderBottom: '1px solid var(--line)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem',
+    }}>
+      <span style={{ color: 'var(--ink-muted)' }}>{label}</span>
+      <span style={{ fontWeight: 700, color: ok === false ? '#b45309' : 'var(--ink)', textAlign: 'right' }}>{value}</span>
+    </div>
+  );
 
   return (
-    <div>
-      <div className="glass-panel">
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', marginBottom: '0.5rem', color: 'var(--forest-dark)' }}>
-          🟢 System Service Status & Health Pings
-        </h2>
-        <p style={{ color: 'var(--muted)', fontSize: '0.95rem' }}>
-          Real-time health monitoring across STT, Embedding, Vector Search, LLM, and Guardrail infrastructure.
+    <div className="glass-panel">
+      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: 'var(--ink-muted)' }}>
+        LIVE SYSTEM STATUS
+      </h3>
+
+      <Row label="Pipeline" value={health.status} ok={health.status === 'ok'} />
+      <Row
+        label="Speech-to-text"
+        value={health.stt.configured ? `${health.stt.provider} · ${health.stt.model}` : 'not configured'}
+        ok={health.stt.configured}
+      />
+      {!health.stt.configured && (
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#b45309', margin: '0.5rem 0' }}>
+          {health.stt.detail}
         </p>
-      </div>
+      )}
+      <Row label="Embedding model" value={`${health.embedding_model.name} · ${health.embedding_model.dim ?? '?'}d · ${health.embedding_model.type}`} />
+      <Row label="Corpus loaded" value={String(health.corpus_loaded)} ok={health.corpus_loaded} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
-        {services.map((srv, i) => (
-          <div key={i} className="glass-panel" style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', fontWeight: '800', color: 'var(--forest-dark)' }}>
-                {srv.name}
-              </span>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontFamily: 'var(--font-mono)',
-                  fontWeight: '700',
-                  padding: '0.25rem 0.65rem',
-                  borderRadius: '6px',
-                  background: 'rgba(8, 115, 63, 0.15)',
-                  color: 'var(--green)',
-                  border: '1px solid rgba(8, 115, 63, 0.3)'
-                }}
-              >
-                ● {srv.status}
-              </span>
-            </div>
+      {corpus && (
+        <>
+          <h4 style={{ fontFamily: 'var(--font-heading)', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+            CORPUS PROVENANCE
+          </h4>
+          <Row label="Dataset" value={corpus.source_dataset} />
+          <Row label="Source file" value={`${corpus.source_file} (${corpus.split})`} />
+          <Row label="Queries" value={corpus.queries?.toLocaleString()} />
+          <Row label="Passages" value={corpus.passages?.toLocaleString()} />
+          <Row label="Queries with gold labels" value={corpus.queries_with_gold?.toLocaleString()} />
+          <Row label="Built at" value={corpus.built_at} />
+        </>
+      )}
 
-            <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>
-              Provider: <span style={{ color: 'var(--ink)', fontWeight: '600' }}>{srv.provider}</span>
+      {strategies.length > 0 && (
+        <>
+          <h4 style={{ fontFamily: 'var(--font-heading)', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+            CHUNKING STRATEGIES
+          </h4>
+          {strategies.map((s) => (
+            <div key={s.name} style={{ padding: '0.6rem 0', borderBottom: '1px solid var(--line)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
+                <strong>{s.name}</strong>
+                <span>{s.loaded ? `${s.stats.chunks.toLocaleString()} chunks · ${s.stats.avg_tokens} avg tok · ${s.stats.index_mb}MB` : 'not built'}</span>
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)' }}>{s.description}</div>
             </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--line)', fontSize: '0.8rem' }}>
-              <span style={{ color: 'var(--muted)', fontWeight: '500' }}>Type: {srv.type}</span>
-              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--green)', fontWeight: '700' }}>
-                Ping: {srv.latency}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }

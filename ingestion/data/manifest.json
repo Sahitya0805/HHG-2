@@ -1,0 +1,14 @@
+{
+  "source_dataset": "ai4bharat/MSMARCO-XI",
+  "source_file": "hinval.parquet",
+  "source_sha256_16": "bd35b1aba74b9b7f",
+  "split": "validation",
+  "built_at": "2026-08-20 14:39:01",
+  "queries": 3000,
+  "passages": 29985,
+  "queries_with_gold": 1889,
+  "queries_without_gold": 1111,
+  "skipped_rows": 0,
+  "avg_passages_per_query": 9.99,
+  "note": "English_passages are used as the retrievable corpus; is_selected provides gold relevance judgements for Recall@k."
+}

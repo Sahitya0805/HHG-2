@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Header from './components/Header.jsx';
 import BackgroundSVGs from './components/BackgroundSVGs.jsx';
 import VoiceRecorder from './components/VoiceRecorder.jsx';
@@ -7,30 +7,51 @@ import AnswerCard from './components/AnswerCard.jsx';
 import EvidenceViewer from './components/EvidenceViewer.jsx';
 import BenchmarkDashboard from './components/BenchmarkDashboard.jsx';
 import SystemStatus from './components/SystemStatus.jsx';
-import { executeEchoRAGPipeline } from './lib/ragEngine.js';
+import { askText, askVoice, getHealth } from './lib/api.js';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('search');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeStrategy, setActiveStrategy] = useState('semantic');
-  const [removeFillers, setRemoveFillers] = useState(true);
+  const [strategy, setStrategy] = useState('metadata_aware');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [health, setHealth] = useState(null);
 
-  // Pre-load default initial search result so page is never empty on load
-  const [pipelineData, setPipelineData] = useState(() =>
-    executeEchoRAGPipeline("What causes the symptoms of influenza and seasonal flu?", "semantic", true)
-  );
+  useEffect(() => {
+    getHealth().then(setHealth).catch((e) => setError(e.message));
+  }, []);
 
-  const handleTranscriptSubmit = (transcriptText) => {
-    if (!transcriptText || !transcriptText.trim()) return;
-
+  const runText = useCallback(async (query) => {
+    if (!query?.trim()) return;
     setIsProcessing(true);
-
-    setTimeout(() => {
-      const result = executeEchoRAGPipeline(transcriptText, activeStrategy, removeFillers);
-      setPipelineData(result);
+    setError(null);
+    try {
+      setResult(await askText(query.trim(), strategy));
+    } catch (e) {
+      setError(e.message);
+      setResult(null);
+    } finally {
       setIsProcessing(false);
-    }, 120);
-  };
+    }
+  }, [strategy]);
+
+  const runVoice = useCallback(async (blob) => {
+    setIsProcessing(true);
+    setError(null);
+    try {
+      setResult(await askVoice(blob, strategy));
+    } catch (e) {
+      // 503 = no SARVAM_API_KEY. Say so instead of quietly falling back.
+      setError(
+        e.status === 503
+          ? 'Voice transcription is unavailable: the server has no Sarvam API key configured. Typed questions still work.'
+          : e.message,
+      );
+      setResult(null);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [strategy]);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
@@ -41,40 +62,39 @@ export default function App() {
         {activeTab === 'search' && (
           <>
             <VoiceRecorder
-              onTranscriptSubmit={handleTranscriptSubmit}
+              onTextSubmit={runText}
+              onVoiceSubmit={runVoice}
               isProcessing={isProcessing}
-              activeStrategy={activeStrategy}
-              setActiveStrategy={setActiveStrategy}
-              removeFillers={removeFillers}
-              setRemoveFillers={setRemoveFillers}
+              strategy={strategy}
+              setStrategy={setStrategy}
+              sttConfigured={health?.stt?.configured}
+              sttDetail={health?.stt?.detail}
             />
-            <PipelineVisualizer isProcessing={isProcessing} pipelineData={pipelineData} />
-            <AnswerCard data={pipelineData} />
+            {error && (
+              <div className="glass-panel" style={{ borderColor: '#b91c1c' }}>
+                <strong style={{ color: '#b91c1c' }}>Error</strong>
+                <p style={{ margin: '0.5rem 0 0', fontFamily: 'var(--font-mono)', fontSize: '0.9rem' }}>{error}</p>
+              </div>
+            )}
+            <PipelineVisualizer isProcessing={isProcessing} result={result} />
+            <AnswerCard result={result} />
           </>
         )}
 
-        {activeTab === 'evidence' && <EvidenceViewer pipelineData={pipelineData} />}
-
+        {activeTab === 'evidence' && <EvidenceViewer result={result} />}
         {activeTab === 'benchmark' && <BenchmarkDashboard />}
-
         {activeTab === 'status' && <SystemStatus />}
       </main>
 
       <footer
         style={{
-          borderTop: '2.5px solid var(--card-border)',
-          padding: '1.25rem 2rem',
-          textAlign: 'center',
-          color: 'var(--ink-muted)',
-          fontSize: '0.85rem',
-          fontFamily: 'var(--font-mono)',
-          position: 'relative',
-          zIndex: 10,
-          background: 'rgba(253, 246, 227, 0.95)',
-          fontWeight: '700'
+          borderTop: '2.5px solid var(--card-border)', padding: '1.25rem 2rem',
+          textAlign: 'center', color: 'var(--ink-muted)', fontSize: '0.85rem',
+          fontFamily: 'var(--font-mono)', position: 'relative', zIndex: 10,
+          background: 'rgba(253, 246, 227, 0.95)', fontWeight: '700',
         }}
       >
-        EchoRAG Engine · Built for HH Goa 2026 (#RAGInGoa) · Sub-200ms Voice RAG Engine
+        EchoRAG · ai4bharat/MSMARCO-XI · Sarvam STT · HH Goa 2026 #RAGInGoa
       </footer>
     </div>
   );

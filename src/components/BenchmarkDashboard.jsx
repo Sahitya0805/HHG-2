@@ -1,198 +1,114 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getBenchmark } from '../lib/api.js';
 
+// Renders latency_report.json as measured. No report -> says so.
 export default function BenchmarkDashboard() {
-  const [isRunning, setIsRunning] = useState(false);
   const [report, setReport] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchBenchmarkData();
+    getBenchmark().then(setReport).catch((e) => setError(e.message));
   }, []);
 
-  const fetchBenchmarkData = async () => {
-    try {
-      const res = await fetch('/api/benchmark');
-      if (res.ok) {
-        const data = await res.json();
-        setReport(data);
-      } else {
-        setReport(getFallbackReport());
-      }
-    } catch (err) {
-      setReport(getFallbackReport());
-    }
-  };
+  if (error) {
+    return (
+      <div className="glass-panel">
+        <h3 style={{ fontFamily: 'var(--font-heading)' }}>NO BENCHMARK REPORT</h3>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>{error}</p>
+        <code style={{ fontSize: '0.8rem' }}>python -m benchmarks.harness --queries 300</code>
+      </div>
+    );
+  }
+  if (!report) {
+    return <div className="glass-panel"><p style={{ fontFamily: 'var(--font-mono)' }}>Loading benchmark…</p></div>;
+  }
 
-  const getFallbackReport = () => ({
-    timestamp: new Date().toISOString(),
-    queries_tested: 105,
-    metrics: {
-      p50_ms: 0.21,
-      p70_ms: 0.22,
-      p100_ms: 9.87,
-      recall_at_5: 92.4,
-      groundedness_rate: 76.2,
-      abstention_accuracy: 94.1,
-      success_rate: 100.0
-    },
-    strategy_matrix: [
-      { strategy: 'Fixed Token', recall_at_5: '82%', p50_ms: '0.24 ms', groundedness: '71%' },
-      { strategy: 'Sentence Windows', recall_at_5: '86%', p50_ms: '0.22 ms', groundedness: '74%' },
-      { strategy: 'Recursive', recall_at_5: '89%', p50_ms: '0.23 ms', groundedness: '75%' },
-      { strategy: 'Semantic', recall_at_5: '93%', p50_ms: '0.21 ms', groundedness: '76.2%' },
-      { strategy: 'Windowed Context', recall_at_5: '95%', p50_ms: '0.28 ms', groundedness: '78%' }
-    ]
-  });
+  const L = report.latency_ms;
+  const cmp = report.strategy_comparison || {};
 
-  const handleRunBenchmark = async () => {
-    setIsRunning(true);
-    await fetchBenchmarkData();
-    setTimeout(() => {
-      setIsRunning(false);
-    }, 600);
-  };
-
-  const downloadReportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(report || getFallbackReport(), null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `EchoRAG_Benchmark_Report_${Date.now()}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  };
-
-  const metrics = report?.metrics || {};
+  const Stat = ({ label, value, note }) => (
+    <div style={{
+      border: '2px solid var(--card-border)', borderRadius: '14px', padding: '0.85rem 1rem',
+      background: 'rgba(255,255,255,0.6)', flex: '1 1 140px',
+    }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)', textTransform: 'uppercase', fontWeight: 800 }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800 }}>{value}</div>
+      {note && <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>{note}</div>}
+    </div>
+  );
 
   return (
-    <div>
-      <div className="glass-panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.6rem', marginBottom: '0.25rem', color: 'var(--ink)' }}>
-              ⚡ EchoRAG Latency & Retrieval Benchmark Engine
-            </h2>
-            <p style={{ color: 'var(--ink-muted)', fontSize: '0.95rem' }}>
-              Empirical measurements over {report?.queries_tested || 105} real test queries. Target: &lt; 200ms end-to-end.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              className="query-chip"
-              onClick={downloadReportJSON}
-              style={{ padding: '0.75rem 1.25rem' }}
-            >
-              📥 Export JSON Report
-            </button>
-            <button
-              className="btn-primary"
-              onClick={handleRunBenchmark}
-              disabled={isRunning}
-            >
-              {isRunning ? 'Running 105 Queries...' : '▶ Run 100+ Query Benchmark'}
-            </button>
-          </div>
-        </div>
+    <div className="glass-panel">
+      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: 'var(--ink-muted)' }}>
+        MEASURED LATENCY — {report.queries_measured} QUERIES · {report.generated_at}
+      </h3>
+      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
+        {report.latency_scope}
+      </p>
 
-        <div className="metrics-grid" style={{ marginTop: '1.5rem' }}>
-          <div className="metric-card">
-            <div className="metric-lbl">P50 LATENCY</div>
-            <div className="metric-val" style={{ color: 'var(--beach-teal)' }}>
-              {metrics.p50_ms ? `${metrics.p50_ms} ms` : '0.21 ms'}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
-              50th Percentile
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-lbl">P70 LATENCY</div>
-            <div className="metric-val" style={{ color: 'var(--ink)' }}>
-              {metrics.p70_ms ? `${metrics.p70_ms} ms` : '0.22 ms'}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
-              70th Percentile
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-lbl">P100 LATENCY (MAX)</div>
-            <div className="metric-val" style={{ color: 'var(--vintage-pink)' }}>
-              {metrics.p100_ms ? `${metrics.p100_ms} ms` : '9.87 ms'}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
-              Max Query Latency
-            </div>
-          </div>
-
-          <div className="metric-card">
-            <div className="metric-lbl">QUERIES TESTED</div>
-            <div className="metric-val" style={{ color: 'var(--ink)' }}>
-              {report?.queries_tested || 105}
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>
-              Benchmark Suite
-            </div>
-          </div>
-        </div>
-
-        <div className="metrics-grid">
-          <div className="metric-card">
-            <div className="metric-lbl">RECALL@5</div>
-            <div className="metric-val" style={{ color: 'var(--ink)' }}>
-              {metrics.recall_at_5}%
-            </div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-lbl">GROUNDEDNESS</div>
-            <div className="metric-val" style={{ color: 'var(--beach-teal)' }}>
-              {metrics.groundedness_rate}%
-            </div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-lbl">CORRECT REFUSAL</div>
-            <div className="metric-val" style={{ color: 'var(--sunset-coral)' }}>
-              {metrics.abstention_accuracy}%
-            </div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-lbl">RELIABILITY SUCCESS</div>
-            <div className="metric-val" style={{ color: 'var(--beach-teal)' }}>
-              {metrics.success_rate}%
-            </div>
-          </div>
-        </div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '1rem 0' }}>
+        <Stat label="P50" value={`${L.p50}ms`} />
+        <Stat label="P70" value={`${L.p70}ms`} />
+        <Stat label="P95" value={`${L.p95}ms`} />
+        <Stat label="P100" value={`${L.p100}ms`} note="worst observed" />
+        <Stat label="Under 200ms" value={`${report.under_200ms.pct}%`} note={`${report.under_200ms.count}/${report.under_200ms.of}`} />
+        <Stat label="Cold start" value={`${report.cold_start_ms}ms`} note="first query, excluded from percentiles" />
       </div>
 
-      <div className="glass-panel">
-        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--ink)' }}>
-          📊 Chunk Lab Strategy Comparison Matrix
-        </h3>
-        <table className="data-table">
+      <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+        ABSTENTION BEHAVIOUR
+      </h4>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '0.5rem 0 1.5rem' }}>
+        <Stat label="In-domain answered" value={`${(report.abstention.in_domain_answer_rate * 100).toFixed(1)}%`} note={`${report.abstention.in_domain_answered}/${report.abstention.in_domain_total}`} />
+        <Stat label="Out-of-domain declined" value={`${report.abstention.ood_abstained}/${report.abstention.ood_total}`} />
+        <Stat label="Unsafe blocked" value={`${report.abstention.unsafe_blocked}/${report.abstention.unsafe_total}`} />
+      </div>
+
+      <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+        STRATEGY COMPARISON — RECALL FROM MSMARCO <code>is_selected</code> GOLD LABELS
+      </h4>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-mono)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
           <thead>
-            <tr>
-              <th>Chunking Strategy</th>
-              <th>Recall@5</th>
-              <th>P50 Latency</th>
-              <th>Groundedness %</th>
-              <th>Status</th>
+            <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--card-border)' }}>
+              <th style={{ padding: '6px' }}>strategy</th>
+              <th style={{ padding: '6px' }}>chunks</th>
+              <th style={{ padding: '6px' }}>R@1</th>
+              <th style={{ padding: '6px' }}>R@5</th>
+              <th style={{ padding: '6px' }}>R@10</th>
+              <th style={{ padding: '6px' }}>MRR@10</th>
+              <th style={{ padding: '6px' }}>P50</th>
+              <th style={{ padding: '6px' }}>P100</th>
             </tr>
           </thead>
           <tbody>
-            {(report?.strategy_matrix || []).map((row, i) => (
-              <tr key={i}>
-                <td style={{ fontWeight: '700', color: 'var(--ink)' }}>{row.strategy}</td>
-                <td>{row.recall_at_5}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--beach-teal)', fontWeight: '700' }}>{row.p50_ms}</td>
-                <td>{row.groundedness}</td>
-                <td>
-                  <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem', background: '#d1fae5', color: '#065f46', borderRadius: '6px', border: '1.5px solid var(--card-border)', fontWeight: '700' }}>
-                    BENCHMARKED
-                  </span>
-                </td>
+            {Object.entries(cmp).map(([name, m]) => (
+              <tr key={name} style={{ borderBottom: '1px solid var(--line)', background: name === report.active_strategy ? 'rgba(4,120,87,0.08)' : 'transparent' }}>
+                <td style={{ padding: '6px', fontWeight: 700 }}>{name}</td>
+                <td style={{ padding: '6px' }}>{m.chunks?.toLocaleString()}</td>
+                <td style={{ padding: '6px' }}>{m['recall@1']}</td>
+                <td style={{ padding: '6px' }}>{m['recall@5']}</td>
+                <td style={{ padding: '6px' }}>{m['recall@10']}</td>
+                <td style={{ padding: '6px' }}>{m['mrr@10']}</td>
+                <td style={{ padding: '6px' }}>{m.p50_ms}ms</td>
+                <td style={{ padding: '6px' }}>{m.p100_ms}ms</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.9rem', color: 'var(--ink-muted)', marginTop: '1.5rem' }}>
+        PER-STAGE P50
+      </h4>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
+        {Object.entries(report.stage_p50_ms || {}).map(([k, v]) => (
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid var(--line)' }}>
+            <span>{k}</span><span style={{ fontWeight: 700 }}>{v}ms</span>
+          </div>
+        ))}
       </div>
     </div>
   );
