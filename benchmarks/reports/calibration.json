@@ -1,0 +1,215 @@
+{
+  "strategy": "atomic",
+  "in_domain_queries": 400,
+  "ood_queries": 18,
+  "in_domain_score_distribution": {
+    "min": 0.324,
+    "p10": 0.5774,
+    "p50": 0.7062,
+    "p90": 0.8289,
+    "max": 0.9627
+  },
+  "ood_score_distribution": {
+    "min": 0.3195,
+    "p10": 0.3536,
+    "p50": 0.5635,
+    "p90": 0.6622,
+    "max": 0.6875
+  },
+  "recommended_threshold": 0.6,
+  "at_recommended": {
+    "threshold": 0.6,
+    "in_domain_answer_rate": 0.85,
+    "ood_abstain_rate": 0.7778,
+    "balanced_accuracy": 0.8139
+  },
+  "sweep": [
+    {
+      "threshold": 0.2,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.22,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.24,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.26,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.28,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.3,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0,
+      "balanced_accuracy": 0.5
+    },
+    {
+      "threshold": 0.32,
+      "in_domain_answer_rate": 1.0,
+      "ood_abstain_rate": 0.0556,
+      "balanced_accuracy": 0.5278
+    },
+    {
+      "threshold": 0.34,
+      "in_domain_answer_rate": 0.9975,
+      "ood_abstain_rate": 0.0556,
+      "balanced_accuracy": 0.5265
+    },
+    {
+      "threshold": 0.36,
+      "in_domain_answer_rate": 0.9925,
+      "ood_abstain_rate": 0.1111,
+      "balanced_accuracy": 0.5518
+    },
+    {
+      "threshold": 0.38,
+      "in_domain_answer_rate": 0.99,
+      "ood_abstain_rate": 0.1111,
+      "balanced_accuracy": 0.5506
+    },
+    {
+      "threshold": 0.4,
+      "in_domain_answer_rate": 0.99,
+      "ood_abstain_rate": 0.1667,
+      "balanced_accuracy": 0.5783
+    },
+    {
+      "threshold": 0.42,
+      "in_domain_answer_rate": 0.9875,
+      "ood_abstain_rate": 0.1667,
+      "balanced_accuracy": 0.5771
+    },
+    {
+      "threshold": 0.44,
+      "in_domain_answer_rate": 0.985,
+      "ood_abstain_rate": 0.2778,
+      "balanced_accuracy": 0.6314
+    },
+    {
+      "threshold": 0.46,
+      "in_domain_answer_rate": 0.9775,
+      "ood_abstain_rate": 0.2778,
+      "balanced_accuracy": 0.6276
+    },
+    {
+      "threshold": 0.48,
+      "in_domain_answer_rate": 0.9725,
+      "ood_abstain_rate": 0.3333,
+      "balanced_accuracy": 0.6529
+    },
+    {
+      "threshold": 0.5,
+      "in_domain_answer_rate": 0.965,
+      "ood_abstain_rate": 0.3889,
+      "balanced_accuracy": 0.6769
+    },
+    {
+      "threshold": 0.52,
+      "in_domain_answer_rate": 0.9425,
+      "ood_abstain_rate": 0.4444,
+      "balanced_accuracy": 0.6935
+    },
+    {
+      "threshold": 0.54,
+      "in_domain_answer_rate": 0.93,
+      "ood_abstain_rate": 0.5,
+      "balanced_accuracy": 0.715
+    },
+    {
+      "threshold": 0.56,
+      "in_domain_answer_rate": 0.9175,
+      "ood_abstain_rate": 0.5,
+      "balanced_accuracy": 0.7087
+    },
+    {
+      "threshold": 0.58,
+      "in_domain_answer_rate": 0.8875,
+      "ood_abstain_rate": 0.7222,
+      "balanced_accuracy": 0.8049
+    },
+    {
+      "threshold": 0.6,
+      "in_domain_answer_rate": 0.85,
+      "ood_abstain_rate": 0.7778,
+      "balanced_accuracy": 0.8139
+    },
+    {
+      "threshold": 0.62,
+      "in_domain_answer_rate": 0.79,
+      "ood_abstain_rate": 0.8333,
+      "balanced_accuracy": 0.8117
+    },
+    {
+      "threshold": 0.64,
+      "in_domain_answer_rate": 0.7375,
+      "ood_abstain_rate": 0.8889,
+      "balanced_accuracy": 0.8132
+    },
+    {
+      "threshold": 0.66,
+      "in_domain_answer_rate": 0.675,
+      "ood_abstain_rate": 0.8889,
+      "balanced_accuracy": 0.7819
+    },
+    {
+      "threshold": 0.68,
+      "in_domain_answer_rate": 0.6,
+      "ood_abstain_rate": 0.9444,
+      "balanced_accuracy": 0.7722
+    },
+    {
+      "threshold": 0.7,
+      "in_domain_answer_rate": 0.5275,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.7637
+    },
+    {
+      "threshold": 0.72,
+      "in_domain_answer_rate": 0.445,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.7225
+    },
+    {
+      "threshold": 0.74,
+      "in_domain_answer_rate": 0.3675,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.6837
+    },
+    {
+      "threshold": 0.76,
+      "in_domain_answer_rate": 0.3325,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.6663
+    },
+    {
+      "threshold": 0.78,
+      "in_domain_answer_rate": 0.26,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.63
+    },
+    {
+      "threshold": 0.8,
+      "in_domain_answer_rate": 0.19,
+      "ood_abstain_rate": 1.0,
+      "balanced_accuracy": 0.595
+    }
+  ],
+  "note": "Threshold is on raw dense cosine, which is comparable across queries. The fused dense+BM25 score is not usable here because per-query max-normalisation makes every query's top hit ~1.0."
+}
