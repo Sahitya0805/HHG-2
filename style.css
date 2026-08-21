@@ -1149,12 +1149,17 @@ input:disabled {
 
 @media (max-width: 1100px) {
   .app-header {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 14px;
   }
 
-  .header-title,
+  .header-title {
+    justify-content: flex-end;
+  }
+
   .header-actions {
     justify-content: flex-start;
+    grid-column: 1 / -1;
   }
 
   .hero-grid {
@@ -1187,39 +1192,46 @@ input:disabled {
 
 @media (max-width: 720px) {
   .app-header {
-    padding: 10px;
-    gap: 10px;
+    grid-template-columns: 1fr;
+    padding: 8px 10px 10px;
+    gap: 7px 10px;
   }
 
   .brand-lockup {
-    gap: 8px;
+    justify-content: center;
+    gap: 10px;
   }
 
   .hh-mark {
-    width: 44px;
-    height: 44px;
+    width: 84px;
+    height: 38px;
   }
 
   .goa-mark {
-    height: 30px;
+    height: 44px;
+    max-width: 86px;
   }
 
   .pm-mark {
-    height: 20px;
+    height: 34px;
+    max-width: 78px;
   }
 
   .header-title {
-    font-size: 0.92rem;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.78rem;
   }
 
   .header-title img {
-    height: 24px;
+    height: 22px;
   }
 
   .header-actions {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
+    grid-column: auto;
   }
 
   .nav-tabs {
@@ -1229,7 +1241,7 @@ input:disabled {
 
   .nav-tab {
     min-width: 0;
-    padding: 9px 4px;
+    padding: 8px 10px;
     font-size: 0.68rem;
   }
 
