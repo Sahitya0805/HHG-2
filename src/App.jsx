@@ -134,7 +134,6 @@ export default function App() {
       </main>
 
       <footer className="app-footer">
-        <img src="/hhgoa/backgrounds/waveform-tide.svg" alt="" aria-hidden="true" />
         <span>EchoRAG / Task 02 · ai4bharat/MSMARCO-XI · Sarvam STT · HHGoa 2026 · #RAGInGoa</span>
       </footer>
     </div>
