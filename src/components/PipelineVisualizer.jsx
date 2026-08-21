@@ -15,6 +15,57 @@ function fmt(value, digits = 2) {
   return value == null ? '-' : `${Number(value).toFixed(digits)}ms`;
 }
 
+function normalizeStatus(status) {
+  return status === 'ok' || status === 'success' ? 'ok' : (status || 'skipped');
+}
+
+function stoppedReason(result) {
+  if (result?.error) return 'pipeline error';
+  if (result?.abstained && result?.guardrail?.layer) {
+    return `stopped at ${result.guardrail.layer}`;
+  }
+  return 'not returned by API';
+}
+
+function stageView(id, timingByName, result) {
+  if (id === 'voice') {
+    if (result.stt?.source === 'sarvam') {
+      return {
+        status: 'ok',
+        value: 'voice input',
+        detail: result.stt.status || result.stt.provider || 'sarvam',
+      };
+    }
+    return { status: 'skipped', value: 'typed query', detail: 'voice not used' };
+  }
+
+  if (id === 'stt') {
+    if (result.stt) {
+      return {
+        status: normalizeStatus(result.stt.status),
+        ms: result.stt.stt_ms,
+        detail: result.stt.provider || 'sarvam',
+      };
+    }
+    return { status: 'skipped', value: 'not used', detail: 'typed query' };
+  }
+
+  const timing = timingByName[id];
+  if (timing) {
+    return {
+      status: normalizeStatus(timing.status),
+      ms: timing.ms,
+      detail: timing.note || (timing.attempts > 1 ? `${timing.attempts} attempts` : null),
+    };
+  }
+
+  return {
+    status: 'skipped',
+    value: 'not run',
+    detail: stoppedReason(result),
+  };
+}
+
 export default function PipelineVisualizer({ isProcessing, result }) {
   if (isProcessing) {
     return (
@@ -45,7 +96,6 @@ export default function PipelineVisualizer({ isProcessing, result }) {
   const timingByName = Object.fromEntries(timings.map((t) => [t.name, t]));
   const pipelineMs = result.pipeline_ms;
   const totalMs = result.total_ms;
-  const sttMs = result.stt?.stt_ms;
   const measuredSum = timings.reduce((sum, t) => sum + (t.ms || 0), 0);
   const overhead = Math.max(0, (pipelineMs || 0) - measuredSum);
   const withinTarget = pipelineMs != null && pipelineMs < 200;
@@ -71,14 +121,12 @@ export default function PipelineVisualizer({ isProcessing, result }) {
 
       <div className="signal-path">
         {SIGNAL_PATH.map(([id, label]) => {
-          const timing = id === 'stt'
-            ? { ms: sttMs, status: sttMs == null ? 'skipped' : 'ok' }
-            : timingByName[id];
+          const timing = stageView(id, timingByName, result);
           return (
-            <div className={`path-node ${timing?.status || 'skipped'}`} key={id}>
+            <div className={`path-node ${timing.status}`} key={id}>
               <span>{label}</span>
-              <code>{fmt(timing?.ms)}</code>
-              {timing?.status && timing.status !== 'ok' && <small>{timing.status}</small>}
+              <code>{timing.ms == null ? timing.value : fmt(timing.ms)}</code>
+              {timing.detail && <small>{timing.detail}</small>}
             </div>
           );
         })}

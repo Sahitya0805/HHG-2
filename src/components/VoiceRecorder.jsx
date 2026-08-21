@@ -15,14 +15,24 @@ const LANGUAGES = [
   ['en-IN', 'English'],
 ];
 
-const EXAMPLES = [
-  'what is a corporation?',
-  'what causes high blood pressure?',
-  'how long does it take to become a nurse?',
-];
+const BAR_COUNT = 24;
+const EMPTY_LEVELS = Array.from({ length: BAR_COUNT }, () => 0);
 
 function formatMs(value) {
   return value == null ? '-' : `${value}ms`;
+}
+
+function stateLabel(state) {
+  const labels = {
+    idle: 'Idle',
+    'permission-requested': 'Requesting microphone permission',
+    recording: 'Recording',
+    transcribing: 'Processing transcription',
+    retrieving: 'Processing retrieval',
+    success: 'Success',
+    error: 'Error',
+  };
+  return labels[state] || state;
 }
 
 function LiveBenchmarkProof({ benchmark, benchmarkError }) {
@@ -38,7 +48,7 @@ function LiveBenchmarkProof({ benchmark, benchmarkError }) {
   if (!benchmark) {
     return (
       <aside className="proof-panel" aria-label="Loading benchmark proof">
-        {['P50', 'P70', 'P100', '<200ms'].map((label) => (
+        {['P50', 'P100', '<200ms'].map((label) => (
           <div className="proof-card skeleton" key={label}>
             <span>{label}</span>
             <strong />
@@ -58,10 +68,6 @@ function LiveBenchmarkProof({ benchmark, benchmarkError }) {
         <strong>{formatMs(latency.p50)}</strong>
       </div>
       <div className="proof-card">
-        <span>P70</span>
-        <strong>{formatMs(latency.p70)}</strong>
-      </div>
-      <div className="proof-card">
         <span>P100</span>
         <strong>{formatMs(latency.p100)}</strong>
       </div>
@@ -70,7 +76,7 @@ function LiveBenchmarkProof({ benchmark, benchmarkError }) {
         <strong>{under.pct == null ? '-' : `${under.pct}%`}</strong>
       </div>
       <p className="proof-footnote">
-        {benchmark.generated_at} · {benchmark.queries_measured} queries · pipeline latency excludes Sarvam network call
+        {benchmark.generated_at} · {benchmark.queries_measured} measured queries · pipeline latency excludes Sarvam
       </p>
     </aside>
   );
@@ -97,21 +103,61 @@ export default function VoiceRecorder({
   const [seconds, setSeconds] = useState(0);
   const [text, setText] = useState('');
   const [micError, setMicError] = useState(null);
+  const [levels, setLevels] = useState(EMPTY_LEVELS);
   const sessionRef = useRef(null);
   const timerRef = useRef(null);
+  const animationRef = useRef(null);
+  const dataRef = useRef(null);
 
-  useEffect(() => () => clearInterval(timerRef.current), []);
+  const stopLevelMeter = () => {
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    animationRef.current = null;
+    dataRef.current = null;
+    setLevels(EMPTY_LEVELS);
+  };
+
+  const startLevelMeter = (analyser) => {
+    stopLevelMeter();
+    if (!analyser) return;
+
+    dataRef.current = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      const data = dataRef.current;
+      if (!data) return;
+      analyser.getByteFrequencyData(data);
+      const bucketSize = Math.max(1, Math.floor(data.length / BAR_COUNT));
+      const next = EMPTY_LEVELS.map((_, index) => {
+        const start = index * bucketSize;
+        const end = Math.min(data.length, start + bucketSize);
+        let sum = 0;
+        for (let i = start; i < end; i += 1) sum += data[i];
+        return Math.min(1, (sum / Math.max(1, end - start)) / 255);
+      });
+      setLevels(next);
+      animationRef.current = requestAnimationFrame(tick);
+    };
+    animationRef.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => () => {
+    clearInterval(timerRef.current);
+    stopLevelMeter();
+    sessionRef.current?.cancel?.();
+  }, []);
 
   const begin = async () => {
     setMicError(null);
     setPermissionRequested(true);
     try {
-      sessionRef.current = await startRecording();
+      const session = await startRecording();
+      sessionRef.current = session;
       setIsRecording(true);
       setSeconds(0);
+      startLevelMeter(session.analyser);
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch (e) {
       setMicError(`Microphone unavailable: ${e.message}`);
+      stopLevelMeter();
     } finally {
       setPermissionRequested(false);
     }
@@ -120,11 +166,24 @@ export default function VoiceRecorder({
   const end = async () => {
     clearInterval(timerRef.current);
     setIsRecording(false);
+    stopLevelMeter();
     const session = sessionRef.current;
     sessionRef.current = null;
     if (!session) return;
-    const blob = await session.stop();
-    if (blob.size > 0) onVoiceSubmit(blob);
+    try {
+      const blob = await session.stop();
+      if (blob.size > 0) onVoiceSubmit(blob);
+    } catch (e) {
+      setMicError(`Recording could not be saved: ${e.message}`);
+    }
+  };
+
+  const cancel = () => {
+    clearInterval(timerRef.current);
+    setIsRecording(false);
+    stopLevelMeter();
+    sessionRef.current?.cancel?.();
+    sessionRef.current = null;
   };
 
   const submitText = (query = text) => {
@@ -134,38 +193,36 @@ export default function VoiceRecorder({
   };
 
   const recordingSupported = isRecordingSupported();
-  const micDisabled = isProcessing || !recordingSupported || !sttConfigured || !!backendUnavailable;
+  const micDisabled = isProcessing || permissionRequested || !recordingSupported || !sttConfigured || !!backendUnavailable;
   const primaryState = isRecording
     ? 'recording'
     : permissionRequested
       ? 'permission-requested'
       : isProcessing
         ? phase
-        : phase === 'answered' || phase === 'abstained' || phase === 'error'
-          ? phase
-          : 'idle';
+        : micError || phase === 'error'
+          ? 'error'
+          : phase === 'answered' || phase === 'abstained'
+            ? 'success'
+            : 'idle';
 
   return (
     <section className="hero-grid" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <div className="hero-eyebrow">
-          <img src="/hhgoa/badges/rag-in-goa.svg" alt="#RAGInGoa" />
-          <span>Goa signal station</span>
-        </div>
-        <h1 id="hero-title">Speak. Retrieve. Prove.</h1>
+        <p className="hero-kicker">HHGoa Voice RAG console</p>
+        <h1 id="hero-title">Ask by voice. Answer with evidence.</h1>
         <p>
-          Sarvam speech-to-text meets hybrid dense + BM25 retrieval over MSMARCO-XI.
-          Seven chunking strategies, five guardrails, and answers that stay inside the evidence.
+          Speak a question, retrieve grounded passages from MSMARCO-XI, and inspect the answer,
+          citations, strategy and latency from the live backend.
         </p>
       </div>
 
       <LiveBenchmarkProof benchmark={benchmark} benchmarkError={benchmarkError} />
 
       <div className="voice-console signal-panel">
-        <img className="signal-sun" src="/hhgoa/backgrounds/hero-signal-sun.svg" alt="" aria-hidden="true" />
         <div className="console-topline">
-          <span>Live voice console</span>
-          <code>{primaryState}</code>
+          <span>Voice recorder</span>
+          <code>{stateLabel(primaryState)}</code>
         </div>
 
         {backendUnavailable && (
@@ -188,45 +245,53 @@ export default function VoiceRecorder({
         )}
         {micError && (
           <div className="notice-panel compact danger" role="alert">
-            <strong>Microphone permission failed</strong>
+            <strong>Recorder error</strong>
             <p>{micError}</p>
+            <button type="button" className="inline-retry" onClick={begin} disabled={micDisabled && !micError}>
+              Retry microphone
+            </button>
           </div>
         )}
 
         <div className="mic-stage">
           <button
             type="button"
-            className={`mic-button ${isRecording ? 'recording' : ''}`}
+            className={`voice-art-button ${primaryState}`}
             onClick={isRecording ? end : begin}
-            disabled={micDisabled}
+            disabled={isRecording ? false : micDisabled}
             aria-label={isRecording ? 'Stop recording and send voice query' : 'Start recording voice query'}
-            title={sttConfigured === false ? 'Sarvam API key not configured' : 'Record a question'}
+            title={sttConfigured === false ? 'Sarvam API key not configured' : 'Record a voice question'}
           >
-            <span className="mic-ring" />
-            <img src={isRecording ? '/hhgoa/icons/wave.svg' : '/hhgoa/icons/mic.svg'} alt="" aria-hidden="true" />
+            {['idle', 'transcribing', 'retrieving'].includes(primaryState) ? (
+              <img src="/hhgoa/voice/voice-signal-animated.svg" alt="" aria-hidden="true" />
+            ) : (
+              <span className="voice-static-mark" aria-hidden="true">
+                <span className="voice-static-ring" />
+                <span className="voice-static-core">
+                  <span />
+                  <span />
+                  <span />
+                </span>
+              </span>
+            )}
           </button>
           <div className="recording-readout" aria-live="polite">
-            {isRecording ? (
-              <>
-                <strong>{seconds}s</strong>
-                <span>recording</span>
-              </>
-            ) : (
-              <>
-                <strong>{isProcessing ? 'working' : 'ready'}</strong>
-                <span>{primaryState}</span>
-              </>
-            )}
+            <strong>{isRecording ? `${seconds}s` : stateLabel(primaryState)}</strong>
+            <span>{isRecording ? 'press signal to stop' : 'voice goes through Sarvam and /api/voice'}</span>
           </div>
+          {isRecording && (
+            <div className="recording-controls">
+              <button type="button" onClick={end}>Stop and transcribe</button>
+              <button type="button" onClick={cancel}>Cancel</button>
+            </div>
+          )}
         </div>
 
-        {isRecording && (
-          <div className="waveform-bars" aria-hidden="true">
-            {[0.1, 0.3, 0.2, 0.4, 0.15, 0.35, 0.25, 0.45, 0.18].map((delay, i) => (
-              <span key={i} style={{ animationDelay: `${delay}s` }} />
-            ))}
-          </div>
-        )}
+        <div className="live-levels" aria-label="Live microphone input level">
+          {levels.map((level, index) => (
+            <span key={index} style={{ '--level': isRecording ? level : 0 }} />
+          ))}
+        </div>
 
         <div className="console-controls">
           <label>
@@ -250,7 +315,7 @@ export default function VoiceRecorder({
         </div>
 
         <form className="typed-query" onSubmit={(e) => { e.preventDefault(); submitText(); }}>
-          <label htmlFor="typed-query">Keyboard test path</label>
+          <label htmlFor="typed-query">Typed query</label>
           <div>
             <input
               id="typed-query"
@@ -265,17 +330,6 @@ export default function VoiceRecorder({
             </button>
           </div>
         </form>
-
-        <div className="query-chips" aria-label="Sample typed questions">
-          {EXAMPLES.map((query) => (
-            <button type="button" key={query} onClick={() => submitText(query)} disabled={isProcessing}>
-              {query}
-            </button>
-          ))}
-          <button type="button" className="danger-chip" onClick={() => submitText('What is the population of Mars in 2090?')} disabled={isProcessing}>
-            Abstention probe
-          </button>
-        </div>
       </div>
     </section>
   );
