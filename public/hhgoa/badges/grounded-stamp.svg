@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" fill="none">
+  <circle cx="180" cy="180" r="166" fill="#FFFaf0" stroke="#061A14" stroke-width="12"/>
+  <circle cx="180" cy="180" r="136" stroke="#0A9B5B" stroke-width="7" stroke-dasharray="5 12"/>
+  <path d="m118 180 38 38 88-98" stroke="#0A9B5B" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  <path id="topArc" d="M62 170a118 118 0 0 1 236 0"/>
+  <path id="bottomArc" d="M298 190a118 118 0 0 1-236 0"/>
+  <text fill="#061A14" font-family="Arial Black, Arial, sans-serif" font-size="24" font-weight="900" letter-spacing="4">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">GROUNDED · CITED</textPath>
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">GUARDED · VERIFIED</textPath>
+  </text>
+  <circle cx="47" cy="180" r="8" fill="#FF087C"/>
+  <circle cx="313" cy="180" r="8" fill="#FEE101"/>
+</svg>
+

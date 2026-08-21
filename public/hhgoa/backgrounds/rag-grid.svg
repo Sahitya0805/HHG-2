@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none">
+  <defs>
+    <pattern id="small" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="#FEE101" fill-opacity="0.18"/>
+    </pattern>
+    <pattern id="large" width="140" height="140" patternUnits="userSpaceOnUse">
+      <path d="M140 0H0V140" stroke="#48D9D0" stroke-opacity="0.11"/>
+    </pattern>
+    <linearGradient id="fade" x1="720" y1="0" x2="720" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B3A2A" stop-opacity="0"/>
+      <stop offset="0.24" stop-color="#0B3A2A"/>
+      <stop offset="0.78" stop-color="#0B3A2A"/>
+      <stop offset="1" stop-color="#0B3A2A" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#small)"/>
+  <rect width="1440" height="900" fill="url(#large)"/>
+  <g opacity="0.42" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M70 690C232 690 274 558 418 558s188 82 334 82 192-172 352-172 162 108 288 108" stroke="#48D9D0" stroke-width="2" stroke-dasharray="7 12"/>
+    <path d="M128 244c166 0 164 148 326 148s190-176 364-176 160 106 280 106 158-94 294-94" stroke="#FF087C" stroke-width="2" stroke-dasharray="3 14"/>
+  </g>
+  <g stroke="#061A14" stroke-width="4">
+    <circle cx="128" cy="244" r="10" fill="#FEE101"/>
+    <circle cx="454" cy="392" r="10" fill="#48D9D0"/>
+    <circle cx="818" cy="216" r="10" fill="#FF087C"/>
+    <circle cx="1098" cy="322" r="10" fill="#FEE101"/>
+    <circle cx="70" cy="690" r="10" fill="#FF087C"/>
+    <circle cx="418" cy="558" r="10" fill="#FEE101"/>
+    <circle cx="752" cy="640" r="10" fill="#48D9D0"/>
+    <circle cx="1104" cy="468" r="10" fill="#FEE101"/>
+    <circle cx="1392" cy="576" r="10" fill="#FF087C"/>
+  </g>
+  <rect width="1440" height="900" fill="url(#fade)" opacity="0.24"/>
+</svg>
+

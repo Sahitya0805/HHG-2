@@ -1,0 +1,41 @@
+:root {
+  --hh-forest-950: #061a14;
+  --hh-forest-900: #08271e;
+  --hh-forest-800: #0b3a2a;
+  --hh-forest-700: #0c6b42;
+  --hh-green: #0a9b5b;
+  --hh-yellow: #fee101;
+  --hh-pink: #ff087c;
+  --hh-coral: #ff704d;
+  --hh-cyan: #48d9d0;
+  --hh-sand: #f7efd8;
+  --hh-paper: #fffaf0;
+  --hh-white: #ffffff;
+  --hh-danger: #ff4f56;
+  --hh-success: #24c875;
+
+  --hh-display: "Syne", "Arial Black", sans-serif;
+  --hh-serif: "Instrument Serif", Georgia, serif;
+  --hh-body: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+  --hh-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --hh-radius-sm: 10px;
+  --hh-radius-md: 18px;
+  --hh-radius-lg: 30px;
+  --hh-radius-pill: 999px;
+  --hh-border: 2px solid var(--hh-forest-950);
+  --hh-shadow-hard: 7px 7px 0 var(--hh-forest-950);
+  --hh-shadow-soft: 0 24px 80px rgba(6, 26, 20, 0.18);
+  --hh-ease-spring: cubic-bezier(0.2, 0.9, 0.2, 1.15);
+  --hh-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+

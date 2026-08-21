@@ -1,49 +1,53 @@
 import React from 'react';
 
-export default function Header({ activeTab, setActiveTab }) {
+const NAV = [
+  ['ask', 'Ask'],
+  ['evidence', 'Evidence'],
+  ['benchmarks', 'Benchmarks'],
+  ['system', 'System'],
+];
+
+export default function Header({ activeTab, setActiveTab, health, healthError }) {
+  const healthy = health?.status === 'ok';
+  const degraded = health?.status === 'degraded' || healthError;
+
   return (
     <header className="app-header">
-      <div className="brand-logo">
-        <img src="/brand/hacker-house.png" alt="Hacker House" className="brand-svg-icon" />
-        <div>
-          <span className="brand-title">EchoRAG</span>
-          <span className="brand-serif">Goa</span>
-        </div>
-        <span className="brand-tag">Goa '26 🌴</span>
+      <div className="brand-lockup">
+        <img src="/hhgoa/official/hacker-house.png" alt="Hacker House" className="hh-mark" />
+        <img src="/hhgoa/official/goa-hindi.svg" alt="HHGoa 2026" className="goa-mark" />
+        <img src="/hhgoa/official/247pm.svg" alt="2:47PM" className="pm-mark" />
       </div>
 
-      <nav className="nav-tabs">
-        <button
-          className={`nav-tab ${activeTab === 'search' ? 'active' : ''}`}
-          onClick={() => setActiveTab('search')}
-        >
-          🎙️ Voice Search
-        </button>
-        <button
-          className={`nav-tab ${activeTab === 'evidence' ? 'active' : ''}`}
-          onClick={() => setActiveTab('evidence')}
-        >
-          🔎 Evidence Viewer
-        </button>
-        <button
-          className={`nav-tab ${activeTab === 'benchmark' ? 'active' : ''}`}
-          onClick={() => setActiveTab('benchmark')}
-        >
-          ⚡ Benchmark Lab
-        </button>
-        <button
-          className={`nav-tab ${activeTab === 'status' ? 'active' : ''}`}
-          onClick={() => setActiveTab('status')}
-        >
-          🟢 System Status
-        </button>
-      </nav>
+      <div className="header-title">
+        <span>EchoRAG / Task 02</span>
+        <img src="/hhgoa/badges/rag-in-goa.svg" alt="#RAGInGoa" />
+      </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <img src="/brand/goa-hindi.svg" alt="Goa Hindi" style={{ height: '26px', filter: 'drop-shadow(1px 1px 0px rgba(0,0,0,0.15))' }} />
-        <div className="target-badge">
-          <span className="target-dot"></span>
-          <span>Target &lt; 200ms</span>
+      <div className="header-actions">
+        <nav className="nav-tabs" aria-label="Primary">
+          {NAV.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={`nav-tab ${id === 'ask' ? 'ask-tab' : ''} ${activeTab === id ? 'active' : ''}`}
+              onClick={() => setActiveTab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+        <label className="mobile-nav-select">
+          <span>Destination</span>
+          <select value={activeTab === 'ask' ? 'evidence' : activeTab} onChange={(e) => setActiveTab(e.target.value)}>
+            {NAV.filter(([id]) => id !== 'ask').map(([id, label]) => (
+              <option value={id} key={id}>{label}</option>
+            ))}
+          </select>
+        </label>
+        <div className={`health-pill ${healthy ? 'ok' : degraded ? 'degraded' : 'loading'}`} title={healthError || health?.startup_error || health?.status || 'Checking backend'}>
+          <span className="health-dot" />
+          <span>{healthy ? 'Live' : degraded ? 'Degraded' : 'Checking'}</span>
         </div>
       </div>
     </header>

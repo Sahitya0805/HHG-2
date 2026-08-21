@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-export default function EvidenceViewer({ result }) {
+function EvidenceMetric({ label, value }) {
+  return (
+    <span>
+      <small>{label}</small>
+      <strong>{value ?? '-'}</strong>
+    </span>
+  );
+}
+
+export default function EvidenceViewer({ result, focusCitation }) {
+  useEffect(() => {
+    if (!focusCitation) return;
+    const node = document.getElementById(`chunk-${CSS.escape(focusCitation)}`);
+    node?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    node?.focus({ preventScroll: true });
+  }, [focusCitation]);
+
   if (!result) {
     return (
-      <div className="glass-panel">
-        <p style={{ fontFamily: 'var(--font-mono)' }}>Run a query first to inspect retrieved evidence.</p>
-      </div>
+      <section className="signal-panel empty-state" aria-labelledby="evidence-title">
+        <div className="section-heading">
+          <img src="/hhgoa/icons/chunks.svg" alt="" aria-hidden="true" />
+          <div>
+            <p>Evidence</p>
+            <h1 id="evidence-title">No retrieved chunks yet</h1>
+          </div>
+        </div>
+        <p>Run a voice or typed query from Ask to inspect the chunks, citations, scores and metadata returned by the backend.</p>
+      </section>
     );
   }
 
@@ -13,46 +36,49 @@ export default function EvidenceViewer({ result }) {
   const cited = new Set(result.citations || []);
 
   return (
-    <div className="glass-panel">
-      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: 'var(--ink-muted)' }}>
-        RETRIEVED EVIDENCE — {evidence.length} chunks · strategy {result.strategy}
-      </h3>
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
-        <strong>score</strong> is the fused dense+BM25 value used for ranking.
-        <strong> cosine</strong> is the raw dense similarity the abstention guardrail thresholds on —
-        only cosine is comparable across different queries.
+    <section className="signal-panel evidence-panel" aria-labelledby="evidence-title">
+      <div className="section-heading">
+        <img src="/hhgoa/icons/chunks.svg" alt="" aria-hidden="true" />
+        <div>
+          <p>{evidence.length} retrieved chunks · strategy {result.strategy}</p>
+          <h1 id="evidence-title">Evidence ledger</h1>
+        </div>
+      </div>
+
+      <p className="score-explainer">
+        Fused score ranks dense cosine and BM25 together for this query. Raw dense cosine is the comparable similarity value used by retrieval guardrails.
       </p>
 
-      {evidence.length === 0 && (
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
-          Nothing passed retrieval for this query.
-        </p>
-      )}
-
-      {evidence.map((e) => (
-        <div
-          key={e.chunk_id}
-          style={{
-            border: cited.has(e.chunk_id) ? '2.5px solid #047857' : '2px solid var(--card-border)',
-            borderRadius: '14px', padding: '0.85rem 1rem', margin: '0.75rem 0',
-            background: cited.has(e.chunk_id) ? 'rgba(4,120,87,0.06)' : 'rgba(255,255,255,0.5)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <code style={{ fontSize: '0.72rem', fontWeight: 700 }}>{e.chunk_id}</code>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
-              score {e.score} · cosine {e.dense_score} · bm25 {e.sparse_score}
-              {cited.has(e.chunk_id) ? ' · ★ cited' : ''}
-            </span>
-          </div>
-          <p style={{ fontSize: '0.9rem', lineHeight: 1.5, margin: '0.5rem 0 0' }}>{e.text}</p>
-          {e.metadata && Object.keys(e.metadata).length > 0 && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--ink-muted)', marginTop: '6px' }}>
-              {JSON.stringify(e.metadata)}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+      <div className="evidence-list">
+        {evidence.length === 0 && <p className="panel-note">Nothing passed retrieval for this query.</p>}
+        {evidence.map((item) => {
+          const isCited = cited.has(item.chunk_id);
+          return (
+            <article
+              className={`evidence-card ${isCited ? 'cited' : ''}`}
+              id={`chunk-${item.chunk_id}`}
+              key={item.chunk_id}
+              tabIndex="-1"
+            >
+              <header>
+                <div>
+                  <code>{item.chunk_id}</code>
+                  {isCited && <strong>cited</strong>}
+                </div>
+                <div className="evidence-metrics">
+                  <EvidenceMetric label="fused" value={item.score} />
+                  <EvidenceMetric label="cosine" value={item.dense_score} />
+                  <EvidenceMetric label="bm25" value={item.sparse_score} />
+                </div>
+              </header>
+              <p>{item.text}</p>
+              {item.metadata && Object.keys(item.metadata).length > 0 && (
+                <pre>{JSON.stringify(item.metadata, null, 2)}</pre>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
   );
 }

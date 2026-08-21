@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="470" height="152" viewBox="0 0 470 152" fill="none">
+  <rect x="7" y="7" width="456" height="138" rx="24" fill="#061A14" stroke="#FEE101" stroke-width="14"/>
+  <path d="m54 103 26-56h40L97 82h32l-48 49 13-28H54Z" fill="#FEE101" stroke="#FF087C" stroke-width="5" stroke-linejoin="round"/>
+  <text x="155" y="70" fill="#FFFaf0" font-family="Space Mono, monospace" font-size="21" font-weight="700" letter-spacing="3">PIPELINE TARGET</text>
+  <text x="154" y="116" fill="#48D9D0" font-family="Arial Black, Arial, sans-serif" font-size="46" font-weight="900">&lt; 200MS</text>
+</svg>
+
