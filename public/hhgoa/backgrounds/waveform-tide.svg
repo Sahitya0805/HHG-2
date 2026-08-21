@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="300" viewBox="0 0 1440 300" fill="none">
+  <defs>
+    <linearGradient id="sea" x1="720" y1="60" x2="720" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#48D9D0" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#0A9B5B" stop-opacity="0.66"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 126C120 72 232 184 354 130s224-44 340 14 216-62 334-22 260 28 412-36v214H0V126Z" fill="url(#sea)"/>
+  <path d="M0 126C120 72 232 184 354 130s224-44 340 14 216-62 334-22 260 28 412-36" stroke="#FEE101" stroke-width="7"/>
+  <path d="M0 180c150-42 250 52 402 8 140-40 226 42 382 0 142-38 230 28 356-2 118-28 194-14 300 18" stroke="#48D9D0" stroke-width="3" stroke-dasharray="12 16"/>
+  <g stroke="#061A14" stroke-width="6" stroke-linecap="round">
+    <path d="M170 102v52"/><path d="M190 86v84"/><path d="M210 68v120"/><path d="M230 96v66"/><path d="M250 114v30"/>
+    <path d="M606 112v52"/><path d="M626 86v106"/><path d="M646 46v176"/><path d="M666 74v124"/><path d="M686 108v58"/>
+    <path d="M1020 86v76"/><path d="M1040 56v136"/><path d="M1060 28v194"/><path d="M1080 72v116"/><path d="M1100 106v52"/>
+  </g>
+</svg>
+

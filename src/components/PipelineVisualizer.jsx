@@ -1,83 +1,105 @@
 import React from 'react';
 
-const LABELS = {
-  guardrails_input: '🛡️ Input guards (L1–L2)',
-  retrieval: '🔎 Hybrid retrieval',
-  rerank: '🧠 Rerank',
-  guardrails_retrieval: '🛡️ Evidence guards (L3–L4)',
-  generation: '✂️ Span selection',
-  guardrails_provenance: '🛡️ Provenance (L5)',
-  strategy_fallback: '♻️ Strategy fallback',
-};
+const SIGNAL_PATH = [
+  ['voice', 'Voice'],
+  ['stt', 'Sarvam STT'],
+  ['guardrails_input', 'Input guards'],
+  ['retrieval', 'Hybrid retrieval'],
+  ['rerank', 'Rerank'],
+  ['guardrails_retrieval', 'Evidence guards'],
+  ['generation', 'Span answer'],
+  ['guardrails_provenance', 'Provenance guard'],
+];
+
+function fmt(value, digits = 2) {
+  return value == null ? '-' : `${Number(value).toFixed(digits)}ms`;
+}
 
 export default function PipelineVisualizer({ isProcessing, result }) {
   if (isProcessing) {
     return (
-      <div className="glass-panel">
-        <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: 'var(--ink-muted)' }}>
-          RUNNING PIPELINE…
-        </h3>
-      </div>
+      <section className="signal-panel pipeline-panel" aria-labelledby="pipeline-title">
+        <div className="section-heading">
+          <img src="/hhgoa/icons/lightning.svg" alt="" aria-hidden="true" />
+          <div>
+            <p>Pipeline</p>
+            <h2 id="pipeline-title">Neutral processing state</h2>
+          </div>
+        </div>
+        <div className="signal-path processing">
+          {SIGNAL_PATH.map(([id, label]) => (
+            <div className="path-node" key={id}>
+              <span>{label}</span>
+              <code>waiting</code>
+            </div>
+          ))}
+        </div>
+        <p className="panel-note">The API returns one final response, so stage completion is shown only after the result arrives.</p>
+      </section>
     );
   }
+
   if (!result) return null;
 
   const timings = result.timings || [];
-  const pipelineMs = result.pipeline_ms ?? 0;
+  const timingByName = Object.fromEntries(timings.map((t) => [t.name, t]));
+  const pipelineMs = result.pipeline_ms;
+  const totalMs = result.total_ms;
   const sttMs = result.stt?.stt_ms;
-  const withinTarget = pipelineMs < 200;
-  const measuredSum = timings.reduce((a, t) => a + (t.ms || 0), 0);
+  const measuredSum = timings.reduce((sum, t) => sum + (t.ms || 0), 0);
+  const overhead = Math.max(0, (pipelineMs || 0) - measuredSum);
+  const withinTarget = pipelineMs != null && pipelineMs < 200;
 
   return (
-    <div className="glass-panel">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '8px' }}>
-        <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: 'var(--ink-muted)', margin: 0 }}>
-          MEASURED PIPELINE BREAKDOWN
-        </h3>
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700,
-          color: withinTarget ? '#047857' : '#b45309',
-        }}>
-          {pipelineMs.toFixed(2)} ms {withinTarget ? '✓ under 200ms target' : '✗ over 200ms target'}
-        </span>
+    <section className="signal-panel pipeline-panel" aria-labelledby="pipeline-title">
+      <div className="section-heading">
+        <img src="/hhgoa/icons/lightning.svg" alt="" aria-hidden="true" />
+        <div>
+          <p>Measured request</p>
+          <h2 id="pipeline-title">Signal path breakdown</h2>
+        </div>
       </div>
 
-      <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--ink-muted)', margin: '0 0 1rem' }}>
-        Wall-clock timings from this request. The 200ms target covers retrieval → answer.
-        {sttMs != null
-          ? ` Sarvam STT took ${sttMs.toFixed(0)}ms and is counted separately (total ${result.total_ms?.toFixed(2)}ms).`
-          : ' No speech-to-text ran for this query.'}
-      </p>
+      <div className="pipeline-summary">
+        <div className={withinTarget ? 'status-chip ok' : 'status-chip warn'}>
+          {fmt(pipelineMs)} {withinTarget ? 'under 200ms' : 'over 200ms'}
+        </div>
+        <code>total {fmt(totalMs)}</code>
+        <code>strategy {result.strategy}</code>
+        <code>trace {result.trace_id}</code>
+      </div>
 
-      <div className="pipeline-stepper">
-        {timings.map((t) => {
-          const pct = pipelineMs > 0 ? Math.min(100, ((t.ms || 0) / pipelineMs) * 100) : 0;
+      <div className="signal-path">
+        {SIGNAL_PATH.map(([id, label]) => {
+          const timing = id === 'stt'
+            ? { ms: sttMs, status: sttMs == null ? 'skipped' : 'ok' }
+            : timingByName[id];
           return (
-            <div key={t.name} className="pipeline-step complete" style={{ position: 'relative' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                <span>{LABELS[t.name] || t.name}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                  {t.ms == null ? '—' : `${t.ms.toFixed(2)}ms`}
-                </span>
-              </div>
-              <div style={{ height: '4px', background: 'rgba(0,0,0,0.08)', borderRadius: '2px', marginTop: '4px' }}>
-                <div style={{ height: '100%', width: `${pct}%`, background: 'var(--card-border)', borderRadius: '2px' }} />
-              </div>
-              {t.status !== 'ok' && (
-                <div style={{ fontSize: '0.7rem', color: '#b45309', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
-                  {t.status}{t.attempts > 1 ? ` after ${t.attempts} attempts` : ''}{t.note ? ` — ${t.note}` : ''}
-                </div>
-              )}
+            <div className={`path-node ${timing?.status || 'skipped'}`} key={id}>
+              <span>{label}</span>
+              <code>{fmt(timing?.ms)}</code>
+              {timing?.status && timing.status !== 'ok' && <small>{timing.status}</small>}
             </div>
           );
         })}
       </div>
 
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--ink-muted)', marginTop: '0.75rem' }}>
-        stages sum to {measuredSum.toFixed(2)}ms; total measured {pipelineMs.toFixed(2)}ms —
-        the {Math.max(0, pipelineMs - measuredSum).toFixed(2)}ms difference is harness overhead,
-        shown rather than hidden. · strategy: <strong>{result.strategy}</strong> · trace <code>{result.trace_id}</code>
+      <div className="bar-list">
+        {timings.map((timing) => {
+          const pct = pipelineMs > 0 ? Math.min(100, ((timing.ms || 0) / pipelineMs) * 100) : 0;
+          return (
+            <div className="stage-bar" key={timing.name}>
+              <span>{timing.name}</span>
+              <div><i style={{ width: `${pct}%` }} /></div>
+              <code>{fmt(timing.ms)}</code>
+            </div>
+          );
+        })}
       </div>
-    </div>
+
+      <p className="panel-note">
+        Harness overhead is {fmt(overhead)}. Sarvam STT is shown separately when present and is not part of pipeline latency.
+      </p>
+    </section>
   );
 }

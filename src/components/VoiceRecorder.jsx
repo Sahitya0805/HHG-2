@@ -1,26 +1,110 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { isRecordingSupported, startRecording } from '../lib/recorder.js';
-import { getStrategies } from '../lib/api.js';
+
+const LANGUAGES = [
+  ['hi-IN', 'Hindi'],
+  ['bn-IN', 'Bengali'],
+  ['gu-IN', 'Gujarati'],
+  ['kn-IN', 'Kannada'],
+  ['ml-IN', 'Malayalam'],
+  ['mr-IN', 'Marathi'],
+  ['od-IN', 'Odia'],
+  ['pa-IN', 'Punjabi'],
+  ['ta-IN', 'Tamil'],
+  ['te-IN', 'Telugu'],
+  ['en-IN', 'English'],
+];
+
+const EXAMPLES = [
+  'what is a corporation?',
+  'what causes high blood pressure?',
+  'how long does it take to become a nurse?',
+];
+
+function formatMs(value) {
+  return value == null ? '-' : `${value}ms`;
+}
+
+function LiveBenchmarkProof({ benchmark, benchmarkError }) {
+  if (benchmarkError) {
+    return (
+      <aside className="proof-panel unavailable">
+        <strong>Benchmark unavailable</strong>
+        <span>The benchmark endpoint did not return a report.</span>
+      </aside>
+    );
+  }
+
+  if (!benchmark) {
+    return (
+      <aside className="proof-panel" aria-label="Loading benchmark proof">
+        {['P50', 'P70', 'P100', '<200ms'].map((label) => (
+          <div className="proof-card skeleton" key={label}>
+            <span>{label}</span>
+            <strong />
+          </div>
+        ))}
+      </aside>
+    );
+  }
+
+  const latency = benchmark.latency_ms || {};
+  const under = benchmark.under_200ms || {};
+
+  return (
+    <aside className="proof-panel" aria-label="Live benchmark proof">
+      <div className="proof-card">
+        <span>P50</span>
+        <strong>{formatMs(latency.p50)}</strong>
+      </div>
+      <div className="proof-card">
+        <span>P70</span>
+        <strong>{formatMs(latency.p70)}</strong>
+      </div>
+      <div className="proof-card">
+        <span>P100</span>
+        <strong>{formatMs(latency.p100)}</strong>
+      </div>
+      <div className="proof-card accent">
+        <span>Under 200ms</span>
+        <strong>{under.pct == null ? '-' : `${under.pct}%`}</strong>
+      </div>
+      <p className="proof-footnote">
+        {benchmark.generated_at} · {benchmark.queries_measured} queries · pipeline latency excludes Sarvam network call
+      </p>
+    </aside>
+  );
+}
 
 export default function VoiceRecorder({
-  onTextSubmit, onVoiceSubmit, isProcessing, strategy, setStrategy,
-  sttConfigured, sttDetail,
+  onTextSubmit,
+  onVoiceSubmit,
+  isProcessing,
+  phase,
+  strategy,
+  setStrategy,
+  strategies,
+  language,
+  setLanguage,
+  sttConfigured,
+  sttDetail,
+  backendUnavailable,
+  benchmark,
+  benchmarkError,
 }) {
   const [isRecording, setIsRecording] = useState(false);
+  const [permissionRequested, setPermissionRequested] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [text, setText] = useState('');
-  const [strategies, setStrategies] = useState([]);
   const [micError, setMicError] = useState(null);
   const sessionRef = useRef(null);
   const timerRef = useRef(null);
 
-  useEffect(() => {
-    getStrategies().then((d) => setStrategies(d.strategies || [])).catch(() => {});
-    return () => clearInterval(timerRef.current);
-  }, []);
+  useEffect(() => () => clearInterval(timerRef.current), []);
 
   const begin = async () => {
     setMicError(null);
+    setPermissionRequested(true);
     try {
       sessionRef.current = await startRecording();
       setIsRecording(true);
@@ -28,6 +112,8 @@ export default function VoiceRecorder({
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch (e) {
       setMicError(`Microphone unavailable: ${e.message}`);
+    } finally {
+      setPermissionRequested(false);
     }
   };
 
@@ -41,157 +127,156 @@ export default function VoiceRecorder({
     if (blob.size > 0) onVoiceSubmit(blob);
   };
 
+  const submitText = (query = text) => {
+    if (!query.trim()) return;
+    setText(query);
+    onTextSubmit(query);
+  };
+
   const recordingSupported = isRecordingSupported();
-  const micDisabled = isProcessing || !recordingSupported || !sttConfigured;
+  const micDisabled = isProcessing || !recordingSupported || !sttConfigured || !!backendUnavailable;
+  const primaryState = isRecording
+    ? 'recording'
+    : permissionRequested
+      ? 'permission-requested'
+      : isProcessing
+        ? phase
+        : phase === 'answered' || phase === 'abstained' || phase === 'error'
+          ? phase
+          : 'idle';
 
   return (
-    <div className="hero-voice-section glass-panel">
-      <div className="hero-sticker-badge">Handcrafted in Goa 🌴 #RAGInGoa</div>
-
-      <div className="hero-brand-strip">
-        <img src="/brand/hacker-house.png" alt="Hacker House" style={{ height: '44px' }} />
-        <img src="/brand/goa-hindi.svg" alt="Goa" style={{ height: '38px' }} />
-        <img src="/brand/247pm.svg" alt="247PM" style={{ height: '30px', opacity: 0.9 }} />
+    <section className="hero-grid" aria-labelledby="hero-title">
+      <div className="hero-copy">
+        <div className="hero-eyebrow">
+          <img src="/hhgoa/badges/rag-in-goa.svg" alt="#RAGInGoa" />
+          <span>Goa signal station</span>
+        </div>
+        <h1 id="hero-title">Speak. Retrieve. Prove.</h1>
+        <p>
+          Sarvam speech-to-text meets hybrid dense + BM25 retrieval over MSMARCO-XI.
+          Seven chunking strategies, five guardrails, and answers that stay inside the evidence.
+        </p>
       </div>
 
-      <h1 className="hero-title">
-        Voice-First Grounded Search <span className="brand-serif">on the Beach</span>
-      </h1>
-      <p className="hero-subtitle">
-        Ask a question by voice or text. EchoRAG transcribes with Sarvam, retrieves from the
-        real ai4bharat/MSMARCO-XI corpus, and answers only from what it retrieved.
-      </p>
+      <LiveBenchmarkProof benchmark={benchmark} benchmarkError={benchmarkError} />
 
-      {sttConfigured === false && (
-        <div style={{
-          margin: '1rem auto', maxWidth: '640px', padding: '0.75rem 1rem',
-          border: '2px solid #b45309', borderRadius: '12px', background: '#fef3c7',
-          color: '#7c2d12', fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700,
-        }}>
-          🎙️ Voice input disabled — no Sarvam API key configured on the server.
-          <div style={{ fontWeight: 500, marginTop: '4px' }}>{sttDetail}</div>
-          <div style={{ fontWeight: 500, marginTop: '4px' }}>Typed questions run the full pipeline.</div>
+      <div className="voice-console signal-panel">
+        <img className="signal-sun" src="/hhgoa/backgrounds/hero-signal-sun.svg" alt="" aria-hidden="true" />
+        <div className="console-topline">
+          <span>Live voice console</span>
+          <code>{primaryState}</code>
         </div>
-      )}
-      {!recordingSupported && (
-        <div style={{ color: '#b91c1c', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
-          This browser does not support MediaRecorder.
-        </div>
-      )}
-      {micError && (
-        <div style={{ color: '#b91c1c', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>{micError}</div>
-      )}
 
-      <div style={{
-        display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center',
-        gap: '0.5rem', margin: '1rem 0 1.5rem', background: 'rgba(246, 240, 223, 0.6)',
-        padding: '0.75rem 1.25rem', borderRadius: '16px', border: '2px solid var(--card-border)',
-      }}>
-        <span style={{
-          fontSize: '0.8rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-display)',
-          fontWeight: 800, marginRight: '8px', textTransform: 'uppercase',
-        }}>
-          🧪 Chunking strategy:
-        </span>
-        {strategies.map((s) => (
+        {backendUnavailable && (
+          <div className="notice-panel compact danger" role="alert">
+            <strong>Backend unavailable</strong>
+            <p>{backendUnavailable}</p>
+          </div>
+        )}
+        {sttConfigured === false && (
+          <div className="notice-panel compact">
+            <strong>Sarvam is not configured</strong>
+            <p>{sttDetail} Typed queries still run through the retrieval pipeline.</p>
+          </div>
+        )}
+        {!recordingSupported && (
+          <div className="notice-panel compact danger">
+            <strong>MediaRecorder unavailable</strong>
+            <p>This browser cannot capture microphone audio.</p>
+          </div>
+        )}
+        {micError && (
+          <div className="notice-panel compact danger" role="alert">
+            <strong>Microphone permission failed</strong>
+            <p>{micError}</p>
+          </div>
+        )}
+
+        <div className="mic-stage">
           <button
-            key={s.name}
-            className="query-chip"
-            title={s.description}
-            disabled={!s.loaded}
-            style={strategy === s.name
-              ? { background: 'var(--card-border)', color: '#fff', padding: '0.3rem 0.7rem', fontSize: '0.78rem' }
-              : { padding: '0.3rem 0.7rem', fontSize: '0.78rem', opacity: s.loaded ? 1 : 0.4 }}
-            onClick={() => setStrategy(s.name)}
+            type="button"
+            className={`mic-button ${isRecording ? 'recording' : ''}`}
+            onClick={isRecording ? end : begin}
+            disabled={micDisabled}
+            aria-label={isRecording ? 'Stop recording and send voice query' : 'Start recording voice query'}
+            title={sttConfigured === false ? 'Sarvam API key not configured' : 'Record a question'}
           >
-            {s.name}{s.stats ? ` (${s.stats.chunks.toLocaleString()})` : ''}
+            <span className="mic-ring" />
+            <img src={isRecording ? '/hhgoa/icons/wave.svg' : '/hhgoa/icons/mic.svg'} alt="" aria-hidden="true" />
           </button>
-        ))}
-      </div>
-
-      <div className="mic-button-wrapper">
-        <button
-          className={`mic-button ${isRecording ? 'recording' : ''}`}
-          onClick={isRecording ? end : begin}
-          disabled={micDisabled}
-          title={sttConfigured === false ? 'Sarvam API key not configured' : 'Record a question'}
-        >
-          {isRecording ? '⏹' : '🎙️'}
-        </button>
-      </div>
-
-      <div style={{
-        fontFamily: 'var(--font-mono)', fontSize: '0.95rem',
-        color: isRecording ? 'var(--vintage-pink)' : 'var(--ink)',
-        fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
-      }}>
-        {isRecording
-          ? `● RECORDING ${seconds}s — click ⏹ to transcribe with Sarvam`
-          : isProcessing ? 'Running pipeline…' : 'Ask a question'}
-      </div>
-
-      {isRecording && (
-        <div className="waveform-bars">
-          {[0.1, 0.3, 0.2, 0.4, 0.15, 0.35, 0.25].map((d, i) => (
-            <div key={i} className="bar active" style={{ animationDelay: `${d}s` }} />
-          ))}
+          <div className="recording-readout" aria-live="polite">
+            {isRecording ? (
+              <>
+                <strong>{seconds}s</strong>
+                <span>recording</span>
+              </>
+            ) : (
+              <>
+                <strong>{isProcessing ? 'working' : 'ready'}</strong>
+                <span>{primaryState}</span>
+              </>
+            )}
+          </div>
         </div>
-      )}
 
-      <div style={{ maxWidth: '680px', margin: '1.75rem auto 0', textAlign: 'left' }}>
-        <form onSubmit={(e) => { e.preventDefault(); onTextSubmit(text); }}>
-          <label style={{
-            fontSize: '0.85rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-display)',
-            fontWeight: 800, display: 'block', marginBottom: '8px',
-            textTransform: 'uppercase', letterSpacing: '0.05em',
-          }}>
-            📝 Type a question
+        {isRecording && (
+          <div className="waveform-bars" aria-hidden="true">
+            {[0.1, 0.3, 0.2, 0.4, 0.15, 0.35, 0.25, 0.45, 0.18].map((delay, i) => (
+              <span key={i} style={{ animationDelay: `${delay}s` }} />
+            ))}
+          </div>
+        )}
+
+        <div className="console-controls">
+          <label>
+            <span>Language</span>
+            <select value={language} onChange={(e) => setLanguage(e.target.value)} disabled={isProcessing || isRecording}>
+              {LANGUAGES.map(([code, label]) => (
+                <option value={code} key={code}>{label} · {code}</option>
+              ))}
+            </select>
           </label>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <label>
+            <span>Chunking strategy</span>
+            <select value={strategy} onChange={(e) => setStrategy(e.target.value)} disabled={isProcessing || isRecording}>
+              {(strategies || []).map((s) => (
+                <option value={s.name} key={s.name} disabled={!s.loaded}>
+                  {s.name}{s.stats ? ` · ${s.stats.chunks.toLocaleString()} chunks` : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <form className="typed-query" onSubmit={(e) => { e.preventDefault(); submitText(); }}>
+          <label htmlFor="typed-query">Keyboard test path</label>
+          <div>
             <input
+              id="typed-query"
               type="text"
-              className="query-input"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="e.g. what is a corporation?"
-              style={{
-                flex: 1, padding: '0.85rem 1.25rem', borderRadius: '16px',
-                border: '2.5px solid var(--card-border)', background: '#fff',
-                color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '1.05rem',
-                fontWeight: 600, outline: 'none', boxShadow: '3px 3px 0px var(--card-border)',
-              }}
+              placeholder="what is a corporation?"
+              disabled={isProcessing}
             />
-            <button
-              type="submit" className="btn-primary"
-              disabled={isProcessing || !text.trim()}
-              style={{ padding: '0.85rem 1.5rem', borderRadius: '16px', whiteSpace: 'nowrap' }}
-            >
-              {isProcessing ? 'Searching…' : '⚡ Search'}
+            <button type="submit" disabled={isProcessing || !text.trim()}>
+              Search
             </button>
           </div>
         </form>
-      </div>
 
-      <div className="quick-queries">
-        <span style={{
-          fontSize: '0.82rem', color: 'var(--ink-muted)', width: '100%', marginBottom: '4px',
-          fontFamily: 'var(--font-mono)', textTransform: 'uppercase', fontWeight: 700,
-        }}>
-          🌴 Try these:
-        </span>
-        {['what is a corporation?', 'what causes high blood pressure?', 'how long does it take to become a nurse?']
-          .map((q) => (
-            <button key={q} className="query-chip" onClick={() => { setText(q); onTextSubmit(q); }}>
-              &quot;{q}&quot;
+        <div className="query-chips" aria-label="Sample typed questions">
+          {EXAMPLES.map((query) => (
+            <button type="button" key={query} onClick={() => submitText(query)} disabled={isProcessing}>
+              {query}
             </button>
           ))}
-        <button
-          className="query-chip abstain-chip"
-          onClick={() => { const q = 'What is the population of Mars in 2090?'; setText(q); onTextSubmit(q); }}
-        >
-          🛡️ &quot;population of Mars in 2090?&quot; (should abstain)
-        </button>
+          <button type="button" className="danger-chip" onClick={() => submitText('What is the population of Mars in 2090?')} disabled={isProcessing}>
+            Abstention probe
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

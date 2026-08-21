@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" fill="none">
+  <defs>
+    <radialGradient id="sun" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(450 450) rotate(90) scale(308)">
+      <stop stop-color="#FEE101"/>
+      <stop offset="0.58" stop-color="#FFB52E"/>
+      <stop offset="1" stop-color="#FF087C" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="orbit" x1="140" y1="172" x2="742" y2="728" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#48D9D0"/>
+      <stop offset="0.52" stop-color="#FEE101"/>
+      <stop offset="1" stop-color="#FF087C"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <circle cx="450" cy="450" r="308" fill="url(#sun)" opacity="0.95"/>
+  <circle cx="450" cy="450" r="118" fill="#FEE101" stroke="#061A14" stroke-width="8"/>
+  <circle cx="450" cy="450" r="154" stroke="#061A14" stroke-width="5" stroke-dasharray="9 13"/>
+  <circle cx="450" cy="450" r="218" stroke="url(#orbit)" stroke-width="6" stroke-dasharray="2 18" stroke-linecap="round"/>
+  <circle cx="450" cy="450" r="286" stroke="#0A9B5B" stroke-width="3" stroke-dasharray="34 18" opacity="0.72"/>
+  <circle cx="450" cy="450" r="354" stroke="#061A14" stroke-width="2" stroke-dasharray="3 15" opacity="0.42"/>
+  <path d="M256 450h55l18-52 34 112 37-148 34 176 34-116 26 73 20-45h71" stroke="#061A14" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="450" cy="450" r="17" fill="#FF087C" stroke="#061A14" stroke-width="6"/>
+  <g fill="#FF087C" stroke="#061A14" stroke-width="4">
+    <circle cx="177" cy="450" r="11"/>
+    <circle cx="723" cy="450" r="11"/>
+    <circle cx="450" cy="177" r="11"/>
+    <circle cx="450" cy="723" r="11"/>
+  </g>
+  <g fill="#48D9D0">
+    <circle cx="256" cy="256" r="9"/>
+    <circle cx="644" cy="256" r="9"/>
+    <circle cx="256" cy="644" r="9"/>
+    <circle cx="644" cy="644" r="9"/>
+  </g>
+  <circle cx="450" cy="450" r="104" fill="#FEE101" opacity="0.35" filter="url(#glow)"/>
+</svg>
+

@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "api": "uvicorn backend.api.server:app --reload --port 8000",
-    "test": "python -m unittest discover -s tests -v",
-    "bench": "python -m benchmarks.harness --queries 300"
+    "test": "python3 -m unittest discover -s tests -v",
+    "bench": "python3 -m benchmarks.harness --queries 300"
   },
   "dependencies": {
     "react": "^18.2.0",
