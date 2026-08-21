@@ -85,7 +85,7 @@ input:disabled {
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(440px, 0.9fr) minmax(220px, 0.7fr) minmax(390px, 1.2fr);
+  grid-template-columns: minmax(520px, auto) minmax(370px, auto) minmax(390px, 1fr);
   gap: 18px;
   align-items: center;
   padding: 12px clamp(14px, 3vw, 34px);
@@ -103,35 +103,42 @@ input:disabled {
 }
 
 .brand-lockup {
-  display: grid;
-  grid-template-columns: 178px 82px 126px;
-  gap: 24px;
-  align-items: center;
-  justify-content: start;
+  position: relative;
+  display: block;
+  width: 390px;
+  height: 88px;
   min-width: 0;
 }
 
 .hh-mark {
-  width: 178px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 390px;
   height: auto;
   object-fit: contain;
+  transform: translateY(-50%);
 }
 
 .goa-mark {
+  position: absolute;
+  left: 52%;
+  top: 50%;
+  z-index: 1;
   width: 82px;
   height: auto;
   max-width: none;
+  transform: translate(-50%, -50%);
 }
 
 .pm-mark {
-  width: 126px;
-  height: auto;
-  max-width: none;
+  display: none;
 }
 
 .header-title {
   justify-content: center;
   gap: 10px;
+  min-width: 0;
   font-family: var(--hh-display);
   font-weight: 800;
   white-space: nowrap;
@@ -1193,7 +1200,7 @@ input:disabled {
   text-align: center;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1380px) {
   .app-header {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px 14px;
@@ -1244,26 +1251,17 @@ input:disabled {
   }
 
   .brand-lockup {
-    grid-template-columns: 132px 70px 90px;
-    justify-content: center;
-    gap: 14px;
+    width: 320px;
+    height: 82px;
+    margin: 0 auto;
   }
 
   .hh-mark {
-    width: 132px;
-    height: auto;
+    width: 320px;
   }
 
   .goa-mark {
     width: 70px;
-    height: auto;
-    max-width: none;
-  }
-
-  .pm-mark {
-    width: 90px;
-    height: auto;
-    max-width: none;
   }
 
   .header-title {
@@ -1377,6 +1375,21 @@ input:disabled {
 
   .data-table {
     min-width: 660px;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand-lockup {
+    width: 300px;
+    height: 76px;
+  }
+
+  .hh-mark {
+    width: 300px;
+  }
+
+  .goa-mark {
+    width: 64px;
   }
 }
 
