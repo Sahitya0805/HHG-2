@@ -85,9 +85,10 @@ input:disabled {
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(520px, auto) minmax(370px, auto) minmax(390px, 1fr);
+  grid-template-columns: auto max-content auto;
   gap: 18px;
   align-items: center;
+  justify-content: space-between;
   padding: 12px clamp(14px, 3vw, 34px);
   background: rgba(247, 239, 216, 0.96);
   border-bottom: var(--hh-border);
@@ -1202,17 +1203,18 @@ input:disabled {
 
 @media (max-width: 1380px) {
   .app-header {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
+    justify-content: center;
     gap: 10px 14px;
   }
 
   .header-title {
-    justify-content: flex-end;
+    justify-content: center;
   }
 
   .header-actions {
-    justify-content: flex-start;
-    grid-column: 1 / -1;
+    justify-content: center;
+    grid-column: auto;
   }
 
   .hero-grid {
