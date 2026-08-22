@@ -7,6 +7,7 @@ import AnswerCard from './components/AnswerCard.jsx';
 import EvidenceViewer from './components/EvidenceViewer.jsx';
 import BenchmarkDashboard from './components/BenchmarkDashboard.jsx';
 import SystemStatus from './components/SystemStatus.jsx';
+import VideoPlayerModal from './components/VideoPlayerModal.jsx';
 import { askText, askVoice, getBenchmark, getHealth, getStrategies } from './lib/api.js';
 
 function normalizeTab(tab) {
@@ -27,6 +28,7 @@ export default function App() {
   const [benchmarkError, setBenchmarkError] = useState(null);
   const [strategies, setStrategies] = useState([]);
   const [focusCitation, setFocusCitation] = useState(null);
+  const [activeVideoModal, setActiveVideoModal] = useState(null);
   const evidenceRef = useRef(null);
 
   useEffect(() => {
@@ -91,7 +93,17 @@ export default function App() {
   return (
     <div className="app-shell">
       <BackgroundSVGs />
-      <Header activeTab={activeTab} setActiveTab={selectTab} health={health} healthError={healthError} />
+      <Header
+        activeTab={activeTab}
+        setActiveTab={selectTab}
+        health={health}
+        healthError={healthError}
+        onOpenVideo={(type) => setActiveVideoModal(type)}
+      />
+
+      {activeVideoModal && (
+        <VideoPlayerModal videoType={activeVideoModal} onClose={() => setActiveVideoModal(null)} />
+      )}
 
       <main className="main-container">
         {activeTab === 'ask' && (
@@ -140,3 +152,4 @@ export default function App() {
     </div>
   );
 }
+

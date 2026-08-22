@@ -7,7 +7,7 @@ const NAV = [
   ['system', 'System'],
 ];
 
-export default function Header({ activeTab, setActiveTab, health, healthError }) {
+export default function Header({ activeTab, setActiveTab, health, healthError, onOpenVideo }) {
   const healthy = health?.status === 'ok';
   const degraded = health?.status === 'degraded' || healthError;
 
@@ -25,6 +25,29 @@ export default function Header({ activeTab, setActiveTab, health, healthError })
       </div>
 
       <div className="header-actions">
+        {onOpenVideo && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '6px' }}>
+            <button
+              type="button"
+              className="nav-tab"
+              onClick={() => onOpenVideo('video1')}
+              style={{ background: 'var(--sunset-gold, #f59e0b)', color: 'var(--ink, #1e293b)', fontWeight: '800', border: '1.5px solid currentColor' }}
+              title="Watch Video 1: Team & Process"
+            >
+              🎬 Process
+            </button>
+            <button
+              type="button"
+              className="nav-tab"
+              onClick={() => onOpenVideo('video2')}
+              style={{ background: 'var(--sunset-coral, #ef4444)', color: '#ffffff', fontWeight: '800', border: '1.5px solid currentColor' }}
+              title="Watch Video 2: Product Demo"
+            >
+              🎬 Demo
+            </button>
+          </div>
+        )}
+
         <nav className="nav-tabs" aria-label="Primary">
           {NAV.map(([id, label]) => (
             <button
@@ -53,3 +76,4 @@ export default function Header({ activeTab, setActiveTab, health, healthError })
     </header>
   );
 }
+
