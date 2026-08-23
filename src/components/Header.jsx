@@ -39,8 +39,8 @@ export default function Header({ activeTab, setActiveTab, health, healthError })
         </nav>
         <label className="mobile-nav-select">
           <span>Destination</span>
-          <select value={activeTab === 'ask' ? 'evidence' : activeTab} onChange={(e) => setActiveTab(e.target.value)}>
-            {NAV.filter(([id]) => id !== 'ask').map(([id, label]) => (
+          <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
+            {NAV.map(([id, label]) => (
               <option value={id} key={id}>{label}</option>
             ))}
           </select>

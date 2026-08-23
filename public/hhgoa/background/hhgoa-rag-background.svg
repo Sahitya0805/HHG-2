@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" fill="none">
+  <defs>
+    <pattern id="dotGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.7" fill="#48D9D0" fill-opacity="0.13"/>
+    </pattern>
+    <pattern id="lineGrid" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M160 0H0V160" stroke="#FEE101" stroke-opacity="0.045"/>
+    </pattern>
+    <radialGradient id="sunGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1590 206) rotate(90) scale(322)">
+      <stop stop-color="#FEE101" stop-opacity="0.94"/>
+      <stop offset="0.38" stop-color="#FFB52E" stop-opacity="0.58"/>
+      <stop offset="0.72" stop-color="#FF087C" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FF087C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="focus" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(960 520) rotate(90) scale(610 900)">
+      <stop stop-color="#08271E" stop-opacity="0.96"/>
+      <stop offset="0.66" stop-color="#08271E" stop-opacity="0.52"/>
+      <stop offset="1" stop-color="#08271E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sea" x1="960" y1="780" x2="960" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#48D9D0" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#0A9B5B" stop-opacity="0.42"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="3" seed="47" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.055"/></feComponentTransfer>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#08271E"/>
+  <rect width="1920" height="1080" fill="url(#dotGrid)"/>
+  <rect width="1920" height="1080" fill="url(#lineGrid)"/>
+
+  <circle cx="1590" cy="206" r="322" fill="url(#sunGlow)"/>
+  <circle cx="1590" cy="206" r="116" fill="#FEE101" stroke="#061A14" stroke-width="8"/>
+  <circle cx="1590" cy="206" r="154" stroke="#48D9D0" stroke-width="5" stroke-dasharray="8 14"/>
+  <circle cx="1590" cy="206" r="205" stroke="#FF087C" stroke-width="4" stroke-dasharray="2 17" stroke-linecap="round"/>
+  <path d="M1482 206h34l15-44 24 90 28-122 24 148 24-87 17 47 12-32h40" stroke="#061A14" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g opacity="0.18" stroke="#061A14" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M142 1042c-4-234 8-432 48-590"/>
+    <path d="M190 452C112 307 39 256-36 281c70 39 115 104 142 195" fill="#0A9B5B"/>
+    <path d="M190 452c29-155 105-260 231-316-66 89-99 190-101 301" fill="#FEE101"/>
+    <path d="M190 452c-5-154 36-266 123-338 0 111-29 211-89 300" fill="#48D9D0"/>
+    <path d="M190 452c95-104 188-129 280-75-79 25-149 76-212 153" fill="#FF087C"/>
+    <path d="M190 452C69 395-20 411-74 500c89-27 176-10 260 52" fill="#FEE101"/>
+  </g>
+
+  <g opacity="0.13" transform="translate(1920 0) scale(-1 1)" stroke="#061A14" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M142 1042c-4-234 8-432 48-590"/>
+    <path d="M190 452C112 307 39 256-36 281c70 39 115 104 142 195" fill="#FF087C"/>
+    <path d="M190 452c29-155 105-260 231-316-66 89-99 190-101 301" fill="#48D9D0"/>
+    <path d="M190 452c-5-154 36-266 123-338 0 111-29 211-89 300" fill="#FEE101"/>
+    <path d="M190 452c95-104 188-129 280-75-79 25-149 76-212 153" fill="#0A9B5B"/>
+    <path d="M190 452C69 395-20 411-74 500c89-27 176-10 260 52" fill="#FEE101"/>
+  </g>
+
+  <g opacity="0.36" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 332c178 0 198 112 364 112s189-164 363-164 188 118 332 118 167-76 304-76" stroke="#48D9D0" stroke-width="2" stroke-dasharray="6 13"/>
+    <path d="M244 720c188 0 214-138 392-138s217 123 401 123 198-178 374-178 212 116 403 116" stroke="#FF087C" stroke-width="2" stroke-dasharray="3 15"/>
+  </g>
+  <g stroke="#061A14" stroke-width="4">
+    <circle cx="364" cy="444" r="10" fill="#FEE101"/>
+    <circle cx="727" cy="280" r="10" fill="#48D9D0"/>
+    <circle cx="1059" cy="398" r="10" fill="#FF087C"/>
+    <circle cx="636" cy="582" r="10" fill="#FEE101"/>
+    <circle cx="1037" cy="705" r="10" fill="#48D9D0"/>
+    <circle cx="1411" cy="527" r="10" fill="#FF087C"/>
+  </g>
+
+  <path d="M0 868c184-82 327 85 516 9s314-46 465 25 298-86 469-27 306 36 470-49v254H0V868Z" fill="url(#sea)"/>
+  <path d="M0 868c184-82 327 85 516 9s314-46 465 25 298-86 469-27 306 36 470-49" stroke="#FEE101" stroke-width="7" opacity="0.68"/>
+  <path d="M0 946c203-62 345 69 545 6 190-60 310 53 501-4 183-55 302 40 479-5 151-38 262-22 395 13" stroke="#48D9D0" stroke-width="3" stroke-dasharray="13 17" opacity="0.64"/>
+
+  <rect width="1920" height="1080" fill="url(#focus)"/>
+  <rect width="1920" height="1080" fill="#061A14" filter="url(#grain)"/>
+</svg>
