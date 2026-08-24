@@ -134,7 +134,7 @@ export default function VoiceRecorder({
   };
 
   const recordingSupported = isRecordingSupported();
-  const micDisabled = isProcessing || !recordingSupported || !sttConfigured || !!backendUnavailable;
+  const micDisabled = isProcessing || !recordingSupported || !!backendUnavailable;
   const primaryState = isRecording
     ? 'recording'
     : permissionRequested
@@ -174,12 +174,6 @@ export default function VoiceRecorder({
             <p>{backendUnavailable}</p>
           </div>
         )}
-        {sttConfigured === false && (
-          <div className="notice-panel compact">
-            <strong>Sarvam is not configured</strong>
-            <p>{sttDetail} Typed queries still run through the retrieval pipeline.</p>
-          </div>
-        )}
         {!recordingSupported && (
           <div className="notice-panel compact danger">
             <strong>MediaRecorder unavailable</strong>
@@ -200,7 +194,7 @@ export default function VoiceRecorder({
             onClick={isRecording ? end : begin}
             disabled={micDisabled}
             aria-label={isRecording ? 'Stop recording and send voice query' : 'Start recording voice query'}
-            title={sttConfigured === false ? 'Sarvam API key not configured' : 'Record a question'}
+            title="Record a question"
           >
             <span className="mic-ring" />
             <img src={isRecording ? '/hhgoa/icons/wave.svg' : '/hhgoa/icons/mic.svg'} alt="" aria-hidden="true" />

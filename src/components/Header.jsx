@@ -67,13 +67,10 @@ export default function Header({ activeTab, setActiveTab, health, healthError, o
             ))}
           </select>
         </label>
-        <div className={`health-pill ${healthy ? 'ok' : degraded ? 'degraded' : 'loading'}`} title={healthError || health?.startup_error || health?.status || 'Checking backend'}>
-          <span className="health-dot" />
-          <span>{healthy ? 'Live' : degraded ? 'Degraded' : 'Checking'}</span>
-        </div>
       </div>
     </header>
   );
 }
+
 
 
