@@ -17,6 +17,31 @@ from typing import Any, Dict, Optional
 
 import requests
 
+def _load_env_if_present():
+    """Loads environment variables from .env if present."""
+    paths = [
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.env")),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../.env")),
+        os.path.abspath(".env")
+    ]
+    for p in paths:
+        if os.path.isfile(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k, v = k.strip(), v.strip().strip("'\"")
+                            if k and k not in os.environ:
+                                os.environ[k] = v
+                break
+            except Exception:
+                pass
+
+_load_env_if_present()
+
+
 SARVAM_STT_URL = "https://api.sarvam.ai/speech-to-text"
 SARVAM_MODEL = "saarika:v2"
 DEFAULT_TIMEOUT_S = 10.0

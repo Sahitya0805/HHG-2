@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 
+
 from ingestion import embeddings as E
 
 MAX_SPAN_SENTENCES = 3

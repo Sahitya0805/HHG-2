@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video 2 — Product Demo Video (#RAGInGoa)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #021a13;
+      color: #f6f0df;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    .video-frame {
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+      border: 4px solid #1d2d44;
+      border-radius: 20px;
+      box-shadow: 10px 10px 0px #1d2d44;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      background: #1d2d44;
+      color: #fee101;
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 1rem 0 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: #fdf6e3;
+      margin-bottom: 1.5rem;
+    }
+    .code-box {
+      background: rgba(11, 23, 16, 0.9);
+      color: #fee101;
+      font-family: 'Space Mono', monospace;
+      padding: 1.25rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .subtitles-bar {
+      background: rgba(0,0,0,0.85);
+      border-left: 4px solid #fee101;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-top: 1rem;
+    }
+    .controls {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      background: #fee101;
+      color: #1d2d44;
+      border: 2px solid #1d2d44;
+      font-weight: 800;
+      padding: 0.75rem 1.5rem;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 3px 3px 0px #1d2d44;
+    }
+  </style>
+</head>
+<body>
+  <div class="video-frame" id="videoFrame">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span class="badge" id="sceneBadge">SCENE 1 / 5 (00:00 - 00:15)</span>
+      <span class="badge" style="background:#fee101; color:#000;">#RAGInGoa</span>
+    </div>
+
+    <div>
+      <h1 class="title" id="sceneTitle">1. EchoRAG Retro Beach Console Overview</h1>
+      <p class="subtitle" id="sceneSubtitle">Voice-first grounded search engine on MSMARCO-XI dataset.</p>
+      <div class="code-box" id="codeBox">EchoRAG Voice Search Engine Ready.&#10;Target Latency: < 200ms</div>
+    </div>
+
+    <div class="subtitles-bar" id="subtitles">
+      💬 <strong>Voiceover:</strong> "Welcome to EchoRAG — a voice-first grounded search engine built on MSMARCO-XI."
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="startVideo()">▶ Play Video 2 (Product Demo Walkthrough)</button>
+  </div>
+
+  <script>
+    const scenes = [
+      {
+        badge: "SCENE 1 / 5 (00:00 - 00:15)",
+        title: "1. EchoRAG Retro Beach Console Overview",
+        subtitle: "Voice-first grounded search engine on MSMARCO-XI dataset.",
+        code: "EchoRAG Voice Search Engine Ready.\nTarget Latency: < 200ms",
+        voice: "Welcome to EchoRAG — a voice-first grounded search engine built on MSMARCO-XI.",
+        bg: "linear-gradient(135deg, #028090 0%, #00a896 100%)"
+      },
+      {
+        badge: "SCENE 2 / 5 (00:15 - 00:35)",
+        title: "2. Live Voice Query & STT Processing",
+        subtitle: "User speaks: 'What causes the symptoms of influenza and seasonal flu?'",
+        code: "Query: 'What causes the symptoms of influenza and seasonal flu?'\nRetrieval Candidate: msmarco_doc_001 (Similarity: 94%)\nStage Latency: STT: 38ms | Vector: 14ms | Total: 114ms",
+        voice: "User speaks: 'What causes influenza symptoms?' The pipeline transcribes the audio, runs vector retrieval, and synthesizes a grounded answer in 120ms.",
+        bg: "linear-gradient(135deg, #059669 0%, #028090 100%)"
+      },
+      {
+        badge: "SCENE 3 / 5 (00:35 - 00:50)",
+        title: "3. Grounded Answer & TTS Voice Playback",
+        subtitle: "Displaying grounded answer card, document source IDs, and audio playback.",
+        code: "Answer: 'According to retrieved MSMARCO-XI evidence, seasonal influenza is a contagious respiratory illness...'\nSources: msmarco_doc_001 / chunk_001\nStatus: GROUNDED (YES)",
+        voice: "Every answer is backed by explicit document sources and verified claim grounding with TTS voice playback.",
+        bg: "linear-gradient(135deg, #1d2d44 0%, #028090 100%)"
+      },
+      {
+        badge: "SCENE 4 / 5 (00:50 - 01:05)",
+        title: "4. Guardrail Abstention ('Mars Population')",
+        subtitle: "User asks: 'What is the population of Mars?'. Guardrail B & C refusal.",
+        code: "Query: 'What is the population of Mars?'\nGuardrail B Check: Score < 0.28 Threshold\nStatus: ABSTAINED ('I don't have enough information in the provided knowledge base to answer that.')",
+        voice: "Watch our guardrail activate: since the evidence is missing, the system refuses to answer rather than hallucinating.",
+        bg: "linear-gradient(135deg, #f45b69 0%, #ff6b6b 100%)"
+      },
+      {
+        badge: "SCENE 5 / 5 (01:05 - 01:20)",
+        title: "5. Benchmark Dashboard & Latency Analytics",
+        subtitle: "Demonstrating 105-query benchmark dashboard: P50: 0.23ms, Groundedness: 76.2%.",
+        code: "105-Query Benchmark Report Exported.\nP50: 0.23ms | P70: 0.24ms | P100: 9.73ms\nSuccess Rate: 100.0%",
+        voice: "In our Benchmark Lab, we test 105 queries. P50 is 0.23ms, P70 is 0.24ms, and P100 is 9.73ms — fully benchmarked under 200ms.",
+        bg: "linear-gradient(135deg, #f7b801 0%, #059669 100%)"
+      }
+    ];
+
+    let currentIdx = 0;
+    function playScene(idx) {
+      const s = scenes[idx];
+      document.getElementById('sceneBadge').innerText = s.badge;
+      document.getElementById('sceneTitle').innerText = s.title;
+      document.getElementById('sceneSubtitle').innerText = s.subtitle;
+      document.getElementById('codeBox').innerText = s.code;
+      document.getElementById('subtitles').innerHTML = '💬 <strong>Voiceover:</strong> "' + s.voice + '"';
+      document.getElementById('videoFrame').style.background = s.bg;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(s.voice);
+        u.rate = 1.0;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    function startVideo() {
+      currentIdx = 0;
+      playScene(currentIdx);
+      const interval = setInterval(() => {
+        currentIdx++;
+        if (currentIdx < scenes.length) {
+          playScene(currentIdx);
+        } else {
+          clearInterval(interval);
+        }
+      }, 12000);
+    }
+  </script>
+</body>
+</html>

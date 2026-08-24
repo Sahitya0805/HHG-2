@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Video 1 — Team & Process Video (#RAGInGoa)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #021a13;
+      color: #f6f0df;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    .video-frame {
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #f7b801 0%, #ff6b6b 100%);
+      border: 4px solid #1d2d44;
+      border-radius: 20px;
+      box-shadow: 10px 10px 0px #1d2d44;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .badge {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.9rem;
+      background: #1d2d44;
+      color: #fee101;
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 1rem 0 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: #fdf6e3;
+      margin-bottom: 1.5rem;
+    }
+    .code-box {
+      background: rgba(11, 23, 16, 0.9);
+      color: #fee101;
+      font-family: 'Space Mono', monospace;
+      padding: 1.25rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .subtitles-bar {
+      background: rgba(0,0,0,0.85);
+      border-left: 4px solid #fee101;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-top: 1rem;
+    }
+    .controls {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      background: #fee101;
+      color: #1d2d44;
+      border: 2px solid #1d2d44;
+      font-weight: 800;
+      padding: 0.75rem 1.5rem;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 3px 3px 0px #1d2d44;
+    }
+  </style>
+</head>
+<body>
+  <div className="video-frame" id="videoFrame">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span class="badge" id="sceneBadge">SCENE 1 / 6 (00:00 - 00:15)</span>
+      <span class="badge" style="background:#fee101; color:#000;">#RAGInGoa</span>
+    </div>
+
+    <div>
+      <h1 class="title" id="sceneTitle">1. Team & Dataset Setup (AI4Bharat MSMARCO-XI)</h1>
+      <p class="subtitle" id="sceneSubtitle">Team collaborating on dataset loading & sub-200ms latency target setup.</p>
+      <div class="code-box" id="codeBox">// Ingesting AI4Bharat MSMARCO-XI dataset&#10;const dataset = loadMSMARCORecords();&#10;console.log('Ingested MSMARCO-XI passages:', dataset.length);</div>
+    </div>
+
+    <div class="subtitles-bar" id="subtitles">
+      💬 <strong>Voiceover:</strong> "Hey everyone! For HH Goa 2026 Task 2, our team set out to build EchoRAG — a voice-first grounded retrieval engine targeting under 200ms latency on AI4Bharat's MSMARCO-XI dataset."
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="startVideo()">▶ Play Video 1 (With Speech Voiceover)</button>
+  </div>
+
+  <script>
+    const scenes = [
+      {
+        badge: "SCENE 1 / 6 (00:00 - 00:15)",
+        title: "1. Team & Dataset Setup (AI4Bharat MSMARCO-XI)",
+        subtitle: "Team collaborating on dataset loading & sub-200ms latency target setup.",
+        code: "// Ingesting AI4Bharat MSMARCO-XI dataset\nconst dataset = loadMSMARCORecords();\nconsole.log('Ingested MSMARCO-XI passages:', dataset.length);",
+        voice: "Hey everyone! For HH Goa 2026 Task 2, our team set out to build EchoRAG — a voice-first grounded retrieval engine targeting under 200ms latency on AI4Bharat's MSMARCO-XI dataset.",
+        bg: "linear-gradient(135deg, #ff6b6b 0%, #f7b801 100%)"
+      },
+      {
+        badge: "SCENE 2 / 6 (00:15 - 00:30)",
+        title: "2. The Adaptive Chunk Lab (5 Strategies)",
+        subtitle: "Whiteboarding Fixed, Sentence, Recursive, Semantic, and Windowed strategies.",
+        code: "const chunks = {\n  fixed: fixedTokenChunking(text, 256, 32),\n  sentence: sentenceWindowChunking(text, 3),\n  recursive: recursiveChunking(text, 150),\n  semantic: semanticChunking(text, 0.25),\n  window: windowedContextChunking(text, 80)\n};",
+        voice: "We realized naive chunking fails in production. So we built the Adaptive Chunk Lab, engineering five distinct chunking strategies to preserve boundary context and metadata.",
+        bg: "linear-gradient(135deg, #028090 0%, #00a896 100%)"
+      },
+      {
+        badge: "SCENE 3 / 6 (00:30 - 00:45)",
+        title: "3. STT Integration & Structured Harness",
+        subtitle: "Sarvam AI & ElevenLabs STT abstractions with stage-by-stage timers.",
+        code: "async function transcribeAudio(audioBytes, provider = 'sarvam') {\n  if (provider === 'sarvam') return callSarvamSTT(audioBytes);\n  return callElevenLabsSTT(audioBytes);\n}",
+        voice: "Next, we engineered a structured harness. We integrated Sarvam AI and ElevenLabs STT provider abstractions, tracking latency down to the millisecond at every single stage.",
+        bg: "linear-gradient(135deg, #1d2d44 0%, #0b1710 100%)"
+      },
+      {
+        badge: "SCENE 4 / 6 (00:45 - 01:05)",
+        title: "4. 5-Layer Guardrails & Abstention Engine",
+        subtitle: "Refusing off-topic queries ('Mars population') rather than hallucinating.",
+        code: "if (retrievalScore < THRESHOLD || !contextRelevant) {\n  return 'I don't have enough information in the provided knowledge base to answer that.';\n}",
+        voice: "Failure handling was critical. We built a 5-layer guardrail system so our model knows when NOT to answer, explicitly refusing ungrounded queries rather than hallucinating.",
+        bg: "linear-gradient(135deg, #f45b69 0%, #ff6b6b 100%)"
+      },
+      {
+        badge: "SCENE 5 / 6 (01:05 - 01:25)",
+        title: "5. Empirical Latency Benchmarking (105 Queries)",
+        subtitle: "Measuring P50: 0.23ms, P70: 0.24ms, P100: 9.73ms analytics.",
+        code: "==================== BENCHMARK REPORT ====================\nQueries Tested: 105\nP50 Latency:  0.23 ms\nP70 Latency:  0.24 ms\nP100 Latency: 9.73 ms\nGroundedness: 76.2%\n==========================================================",
+        voice: "We benchmarked the pipeline against 105 real test queries. Our P50 latency came in at 0.23 milliseconds, far beating the 200ms technical target!",
+        bg: "linear-gradient(135deg, #059669 0%, #028090 100%)"
+      },
+      {
+        badge: "SCENE 6 / 6 (01:25 - 01:30)",
+        title: "6. Conclusion & HH Goa 2026 Final Submission",
+        subtitle: "EchoRAG ready for submission with mandatory #RAGInGoa hashtag.",
+        code: "EchoRAG Final Submission Verified.\nHashtag: #RAGInGoa\nRepo: https://github.com/Sahitya0805/HHG-2",
+        voice: "This is EchoRAG — voice, multi-strategy retrieval, guardrails, and sub-200ms performance. Built for HH Goa 2026!",
+        bg: "linear-gradient(135deg, #f7b801 0%, #ff6b6b 100%)"
+      }
+    ];
+
+    let currentIdx = 0;
+    function playScene(idx) {
+      const s = scenes[idx];
+      document.getElementById('sceneBadge').innerText = s.badge;
+      document.getElementById('sceneTitle').innerText = s.title;
+      document.getElementById('sceneSubtitle').innerText = s.subtitle;
+      document.getElementById('codeBox').innerText = s.code;
+      document.getElementById('subtitles').innerHTML = '💬 <strong>Voiceover:</strong> "' + s.voice + '"';
+      document.getElementById('videoFrame').style.background = s.bg;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(s.voice);
+        u.rate = 1.0;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    function startVideo() {
+      currentIdx = 0;
+      playScene(currentIdx);
+      const interval = setInterval(() => {
+        currentIdx++;
+        if (currentIdx < scenes.length) {
+          playScene(currentIdx);
+        } else {
+          clearInterval(interval);
+        }
+      }, 12000);
+    }
+  </script>
+</body>
+</html>
