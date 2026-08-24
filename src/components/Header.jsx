@@ -25,29 +25,6 @@ export default function Header({ activeTab, setActiveTab, health, healthError, o
       </div>
 
       <div className="header-actions">
-        {onOpenVideo && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '6px' }}>
-            <button
-              type="button"
-              className="nav-tab"
-              onClick={() => onOpenVideo('video1')}
-              style={{ background: 'var(--sunset-gold, #f59e0b)', color: 'var(--ink, #1e293b)', fontWeight: '800', border: '1.5px solid currentColor' }}
-              title="Watch Video 1: Team & Process"
-            >
-              🎬 Process
-            </button>
-            <button
-              type="button"
-              className="nav-tab"
-              onClick={() => onOpenVideo('video2')}
-              style={{ background: 'var(--sunset-coral, #ef4444)', color: '#ffffff', fontWeight: '800', border: '1.5px solid currentColor' }}
-              title="Watch Video 2: Product Demo"
-            >
-              🎬 Demo
-            </button>
-          </div>
-        )}
-
         <nav className="nav-tabs" aria-label="Primary">
           {NAV.map(([id, label]) => (
             <button
@@ -60,6 +37,28 @@ export default function Header({ activeTab, setActiveTab, health, healthError, o
             </button>
           ))}
         </nav>
+
+        {onOpenVideo && (
+          <div className="video-buttons-group">
+            <button
+              type="button"
+              className="video-btn video-btn-process"
+              onClick={() => onOpenVideo('video1')}
+              title="Watch Video 1: Team & Process"
+            >
+              🎬 Process
+            </button>
+            <button
+              type="button"
+              className="video-btn video-btn-demo"
+              onClick={() => onOpenVideo('video2')}
+              title="Watch Video 2: Product Demo"
+            >
+              🎬 Demo
+            </button>
+          </div>
+        )}
+
         <label className="mobile-nav-select">
           <span>Destination</span>
           <select value={activeTab === 'ask' ? 'evidence' : activeTab} onChange={(e) => setActiveTab(e.target.value)}>
@@ -76,4 +75,5 @@ export default function Header({ activeTab, setActiveTab, health, healthError, o
     </header>
   );
 }
+
 

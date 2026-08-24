@@ -93,11 +93,11 @@ input:disabled {
   position: sticky;
   top: 0;
   z-index: 20;
-  display: grid;
-  grid-template-columns: minmax(210px, 0.8fr) minmax(220px, 0.7fr) minmax(390px, 1.2fr);
-  gap: 18px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 12px clamp(14px, 3vw, 34px);
+  gap: 16px;
+  padding: 10px clamp(12px, 2.5vw, 30px);
   background: rgba(247, 239, 216, 0.96);
   border-bottom: var(--hh-border);
   box-shadow: 0 6px 0 rgba(6, 26, 20, 0.24);
@@ -114,47 +114,92 @@ input:disabled {
 .brand-lockup {
   gap: 12px;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .hh-mark {
-  width: 54px;
-  height: 54px;
+  width: 50px;
+  height: 50px;
   object-fit: contain;
 }
 
 .goa-mark {
-  height: 38px;
-  max-width: 118px;
+  height: 36px;
+  max-width: 112px;
 }
 
 .pm-mark {
-  height: 24px;
-  max-width: 82px;
+  height: 22px;
+  max-width: 78px;
 }
 
 .header-title {
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--hh-display);
   font-weight: 800;
+  font-size: 0.95rem;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .header-title img {
-  height: 28px;
+  height: 26px;
 }
 
 .header-actions {
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
+  flex-shrink: 0;
 }
 
 .nav-tabs {
   gap: 4px;
-  padding: 4px;
+  padding: 3px;
   border: var(--hh-border);
   background: var(--hh-white);
+}
+
+.video-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.video-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: var(--hh-border);
+  font-family: var(--hh-display);
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--hh-forest-950);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.video-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--hh-forest-950);
+}
+
+.video-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--hh-forest-950);
+}
+
+.video-btn-process {
+  background: #ffc72c;
+  color: var(--hh-forest-950);
+}
+
+.video-btn-demo {
+  background: #ff5e57;
+  color: #ffffff;
 }
 
 .mobile-nav-select {
