@@ -438,6 +438,26 @@ input:disabled {
   font-size: 0.74rem;
 }
 
+.console-left-tag {
+  position: absolute;
+  top: 110px;
+  left: 28px;
+  z-index: 2;
+}
+
+.console-left-tag img {
+  height: 42px;
+  width: auto;
+  max-width: 170px;
+  filter: drop-shadow(4px 4px 0 var(--hh-forest-950));
+  transform: rotate(-6deg);
+  transition: transform 0.2s ease;
+}
+
+.console-left-tag img:hover {
+  transform: rotate(-3deg) scale(1.05);
+}
+
 .notice-panel {
   margin: 16px 0;
   padding: 14px 16px;
@@ -1342,6 +1362,19 @@ input:disabled {
 
   .main-container {
     padding: 14px;
+  }
+
+  .console-left-tag {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin: 12px 0 0;
+  }
+
+  .console-left-tag img {
+    height: 32px;
+    transform: none;
+    filter: drop-shadow(2px 2px 0 var(--hh-forest-950));
   }
 
   .hero-copy {
