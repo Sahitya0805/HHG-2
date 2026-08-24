@@ -165,7 +165,6 @@ export default function VoiceRecorder({
         <img className="signal-sun" src="/hhgoa/backgrounds/hero-signal-sun.svg" alt="" aria-hidden="true" />
         <div className="console-topline">
           <span>Live voice console</span>
-          <code>{primaryState}</code>
         </div>
 
         <div className="console-left-tag">
