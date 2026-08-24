@@ -112,25 +112,36 @@ input:disabled {
 }
 
 .brand-lockup {
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
   flex-shrink: 0;
+  background: var(--hh-forest-950, #061a14);
+  padding: 6px 12px;
+  border: var(--hh-border);
+  box-shadow: 2px 2px 0 var(--hh-forest-950);
 }
 
 .hh-mark {
-  width: 50px;
-  height: 50px;
+  height: 34px;
+  width: auto;
+  max-width: 86px;
   object-fit: contain;
+  filter: brightness(1.05);
 }
 
 .goa-mark {
-  height: 36px;
-  max-width: 112px;
+  height: 30px;
+  width: auto;
+  max-width: 90px;
+  object-fit: contain;
 }
 
 .pm-mark {
-  height: 22px;
-  max-width: 78px;
+  height: 20px;
+  width: auto;
+  max-width: 60px;
+  object-fit: contain;
+  filter: brightness(1.05);
 }
 
 .header-title {
@@ -1244,22 +1255,24 @@ input:disabled {
 
   .brand-lockup {
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
+    padding: 4px 8px;
   }
 
   .hh-mark {
-    width: 84px;
-    height: 38px;
+    width: auto;
+    height: 28px;
+    max-width: 72px;
   }
 
   .goa-mark {
-    height: 44px;
-    max-width: 86px;
+    height: 26px;
+    max-width: 76px;
   }
 
   .pm-mark {
-    height: 34px;
-    max-width: 78px;
+    height: 18px;
+    max-width: 54px;
   }
 
   .header-title {
