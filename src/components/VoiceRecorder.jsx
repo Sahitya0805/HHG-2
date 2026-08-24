@@ -164,7 +164,10 @@ export default function VoiceRecorder({
       <div className="voice-console signal-panel">
         <img className="signal-sun" src="/hhgoa/backgrounds/hero-signal-sun.svg" alt="" aria-hidden="true" />
         <div className="console-topline">
-          <span>Live voice console</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <span>Live voice console</span>
+            <img src="/hhgoa/badges/rag-in-goa.svg" alt="#RAGInGoa" style={{ height: '24px' }} />
+          </div>
           <code>{primaryState}</code>
         </div>
 
