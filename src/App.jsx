@@ -111,6 +111,7 @@ export default function App() {
             <VoiceRecorder
               onTextSubmit={runText}
               onVoiceSubmit={runVoice}
+              onOpenVideo={(type) => setActiveVideoModal(type)}
               isProcessing={isProcessing}
               phase={phase}
               strategy={strategy}

@@ -79,6 +79,7 @@ function LiveBenchmarkProof({ benchmark, benchmarkError }) {
 export default function VoiceRecorder({
   onTextSubmit,
   onVoiceSubmit,
+  onOpenVideo,
   isProcessing,
   phase,
   strategy,
@@ -157,6 +158,24 @@ export default function VoiceRecorder({
           Sarvam speech-to-text meets hybrid dense + BM25 retrieval over MSMARCO-XI.
           Seven chunking strategies, five guardrails, and answers that stay inside the evidence.
         </p>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="video-btn video-btn-process"
+            onClick={() => onOpenVideo?.('video1')}
+            title="Watch Video 1: Team & Process"
+          >
+            🎬 Watch Process Video
+          </button>
+          <button
+            type="button"
+            className="video-btn video-btn-demo"
+            onClick={() => onOpenVideo?.('video2')}
+            title="Watch Video 2: Product Demo"
+          >
+            🎬 Watch Demo Video
+          </button>
+        </div>
       </div>
 
       <LiveBenchmarkProof benchmark={benchmark} benchmarkError={benchmarkError} />
