@@ -53,16 +53,18 @@ if [ ! -d "$RAG_ROOT" ]; then
     exit 1
 fi
 
-VENV_PYTHON="$RAG_ROOT/.venv/bin/python"
-if [ ! -x "$VENV_PYTHON" ]; then
-    echo "No virtualenv found at '$VENV_PYTHON'." >&2
-    echo "Set up your project's venv first (python3 -m venv .venv && .venv/bin/pip install -r requirements.txt inside it)," >&2
-    echo "or point at a project that already has one with RAG_PROJECT_ROOT=/path or --rag-root <path>." >&2
-    exit 1
+if [ -x "$RAG_ROOT/.venv/bin/python" ]; then
+    VENV_PYTHON="$RAG_ROOT/.venv/bin/python"
+elif [ -x "$HERE/.venv/bin/python" ]; then
+    VENV_PYTHON="$HERE/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+    VENV_PYTHON="$(command -v python3)"
+else
+    VENV_PYTHON="python"
 fi
 
 echo "Target project: $RAG_ROOT"
-echo "Using venv:     $VENV_PYTHON"
+echo "Using Python:   $VENV_PYTHON"
 echo ""
 
 cd "$HERE"
