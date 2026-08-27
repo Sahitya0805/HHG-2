@@ -88,6 +88,18 @@ def _unavailable() -> JSONResponse:
     )
 
 
+@app.get("/")
+def root():
+    return {
+        "name": "EchoRAG Backend API",
+        "status": "online",
+        "docs": "/docs",
+        "health": "/api/health",
+        "benchmark": "/api/benchmark",
+        "strategies": "/api/strategies"
+    }
+
+
 @app.post("/api/query")
 def query(req: QueryRequest):
     if STATE["harness"] is None:
