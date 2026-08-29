@@ -92,13 +92,13 @@ input:disabled {
 .app-header {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   padding: 10px clamp(12px, 2.5vw, 30px);
-  background: rgba(247, 239, 216, 0.96);
+  background: var(--hh-cream, #f7efd8);
   border-bottom: var(--hh-border);
   box-shadow: 0 6px 0 rgba(6, 26, 20, 0.24);
 }
