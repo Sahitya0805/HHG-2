@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "target_root": "/Users/sahityasingh/Hacker-House",
+    "generation_backend": "local",
+    "generation_model_hint": "unknown",
+    "language": "hin",
+    "split": "validation",
+    "num_answerable": 50,
+    "num_unanswerable": 50,
+    "num_examples": 100,
+    "num_chunks": 2391,
+    "top_k": 5,
+    "seed": 42,
+    "num_errored": 0
+  },
+  "retrieval": {
+    "check": "retrieval (reference-based)",
+    "num_evaluated": 50,
+    "top_k": 5,
+    "cross_lingual": {
+      "recall_at_k": {
+        "1": 0.3,
+        "3": 0.58,
+        "5": 0.74
+      },
+      "mrr": 0.4537
+    },
+    "same_language": {
+      "recall_at_k": {
+        "1": 0.3,
+        "3": 0.58,
+        "5": 0.74
+      },
+      "mrr": 0.4537
+    }
+  },
+  "faithfulness": {
+    "check": "faithfulness / hallucination (reference-free, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "correctness": {
+    "check": "correctness (reference-based, LLM-as-judge)",
+    "num_evaluated": 0,
+    "error": "OPENAI_API_KEY not configured -- judge-based checks skipped."
+  },
+  "reliability": {
+    "check": "reliability / \"lying factor\" (answerable-vs-answered 2x2)",
+    "num_answerable_evaluated": 50,
+    "num_unanswerable_evaluated": 50,
+    "false_refusal_rate": 0.26,
+    "false_refusal_examples": [
+      {
+        "query": "what is megatron called",
+        "expected_answer": "Megatron is the founder of the Decepticon uprising, and their most well-known and feared leader."
+      },
+      {
+        "query": "how long do fly eggs live",
+        "expected_answer": "An adults fly eggs usually live for 15 to 25 days."
+      },
+      {
+        "query": "do dolphins have the smell sense",
+        "expected_answer": "Yes,They were thought to lack the ability."
+      },
+      {
+        "query": "what is the name of a turtles lower shell",
+        "expected_answer": "The name of a turtles lower shell is plastron."
+      },
+      {
+        "query": "what is myrtus",
+        "expected_answer": "Myrtus is a genus of chiefly South American shrubs having flowers with numerous ovules."
+      }
+    ],
+    "false_confidence_rate": 0.38,
+    "false_confidence_examples": [
+      {
+        "query": "how to do citations in an essay",
+        "fabricated_answer": "These are the places where citations are required. Identify the author's name and publication year for each reference you used to write your essay.Find the places in the essay where you named the auth"
+      },
+      {
+        "query": "erie insurance corporate address",
+        "fabricated_answer": "Write A Review For Erie Insurance Corporate Headquarters. Note: This is not to be used to contact Erie Insurance Corporate Offices nor is this site affiliated with them in any way. The purpose of this"
+      },
+      {
+        "query": "tail wagging the dog originate",
+        "fabricated_answer": "tail wagging the dog."
+      },
+      {
+        "query": "what majors are clemson university known for",
+        "fabricated_answer": "List of Clemson University majors by size and degree. See the most popular majors at Clemson University."
+      },
+      {
+        "query": "headache that causes earache",
+        "fabricated_answer": "Causes of earache. Just as the pain from earache affects people in different ways, there are a variety of causes of earache."
+      }
+    ]
+  },
+  "latency": {
+    "check": "latency",
+    "num_evaluated": 100,
+    "embed": {
+      "avg_ms": 0.05,
+      "p50_ms": 0.04,
+      "p95_ms": 0.06,
+      "p99_ms": 0.08
+    },
+    "search": {
+      "avg_ms": 0.03,
+      "p50_ms": 0.03,
+      "p95_ms": 0.04,
+      "p99_ms": 0.09
+    },
+    "retrieval_total": {
+      "avg_ms": 0.08,
+      "p50_ms": 0.07,
+      "p95_ms": 0.1,
+      "p99_ms": 0.13
+    },
+    "generation": {
+      "avg_ms": 0.67,
+      "p50_ms": 0.68,
+      "p95_ms": 1.01,
+      "p99_ms": 1.07
+    },
+    "retrieval_latency_budget_ms": 50,
+    "retrieval_within_budget": true,
+    "generation_latency_target_ms": 1500.0,
+    "generation_within_target": true
+  }
+}
