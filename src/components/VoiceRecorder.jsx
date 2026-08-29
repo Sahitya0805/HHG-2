@@ -98,6 +98,8 @@ export default function VoiceRecorder({
   const [seconds, setSeconds] = useState(0);
   const [text, setText] = useState('');
   const [micError, setMicError] = useState(null);
+  const sessionRef = useRef(null);
+  const timerRef = useRef(null);
   const recognitionRef = useRef(null);
   const textRef = useRef('');
 
