@@ -157,10 +157,18 @@ def _parse_verdict(raw: str) -> tuple[bool, str]:
 
 def _call_openai(system_prompt: str, user_content: str) -> JudgeVerdict:
     global _openai_client
-    import openai
+    try:
+        import openai
+    except ImportError as e:
+        raise JudgeNotConfigured(
+            "Judge needs the `openai` package: pip install openai"
+        ) from e
 
     if _openai_client is None:
-        _openai_client = openai.OpenAI()
+        try:
+            _openai_client = openai.OpenAI()
+        except Exception as e:
+            raise JudgeNotConfigured(f"OpenAI client initialization failed: {e}") from e
 
     t0 = time.perf_counter()
     try:
@@ -173,8 +181,6 @@ def _call_openai(system_prompt: str, user_content: str) -> JudgeVerdict:
                 {"role": "user", "content": user_content},
             ],
         )
-    except openai.AuthenticationError as e:
-        raise JudgeNotConfigured(f"Invalid OpenAI credentials: {e}") from e
     except Exception as e:
         raise JudgeNotConfigured(f"OpenAI judge call failed: {e}") from e
 
