@@ -98,14 +98,72 @@ export default function VoiceRecorder({
   const [seconds, setSeconds] = useState(0);
   const [text, setText] = useState('');
   const [micError, setMicError] = useState(null);
-  const sessionRef = useRef(null);
-  const timerRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const textRef = useRef('');
 
-  useEffect(() => () => clearInterval(timerRef.current), []);
+  useEffect(() => {
+    textRef.current = text;
+  }, [text]);
+
+  useEffect(() => () => {
+    clearInterval(timerRef.current);
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+    }
+  }, []);
 
   const begin = async () => {
     setMicError(null);
     setPermissionRequested(true);
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!sttConfigured && SpeechRecognition) {
+      try {
+        const rec = new SpeechRecognition();
+        rec.lang = language || 'en-IN';
+        rec.continuous = false;
+        rec.interimResults = true;
+
+        rec.onstart = () => {
+          setIsRecording(true);
+          setPermissionRequested(false);
+          setSeconds(0);
+          timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+        };
+
+        rec.onresult = (event) => {
+          const transcript = Array.from(event.results).map((r) => r[0].transcript).join('');
+          setText(transcript);
+          textRef.current = transcript;
+        };
+
+        rec.onerror = (event) => {
+          if (event.error !== 'no-speech') {
+            setMicError(`Voice error: ${event.error}`);
+          }
+          setIsRecording(false);
+          clearInterval(timerRef.current);
+        };
+
+        rec.onend = () => {
+          setIsRecording(false);
+          clearInterval(timerRef.current);
+          if (textRef.current && textRef.current.trim()) {
+            onTextSubmit(textRef.current.trim());
+          }
+        };
+
+        recognitionRef.current = rec;
+        rec.start();
+      } catch (e) {
+        setMicError(`Voice recognition unavailable: ${e.message}`);
+        setIsRecording(false);
+        setPermissionRequested(false);
+      }
+      return;
+    }
+
     try {
       sessionRef.current = await startRecording();
       setIsRecording(true);
@@ -121,6 +179,16 @@ export default function VoiceRecorder({
   const end = async () => {
     clearInterval(timerRef.current);
     setIsRecording(false);
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+      recognitionRef.current = null;
+      if (textRef.current && textRef.current.trim()) {
+        onTextSubmit(textRef.current.trim());
+      }
+      return;
+    }
+
     const session = sessionRef.current;
     sessionRef.current = null;
     if (!session) return;
